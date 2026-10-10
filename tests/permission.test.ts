@@ -29,6 +29,7 @@ test('销售附加费只计算一次；金重×（金价＋每克工费）＋附
   assert.deepEqual(calculateQuote(quote()), {
     metal: 1440, labor: 256, extras: 1050, repair: 0,
     subtotal: 2746, discount: 0, insurance: 0, recyclingUnitPrice: 0, total: 2746,
+    depreciation: 0, exchangeWeight: 0, additionalWeight: 0, excessWeight: 0, exchangeCredit: 0, balance: 2746, itemTotals: [],
   });
 });
 

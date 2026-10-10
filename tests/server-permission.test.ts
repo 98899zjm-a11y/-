@@ -96,7 +96,7 @@ test('真实服务端：跨员工隔离、默认价审计、历史版本和原�
     assert.equal(adminBootstrap.quotes.length, 2);
     await api.updateSettings(request({ brand: { name: '新的品牌' }, sale: { goldPrice: 900 } }));
     await api.updateCustomer(request({ id: customerA.id, name: '客户A改名' }));
-    assert.equal(JSON.stringify((await api.getQuote(first.id)).quote.snapshot), before);
+    assert.deepEqual((await api.getQuote(first.id)).quote.snapshot, JSON.parse(before));
     await rejectStatus(400, () => api.createQuote(request({ ...saleInput, customerId: customerB.id, baseQuoteId: first.id })));
 
     setIdentity('employee-a');
@@ -106,7 +106,7 @@ test('真实服务端：跨员工隔离、默认价审计、历史版本和原�
     assert.equal(second.baseQuoteId, first.id);
     assert.equal(second.ownerId, a.id);
     assert.equal(second.total, 3010);
-    assert.equal(JSON.stringify((await api.getQuote(first.id)).quote.snapshot), before);
+    assert.deepEqual((await api.getQuote(first.id)).quote.snapshot, JSON.parse(before));
     const versionLog = (await api.getQuote(second.id)).logs.find((entry: { action: string }) => entry.action === 'new-version');
     assert.equal(versionLog.oldValue.snapshot.weight, 3.2);
     assert.equal(versionLog.newValue.snapshot.weight, 4);
@@ -124,7 +124,7 @@ test('真实服务端：跨员工隔离、默认价审计、历史版本和原�
     assert.deepEqual(new Uint8Array(await imageRouteResponse.arrayBuffer()), bytes);
     await rejectStatus(409, () => api.attachQuoteImages(request({ images: [png] }), first.id));
     const afterImage = (await api.getQuote(first.id)).quote;
-    assert.equal(JSON.stringify(afterImage.snapshot), before);
+    assert.deepEqual(afterImage.snapshot, JSON.parse(before));
     assert.deepEqual(afterImage.images, withImage.images);
     setIdentity('employee-b');
     await rejectStatus(404, () => api.getImage(imageId));
@@ -163,4 +163,79 @@ test('真实服务端：跨员工隔离、默认价审计、历史版本和原�
     delete (globalThis as unknown as Record<string, unknown>)[key];
     db.sqlite.close();
   }
+});
+
+test('新增服务端：员工收款设置隔离、共享图库权限和多商品快照', async () => {
+  const db = new TestD1(), storage = new TestR2();
+  for (const migration of readdirSync(resolve('drizzle')).filter(name => name.endsWith('.sql')).sort()) db.sqlite.exec(readFileSync(resolve('drizzle', migration), 'utf8'));
+  const context = { env: { DB: db, BUCKET: storage }, identity: { userId: 'owner-new', email: 'owner-new@test.invalid', displayName: '管理员' } };
+  const key = '__jewelryNewModulesContext';
+  (globalThis as unknown as Record<string, unknown>)[key] = context;
+  let source = readFileSync(resolve('lib/server.ts'), 'utf8');
+  source = source.replace('import { env } from "cloudflare:workers";', 'const {env} = globalThis.' + key + ';')
+    .replace('import { getChatGPTUser } from "@/app/chatgpt-auth";', 'const getChatGPTUser = async () => globalThis.' + key + '.identity;')
+    .replace('from "./domain";', 'from ' + JSON.stringify(pathToFileURL(resolve('lib/domain.ts')).href) + ';')
+    .replace('from "zod";', 'from ' + JSON.stringify(import.meta.resolve('zod')) + ';');
+  const script = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext } }).outputText;
+  const api = await import('data:text/javascript;base64,' + Buffer.from(script).toString('base64'));
+  const request = (input: unknown) => new Request('http://127.0.0.1/api/test', { method: 'POST', headers: { 'Content-Type': 'application/json', Origin: 'http://127.0.0.1' }, body: JSON.stringify(input) });
+  const identity = (name: string) => { context.identity = { userId: name + '-new', email: name + '-new@test.invalid', displayName: name }; };
+  const noAccess = async (fn: () => Promise<unknown>) => assert.rejects(fn, (error: unknown) => error instanceof api.ApiError && [403, 404].includes((error as { status: number }).status));
+  const png = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==';
+  try {
+    const admin = (await api.bootstrap()).user;
+    const a = (await api.inviteUser(request({ email: 'a-new@test.invalid', name: '员工A' }))).user;
+    const b = (await api.inviteUser(request({ email: 'b-new@test.invalid', name: '员工B' }))).user;
+    const companyPayment = [{ id: 'company', name: '公司银行转账', details: '公司收款账号', image: '' }];
+    await api.updateSettings(request({ paymentMethods: companyPayment, home: { announcements: '新的工作室公告' }, tradeIn: { depreciationPrice: 20 } }));
+    identity('a');
+    assert.equal((await api.getPreferences()).inherited, true);
+    assert.deepEqual((await api.bootstrap()).paymentMethods, companyPayment);
+    const personalPayment = [{ id: 'cash', name: '门店收款', details: '请核对收款方', image: '' }];
+    await api.updatePreferences(request({ paymentMethods: personalPayment }));
+    assert.deepEqual((await api.getPreferences()).paymentMethods, personalPayment);
+    await noAccess(() => api.updateSettings(request({ home: { announcements: '员工不能写全公司公告' } })));
+    const shared = (await api.createMedia(request({ name: '共享戒指照片', category: '戒指', image: png }))).asset;
+    assert.equal(shared.ownerId, a.id);
+    assert.equal((await api.getImage(shared.id)).status, 200);
+    identity('b');
+    assert.deepEqual((await api.getPreferences()).paymentMethods, companyPayment);
+    assert.ok((await api.getMedia()).media.some((asset: { id: string }) => asset.id === shared.id));
+    assert.equal((await api.getImage(shared.id)).status, 200, '共享图库图片供其他在职员工选用');
+    await noAccess(() => api.updateMedia(request({ id: shared.id, name: '越权编辑' })));
+    const customerB = (await api.createCustomer(request({ name: '客户B' }))).customer;
+    const input = { type: 'sale', customerId: customerB.id, title: '多件珠宝报价', weight: 0, paymentMethods: companyPayment, discountType: 'amount', discountValue: 200, saleItems: [
+      { id: 'one', title: '黄金戒指', material: '足金', specs: '14号', image: shared.url, weight: 2, goldPrice: 500, laborPrice: 50, extras: [{ id: 'stone', name: '配件', amount: 100 }], quantity: 2 },
+      { id: 'two', title: '铂金项链', material: 'Pt950', specs: '45cm', image: shared.url, weight: 3, goldPrice: 300, laborPrice: 80, extras: [], quantity: 1 },
+    ] };
+    const multi = (await api.createQuote(request(input))).quote;
+    assert.equal(multi.total, 3340);
+    assert.equal(multi.snapshot.saleItems.length, 2);
+    assert.deepEqual(multi.snapshot.paymentMethods, companyPayment);
+    const original = JSON.stringify(multi.snapshot);
+    identity('a');
+    const customerA = (await api.createCustomer(request({ name: '客户A' }))).customer;
+    const privateQuote = (await api.createQuote(request({ ...input, customerId: customerA.id, saleItems: [{ ...input.saleItems[0], image: '' }], paymentMethods: personalPayment }))).quote;
+    const withImage = (await api.attachQuoteImages(request({ images: [png] }), privateQuote.id)).quote;
+    identity('b');
+    await noAccess(() => api.createQuote(request({ ...input, saleItems: [{ ...input.saleItems[0], image: withImage.images[0] }] })));
+    identity('owner');
+    assert.equal((await api.bootstrap()).user.id, admin.id);
+    await api.updateSettings(request({ paymentMethods: [{ ...companyPayment[0], details: '变更后的公司账号' }], sale: { goldPrice: 999 } }));
+    await api.updateMedia(request({ id: shared.id, active: false }));
+    assert.equal((await api.getImage(shared.id)).status, 200, '停用素材仍保留历史图像');
+    identity('b');
+    assert.deepEqual((await api.getQuote(multi.id)).quote.snapshot, JSON.parse(original), '默认价及收款方式变化不影响旧报价');
+    assert.equal((await api.getImage(shared.id)).status, 200);
+    identity('a');
+    assert.deepEqual((await api.getPreferences()).paymentMethods, personalPayment, '公司改默认不覆盖员工已设置的收款方式');
+    await api.updatePreferences(request({ paymentMethods: null }));
+    assert.equal((await api.getPreferences()).inherited, true);
+    assert.equal((await api.getPreferences()).paymentMethods[0].details, '变更后的公司账号');
+    identity('owner');
+    await api.updateUser(request({ id: b.id, active: false }));
+    identity('b');
+    await noAccess(() => api.getMedia());
+    await noAccess(() => api.getImage(shared.id));
+  } finally { delete (globalThis as unknown as Record<string, unknown>)[key]; db.sqlite.close(); }
 });

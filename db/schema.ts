@@ -28,7 +28,7 @@ export const styles = sqliteTable("styles", {
 
 export const quotes = sqliteTable("quotes", {
   id: text("id").primaryKey(), number: text("number").notNull(),
-  type: text("type", { enum: ["sale", "recycling", "repair"] }).notNull(),
+  type: text("type", { enum: ["sale", "custom", "tradein", "recycling", "repair"] }).notNull(),
   customerId: text("customer_id").notNull().references(() => customers.id),
   customerName: text("customer_name").notNull(), ownerId: text("owner_id").notNull().references(() => staffUsers.id),
   title: text("title").notNull(), snapshot: text("snapshot").notNull(), totals: text("totals").notNull(),
@@ -48,3 +48,15 @@ export const auditLogs = sqliteTable("audit_logs", {
   actorName: text("actor_name").notNull(), oldValue: text("old_value"), newValue: text("new_value"),
   createdAt: text("created_at").notNull(),
 }, table => [index("audit_entity_idx").on(table.entityType, table.entityId, table.createdAt)]);
+
+export const staffPreferences = sqliteTable("staff_preferences", {
+  staffId: text("staff_id").primaryKey().references(() => staffUsers.id),
+  paymentMethods: text("payment_methods").notNull(), updatedAt: text("updated_at").notNull(),
+});
+
+export const mediaAssets = sqliteTable("media_assets", {
+  id: text("id").primaryKey(), name: text("name").notNull(), category: text("category").notNull(),
+  url: text("url").notNull(), ownerId: text("owner_id").notNull().references(() => staffUsers.id),
+  ownerName: text("owner_name").notNull(), createdAt: text("created_at").notNull(),
+  active: integer("active", { mode: "boolean" }).notNull().default(true),
+}, table => [uniqueIndex("media_asset_url_unique").on(table.url), index("media_active_date_idx").on(table.active, table.createdAt)]);

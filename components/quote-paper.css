@@ -1,0 +1,55 @@
+.quote-paper.qp-paper{position:relative;display:block;padding:0;aspect-ratio:9/16;overflow:hidden;background:#fff;color:#28231f}
+.qp-paper .paper-brand{position:absolute;left:5.55cqw;right:5.55cqw;top:4.17cqw;padding:0;text-align:center}
+.qp-paper .paper-brand>div{font-family:Georgia,serif;line-height:1.2;letter-spacing:.35cqw}
+.qp-paper .paper-brand>span{font:400 3.05cqw/1.5 SimSun,serif;letter-spacing:.8cqw;margin-top:1cqw}
+.qp-paper .paper-meta{position:absolute;left:5.55cqw;right:5.55cqw;top:19.17cqw;height:8.34cqw;display:flex;justify-content:space-between;align-items:flex-start;gap:2cqw;border-top:.17cqw solid #e3ded5;padding:2.8cqw 0 0;font-size:3.05cqw;line-height:1.2;color:#746b60}
+.qp-paper .paper-meta>span:first-child{max-width:66%;white-space:nowrap;overflow:visible}
+.qp-paper .paper-product{position:absolute;left:5.55cqw;right:5.55cqw;top:29.17cqw;height:28.4cqw;display:grid;grid-template-columns:26.11cqw minmax(0,1fr);gap:3.61cqw;align-items:start;padding:0}
+.qp-paper .paper-product>img{width:26.11cqw;height:26.11cqw;object-fit:cover;object-position:34% 65%}
+.qp-paper .paper-product p{font-size:2.78cqw;line-height:1.4;color:#7a2939;letter-spacing:.2cqw;margin:1cqw 0 2cqw}
+.qp-paper .paper-product h3{font:400 4.45cqw/1.35 SimSun,serif;margin:0 0 1.5cqw;overflow-wrap:anywhere}
+.qp-paper .paper-product>div>span{font-size:3.05cqw;line-height:1.4;color:#746b60;white-space:pre-wrap}
+.qp-paper .paper-parameters{position:absolute;left:5.55cqw;right:5.55cqw;top:59.44cqw;height:14.45cqw;display:grid;gap:2cqw;padding:4.1cqw 0 0;margin:0;border-top:.17cqw solid #e3ded5;border-bottom:.17cqw solid #e3ded5}
+.qp-paper .paper-parameters span{font-size:2.78cqw;line-height:1.2;margin:0 0 1.8cqw;color:#746b60}
+.qp-paper .paper-parameters strong{font-size:3cqw;line-height:1.2;font-weight:400;white-space:nowrap}
+.qp-paper .paper-details{position:absolute;left:5.55cqw;right:5.55cqw;top:76.94cqw;height:69cqw;display:block}
+.qp-paper .paper-details h4,.qp-paper .qp-payments h4{font:400 3.61cqw/1.4 SimSun,serif;margin:0;color:#28231f}
+.qp-paper .paper-details dl{position:static;display:block;margin:0;height:auto}
+.qp-paper .paper-line{position:absolute;left:0;right:0;display:flex;align-items:baseline;justify-content:space-between;gap:3cqw;min-height:0;padding:0;margin:0;font-size:3.05cqw;line-height:1.27}
+.qp-paper .paper-line dt{max-width:52%;color:#746b60;overflow-wrap:anywhere}
+.qp-paper .paper-line dt small{font-size:2.5cqw;line-height:1.35;margin-top:.6cqw;color:#8c8173}
+.qp-paper .paper-line dd{font-size:3.05cqw;line-height:1.27;white-space:nowrap;margin:0}
+.qp-paper .paper-line.divider{border:0}
+.qp-paper .paper-line.divider:before{content:"";position:absolute;left:0;right:0;top:-3.05cqw;height:.17cqw;background:#e3ded5}
+.qp-paper .paper-continuation{position:absolute;top:7.4cqw;left:0;right:0;margin:0;font-size:3.05cqw;line-height:4.45cqw;white-space:pre-wrap;color:#746b60}
+.qp-paper .qp-payments{position:absolute;left:5.55cqw;right:5.55cqw;top:76.94cqw;height:68.5cqw}
+.qp-paper.qp-payment-inline .qp-payments{top:99.44cqw;height:50cqw}
+.qp-paper .qp-payment-grid{position:absolute;top:7.23cqw;left:0;right:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4.45cqw}
+.qp-paper.qp-payment-inline .qp-payment-grid{top:4.17cqw}
+.qp-paper .qp-payment-card{position:relative;height:60cqw}
+.qp-paper .qp-payment-card h5{margin:0;font:400 3.05cqw/3.34cqw SimSun,serif;color:#28231f;white-space:pre-wrap;overflow-wrap:anywhere}
+.qp-paper .qp-payment-card p{position:absolute;left:0;right:0;top:7.5cqw;margin:0;font-size:2.5cqw;line-height:3.34cqw;white-space:pre-wrap;color:#746b60}
+.qp-paper .qp-payment-card img{position:absolute;top:18.61cqw;left:50%;transform:translateX(-50%);width:33.34cqw;height:33.34cqw;object-fit:contain;background:#fff;image-rendering:pixelated}
+.qp-paper.qp-payment-inline .qp-payment-card img{top:16.67cqw;width:27.78cqw;height:27.78cqw}
+.qp-paper .paper-total{position:absolute;left:5.55cqw;right:5.55cqw;top:150cqw;display:flex;align-items:center;justify-content:space-between;gap:2cqw;padding:4.2cqw 0 0;margin:0;border-top:.2cqw solid #7a2939}
+.qp-paper .paper-total>span{font-size:3.05cqw;color:#746b60;white-space:nowrap}
+.qp-paper .paper-total>strong{font:400 7.23cqw/1.1 Arial,sans-serif;white-space:nowrap;letter-spacing:-.1cqw}
+.qp-paper .paper-total>strong.long{font-size:5.55cqw}
+.qp-paper .paper-total small{font:400 3.05cqw Arial,sans-serif;margin-left:1.2cqw}
+.qp-paper .paper-note{position:absolute;left:5.55cqw;right:5.55cqw;top:163.6cqw;margin:0;min-height:0;font-size:2.78cqw;line-height:3.61cqw;white-space:pre-wrap;color:#746b60}
+.qp-paper .paper-footer{position:absolute;left:5.55cqw;right:5.55cqw;top:171.1cqw;margin:0;display:flex;justify-content:space-between;gap:2cqw;font-size:2.78cqw;line-height:1.2;color:#8f8375}
+.qp-paper .qp-product-stack{position:absolute;left:5.55cqw;right:5.55cqw;top:29.17cqw;height:112cqw}
+.qp-paper .qp-compact-product{position:absolute;left:0;right:0;height:51cqw}
+.qp-paper .qp-compact-product>img{position:absolute;left:0;top:0;width:17.78cqw;height:17.78cqw;object-fit:cover;object-position:34% 65%;background:#eee8df}
+.qp-paper .qp-compact-heading{position:absolute;left:21.39cqw;right:0;top:0}
+.qp-paper .qp-compact-heading h3{font:400 3.61cqw/1.35 SimSun,serif;white-space:pre-wrap;margin:0 0 1.5cqw}
+.qp-paper .qp-compact-heading p{font-size:2.78cqw;line-height:1.4;color:#746b60;white-space:pre-wrap;margin:0}
+.qp-paper .qp-compact-parameters{position:absolute;left:0;right:0;top:18.06cqw;display:flex;justify-content:space-between;gap:2cqw;font-size:2.78cqw;line-height:1.4;color:#746b60}
+.qp-paper .qp-compact-product dl{position:absolute;left:0;right:0;top:22.78cqw;margin:0;font-size:2.78cqw;line-height:4.72cqw}
+.qp-paper .qp-compact-product dl>div{display:flex;justify-content:space-between;gap:2cqw}
+.qp-paper .qp-compact-product dt{color:#746b60}
+.qp-paper .qp-compact-product dd{margin:0;white-space:nowrap}
+.qp-paper .qp-item-total{position:absolute;left:0;right:0;top:44.17cqw;display:flex;justify-content:space-between;border-top:.17cqw solid #e3ded5;padding-top:1.4cqw;font-size:3.05cqw;color:#746b60}
+.qp-paper .qp-item-total strong{font-weight:400;color:#28231f}
+.qp-paper .qp-multi-summary{position:absolute;left:5.55cqw;right:5.55cqw;top:135.83cqw;font-size:2.78cqw;line-height:4.72cqw;color:#746b60}
+.qp-paper .qp-multi-summary>div{display:flex;justify-content:space-between;gap:2cqw}
