@@ -33,7 +33,7 @@ export type Settings = {
   repair: { categories: RepairCategory[]; insuranceRate: number };
   tradeIn: { depreciationPrice: number };
   paymentMethods: PaymentMethod[];
-  home: { headline: string; introduction: string; announcements: string; notices: string; workflow: string };
+  home: { headline: string; introduction: string; announcements: string; notices: string; workflow: string; image: string };
 };
 export type Style = {
   id: string; name: string; material: string; specs: string; image: string;
@@ -113,6 +113,7 @@ export const defaultSettings: Settings = {
   tradeIn: { depreciationPrice: 20 },
   paymentMethods: [],
   home: {
+    image: "/home-necklace.png",
     headline: "每一份报价，清晰呈现",
     introduction: "销售、定制、维修、回收与以旧换新，在同一工作台完成。",
     announcements: "报价前请核对当前金价、工费及材质参数。",
@@ -137,6 +138,7 @@ export const imageSchema = z.string().max(1_500_000).refine(
   (value) => value === "" || /^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(value) || /^\/api\/images\/[a-f0-9-]{36}$/.test(value),
   "图片必须为PNG、JPEG、WebP或已上传的图片",
 );
+export const homeImageSchema = imageSchema.or(z.enum(["/home-necklace.png", "/ring.jpg"]));
 export const paymentMethodSchema = z.object({ id: identifier, name: shortText.min(1), details: z.string().trim().max(500).default(""), image: imageSchema.default("") });
 export const paymentMethodsSchema = z.array(paymentMethodSchema).max(8).superRefine((items, ctx) => {
   if (new Set(items.map(item => item.id)).size !== items.length) ctx.addIssue({ code: "custom", message: "收款方式编号不得重复" });
@@ -173,6 +175,8 @@ export const quoteInputSchema = z.object({
   paymentMethods: paymentMethodsSchema.default([]), customDetails: z.string().trim().max(2000).default(""), tradeIn: tradeInSchema.default(defaultTradeIn),
   saleItems: z.array(saleItemSchema).max(30).default([]), recyclingItems: z.array(recyclingItemSchema).max(30).default([]),
 }).superRefine((quote, ctx) => {
+  if (quote.type !== "sale" && quote.saleItems.length) ctx.addIssue({ code: "custom", path: ["saleItems"], message: "多件销售明细仅用于销售报价，定制与换新请填写单件参数" });
+  if (quote.type !== "recycling" && quote.recyclingItems.length) ctx.addIssue({ code: "custom", path: ["recyclingItems"], message: "多件回收明细仅用于回收报价" });
   for (const key of ["saleItems", "recyclingItems"] as const) if (new Set(quote[key].map(item => item.id)).size !== quote[key].length) ctx.addIssue({ code: "custom", path: [key], message: "商品明细编号不得重复" });
   if (new Set(quote.extras.map(item => item.id)).size !== quote.extras.length) ctx.addIssue({ code: "custom", path: ["extras"], message: "附加费编号不得重复" });
   if (new Set(quote.repairItems.map(item => item.id)).size !== quote.repairItems.length) ctx.addIssue({ code: "custom", path: ["repairItems"], message: "维修明细编号不得重复" });
@@ -205,7 +209,7 @@ export const settingsSchema = z.object({
   repair: z.object({ categories: z.array(z.object({ id: identifier, name: shortText.min(1), mode: z.enum(["fixed", "count", "gram"]), price: money })).min(1).max(50), insuranceRate: z.number().finite().min(0).max(100).refine(precision(2), "保价比例最多保留两位小数") }),
   tradeIn: z.object({ depreciationPrice: money }).default(defaultSettings.tradeIn),
   paymentMethods: paymentMethodsSchema.default([]),
-  home: z.object({ headline: shortText, introduction: z.string().trim().max(2000), announcements: z.string().trim().max(4000), notices: z.string().trim().max(4000), workflow: z.string().trim().max(4000) }).default(defaultSettings.home),
+  home: z.object({ headline: shortText, introduction: z.string().trim().max(2000), announcements: z.string().trim().max(4000), notices: z.string().trim().max(4000), workflow: z.string().trim().max(4000), image: homeImageSchema.default(defaultSettings.home.image) }).default(defaultSettings.home),
 }).superRefine((value, ctx) => {
   if (new Set(value.recycling.map(i => i.id)).size !== 4) ctx.addIssue({ code: "custom", path: ["recycling"], message: "四种回收材质不得重复" });
   if (new Set(value.repair.categories.map(i => i.id)).size !== value.repair.categories.length) ctx.addIssue({ code: "custom", path: ["repair", "categories"], message: "维修项目编号不得重复" });
@@ -232,6 +236,21 @@ function tradeInSubtotalCents(input: QuoteInput): bigint {
   const newWeight = scaled(input.weight, 1000), oldWeight = scaled(trade.oldWeight, 1000), matched = newWeight < oldWeight ? newWeight : oldWeight;
   const numerator = (newWeight - matched) * scaled(input.goldPrice, 100) + newWeight * scaled(input.laborPrice, 100) + matched * scaled(trade.depreciationPrice, 100);
   return roundedDivide(numerator, BigInt(1000)) + input.extras.reduce((sum, item) => sum + scaled(item.amount, 100), BigInt(0));
+}
+function balanceFeeLedger(result: QuoteTotals): void {
+  const cents = { metal: scaled(result.metal, 100), labor: scaled(result.labor, 100), depreciation: scaled(result.depreciation, 100) };
+  const difference = scaled(result.subtotal, 100) - scaled(result.extras, 100) - cents.metal - cents.labor - cents.depreciation;
+  if (difference >= BigInt(0)) cents.labor += difference;
+  else {
+    let deduction = -difference;
+    const laborDeduction = deduction < cents.labor ? deduction : cents.labor;
+    cents.labor -= laborDeduction; deduction -= laborDeduction;
+    const order: ("depreciation" | "metal")[] = cents.depreciation >= cents.metal ? ["depreciation", "metal"] : ["metal", "depreciation"];
+    for (const key of order) {
+      const amount = deduction < cents[key] ? deduction : cents[key]; cents[key] -= amount; deduction -= amount;
+    }
+  }
+  result.metal = fromCents(cents.metal); result.labor = fromCents(cents.labor); result.depreciation = fromCents(cents.depreciation);
 }
 export function calculateQuote(input: QuoteInput): QuoteTotals {
   const result: QuoteTotals = { metal: 0, labor: 0, extras: 0, repair: 0, subtotal: 0, discount: 0, insurance: 0, recyclingUnitPrice: 0, total: 0, depreciation: 0, exchangeWeight: 0, additionalWeight: 0, excessWeight: 0, exchangeCredit: 0, balance: 0, itemTotals: [] };
@@ -261,6 +280,7 @@ export function calculateQuote(input: QuoteInput): QuoteTotals {
     }
     result.total = fromCents(payable - credit);
     result.discount = fromCents(subtotal - payable);
+    balanceFeeLedger(result);
   } else if (input.type === "recycling") {
     const unitNumerator = scaled(input.goldPrice, 100) * scaled(input.recyclingCoefficient, 10000);
     result.recyclingUnitPrice = Number(unitNumerator) / 1_000_000;

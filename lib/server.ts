@@ -163,8 +163,10 @@ async function canReadImage(user: StaffUser, image: string, ownerId: string): Pr
   // Shared media is permanent: retiring an asset removes it from the picker, not from saved quotations.
   const sharedMedia = await database().prepare("SELECT id FROM media_assets WHERE url=? LIMIT 1").bind(image).first();
   if (sharedMedia) return true;
-  const companyPayment = await database().prepare("SELECT id FROM company_settings WHERE EXISTS(SELECT 1 FROM json_each(data,'$.paymentMethods') p WHERE json_extract(p.value,'$.image')=?) LIMIT 1").bind(image).first();
+  const companyPayment = await database().prepare("SELECT id FROM company_settings WHERE json_extract(data,'$.home.image')=? OR EXISTS(SELECT 1 FROM json_each(data,'$.paymentMethods') p WHERE json_extract(p.value,'$.image')=?) LIMIT 1").bind(image, image).first();
   if (companyPayment) return true;
+  const historicalHome = await database().prepare("SELECT id FROM audit_logs WHERE entity_type='settings' AND entity_id='default' AND action='update' AND (json_extract(old_value,'$.home.image')=? OR json_extract(new_value,'$.home.image')=?) LIMIT 1").bind(image, image).first();
+  if (historicalHome) return true;
   const ownPreference = await database().prepare("SELECT staff_id FROM staff_preferences WHERE staff_id=? AND EXISTS(SELECT 1 FROM json_each(payment_methods) p WHERE json_extract(p.value,'$.image')=?) LIMIT 1").bind(user.id, image).first();
   if (ownPreference) return true;
   const sharedStyle = await database().prepare("SELECT id FROM styles WHERE active=1 AND json_extract(data,'$.image')=? LIMIT 1").bind(image).first();
@@ -301,9 +303,10 @@ export async function updateSettings(request: Request) {
   if (!patch || typeof patch !== "object" || Array.isArray(patch)) throw new ApiError(400, "设置格式无效");
   const value = patch as Partial<Settings>;
   const settings = settingsSchema.parse({ ...old, ...value, brand: { ...old.brand, ...value.brand }, sale: { ...old.sale, ...value.sale }, repair: { ...old.repair, ...value.repair }, tradeIn: { ...old.tradeIn, ...value.tradeIn }, home: { ...old.home, ...value.home } });
-  await assertImagesOwned(user, settings.paymentMethods.map(item => item.image));
-  const persisted = await persistImages(settings.paymentMethods.map(item => item.image), user.id);
-  settings.paymentMethods = settings.paymentMethods.map((item, index) => ({ ...item, image: persisted.urls[index] }));
+  await assertImagesOwned(user, [settings.home.image, ...settings.paymentMethods.map(item => item.image)]);
+  const persisted = await persistImages([settings.home.image, ...settings.paymentMethods.map(item => item.image)], user.id);
+  settings.home.image = persisted.urls[0];
+  settings.paymentMethods = settings.paymentMethods.map((item, index) => ({ ...item, image: persisted.urls[index + 1] }));
   try {
   const result = await db.batch([db.prepare("UPDATE company_settings SET data=?,updated_by=?,updated_at=? WHERE id='default' AND data=?").bind(JSON.stringify(settings), user.id, now(), String(row.data)), logStatement(db, user, "settings", "default", "update", old, settings, true)]);
   if (!result[0].meta.changes) throw new ApiError(409, "公司设置刚被修改，请刷新后重试");

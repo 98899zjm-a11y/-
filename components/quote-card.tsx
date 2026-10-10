@@ -44,7 +44,7 @@ export function wrapQuoteText(value: string, width = 26): string[] {
 }
 export function createQuotePages(q: QuoteDraft, settings: AppSettings, meta: { customerName?: string; date?: string; number?: string } = {}): QuotePaper[] {
   const t = calculateQuote(q), trade = { ...defaultTradeIn, ...q.tradeIn };
-  const itemizedSale = (q.type === "sale" || q.type === "custom") && !!q.saleItems?.length;
+  const itemizedSale = q.type === "sale" && !!q.saleItems?.length;
   const itemizedRecycling = q.type === "recycling" && !!q.recyclingItems?.length;
   const supplemental: string[] = [];
   const appendText = (label: string, value: string) => { if (value) supplemental.push(`${label}：`, ...wrapQuoteText(value, 25), ""); };

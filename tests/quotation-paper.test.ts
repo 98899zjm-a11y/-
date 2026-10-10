@@ -14,6 +14,15 @@ const paperModuleUrl = 'data:text/javascript;base64,' + Buffer.from(script).toSt
 const { createQuotePages, calculateQuote: paperCalculate, default: QuoteCard } = await import(paperModuleUrl);
 const repair = (patch: Record<string, unknown> = {}) => quoteInputSchema.parse({ type: 'repair', customerId: 'customer-a', title: '首饰维修', repairItems: [{ id: 'resize', categoryId: 'ring-size', name: '指圈调整', mode: 'fixed', quantity: 1, price: 120 }], insured: false, insuredValue: 5000, insuranceRate: 6, ...patch });
 
+test('旧定制草稿残留销售数组不导致预览崩溃，也不把错误商品费用显示给客户', () => {
+  const base = quoteInputSchema.parse({ type: 'custom', customerId: 'customer-a', title: '定制金链', weight: 2, goldPrice: 450, laborPrice: 80 });
+  const oldDraft = { ...base, saleItems: [{ id: 'stale', title: '错误残留商品', material: '黄金', specs: '', image: '', weight: 100, goldPrice: 999, laborPrice: 0, extras: [], quantity: 1 }] };
+  const papers = createQuotePages(oldDraft, defaultSettings);
+  assert.equal(papers[0].total, 1060);
+  assert.equal(papers.flatMap((paper: { products?: unknown[] }) => paper.products || []).length, 0);
+  assert.doesNotMatch(JSON.stringify(papers), /错误残留商品|99,900/);
+});
+
 test('维修报价纸面逐项金额与合计在半分边界使用相同精确舍入', () => {
   const q = repair({ repairItems: [{ id: 'gold', categoryId: 'add-metal', name: '加金操作', mode: 'gram', quantity: 2.005, price: 1001, note: '' }] });
   const papers = createQuotePages(q, defaultSettings);
