@@ -15,7 +15,7 @@ export const money = (value: number) => Number(value || 0).toLocaleString("zh-CN
 const round = (value: number) => Math.round((value + Number.EPSILON) * 100) / 100;
 const n = (value: number) => Math.max(0, Number(value) || 0);
 export function calculateQuote(q: QuoteDraft) {
-  const subtotal = round(q.weight * (q.goldPrice + q.laborPrice) + q.extras.reduce((sum, item) => sum + item.amount, 0));
+  const subtotal = domainCalculate({ ...q, discountType: "none" }).subtotal;
   const invalid = q.type === "sale" && q.discountType === "amount" && q.discountValue > subtotal;
   const invalidPercent = q.type === "sale" && q.discountType === "percent" && q.discountValue > 100;
   const safe = { ...q, discountValue: invalid ? subtotal : invalidPercent ? 100 : q.discountValue };
@@ -41,7 +41,7 @@ export function createQuotePages(q: QuoteDraft, settings: AppSettings, meta: { c
   const parameters = q.type === "sale" ? [{ label: "金重", value: `${n(q.weight).toFixed(3)} 克` }, { label: "金价", value: `${money(q.goldPrice)} 元/克` }, { label: "每克工费", value: `${money(q.laborPrice)} 元/克` }] : q.type === "recycling" ? [{ label: "重量", value: `${n(q.weight).toFixed(3)} 克` }, { label: "参考金价", value: `${money(q.goldPrice)} 元/克` }, { label: "回收系数", value: String(q.recyclingCoefficient) }] : [{ label: "维修项目", value: `${q.repairItems.length} 项` }, ...(q.insured ? [{ label: "确认价值", value: `${money(q.insuredValue)} 元` }, { label: "保价比例", value: `${q.insuranceRate}%` }] : [])];
   let source: PaperLine[];
   if (q.type === "sale") source = [{ label: "金料费", value: `${money(t.metal)} 元` }, { label: "加工费", value: `${money(t.labor)} 元` }, ...q.extras.map((item, index) => ({ label: shorten(item.name || "附加费", `附加费${index + 1}名称`, 23), value: `${money(item.amount)} 元` }))];
-  else if (q.type === "repair") source = q.repairItems.map((item, index) => { if (item.note) supplemental.push(...wrapQuoteText(`维修项目${index + 1}备注：${item.note}`, 25), ""); return { label: shorten(item.name, `维修项目${index + 1}名称`, 23), value: `${money(round(item.price * (item.mode === "fixed" ? 1 : item.quantity)))} 元`, basis: item.mode === "fixed" ? undefined : `${item.quantity} ${item.mode === "gram" ? "克" : "次"} × ${money(item.price)} 元` }; });
+  else if (q.type === "repair") source = q.repairItems.map((item, index) => { if (item.note) supplemental.push(...wrapQuoteText(`维修项目${index + 1}备注：${item.note}`, 25), ""); return { label: shorten(item.name, `维修项目${index + 1}名称`, 23), value: `${money(domainCalculate({ ...q, repairItems: [item], insured: false }).repair)} 元`, basis: item.mode === "fixed" ? undefined : `${item.quantity} ${item.mode === "gram" ? "克" : "次"} × ${money(item.price)} 元` }; });
   else source = [{ label: "回收材质", value: q.recyclingName || ({ gold: "黄金", platinum: "Pt950铂金", silver: "白银", kgold: "K金" } as Record<string, string>)[q.material] || q.material }, { label: "回收单价", value: `${Number(t.recyclingUnitPrice.toFixed(6))} 元/克` }, { label: "计算方式", value: "重量 × 参考金价 × 系数" }, { label: "回收金额", value: `${money(t.base)} 元`, divider: true }];
   if (supplemental.length && fullNote && displayNote === fullNote) supplemental.push(...wrapQuoteText(`备注：${fullNote}`, 25), "");
   const size = q.type === "repair" ? 3 : 4;

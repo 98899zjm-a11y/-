@@ -9,8 +9,22 @@ import { quoteInputSchema, defaultSettings } from '../lib/domain.ts';
 
 const source = readFileSync(resolve('components/quote-card.tsx'), 'utf8').replace('from "@/lib/domain";', `from ${JSON.stringify(pathToFileURL(resolve('lib/domain.ts')).href)};`);
 const script = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext, jsx: ts.JsxEmit.ReactJSX } }).outputText.replace('from "react/jsx-runtime";', `from ${JSON.stringify(import.meta.resolve('react/jsx-runtime'))};`) + '\n//# sourceURL=jewelry-paper-under-review.mjs';
-const { createQuotePages } = await import('data:text/javascript;base64,' + Buffer.from(script).toString('base64'));
+const { createQuotePages, calculateQuote: paperCalculate } = await import('data:text/javascript;base64,' + Buffer.from(script).toString('base64'));
 const repair = (patch: Record<string, unknown> = {}) => quoteInputSchema.parse({ type: 'repair', customerId: 'customer-a', title: '首饰维修', repairItems: [{ id: 'resize', categoryId: 'ring-size', name: '指圈调整', mode: 'fixed', quantity: 1, price: 120 }], insured: false, insuredValue: 5000, insuranceRate: 6, ...patch });
+
+test('维修报价纸面逐项金额与合计在半分边界使用相同精确舍入', () => {
+  const q = repair({ repairItems: [{ id: 'gold', categoryId: 'add-metal', name: '加金操作', mode: 'gram', quantity: 2.005, price: 1001, note: '' }] });
+  const papers = createQuotePages(q, defaultSettings);
+  assert.equal(papers[0].lines[0].value, '2,007.01 元');
+  assert.equal(papers[0].total, 2007.01);
+});
+
+test('销售纸面允许减免精确舍入后的全部合计金额', () => {
+  const q = quoteInputSchema.parse({ type: 'sale', customerId: 'customer-a', title: '定制', weight: 2.005, goldPrice: 1001, laborPrice: 0, extras: [], discountType: 'amount', discountValue: 2007.01 });
+  const result = paperCalculate(q);
+  assert.equal(result.validationMessage, '');
+  assert.equal(result.total, 0);
+});
 
 test('客户纸面/PNG共同数据：未勾选保价时完全省略保价、比例、确认价值', () => {
   const papers = createQuotePages(repair(), defaultSettings, { customerName: '客户A', number: 'M20261010-TEST' });
