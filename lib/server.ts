@@ -22,7 +22,7 @@ function mediaRecord(row: Row): MediaAsset { return { id: String(row.id), name: 
 function normalizeTotals(value: Partial<QuoteTotals>, total: number): QuoteTotals { return { metal: 0, labor: 0, extras: 0, repair: 0, subtotal: 0, discount: 0, insurance: 0, recyclingUnitPrice: 0, depreciation: 0, exchangeWeight: 0, additionalWeight: 0, excessWeight: 0, exchangeCredit: 0, ...value, total, balance: value.balance ?? total, itemTotals: value.itemTotals ?? [] }; }
 function quoteRecord(row: Row, full = true): QuoteRecord {
   const original = parse<QuoteSnapshot>(row.snapshot), total = Number(row.total_cents) / 100;
-  const snapshot: QuoteSnapshot = { ...original, paymentMethods: original.paymentMethods ?? [], customDetails: original.customDetails ?? "", tradeIn: { ...defaultTradeIn, ...original.tradeIn }, calculation: normalizeTotals(original.calculation ?? {}, total) };
+  const snapshot: QuoteSnapshot = { ...original, paymentMethods: original.paymentMethods ?? [], customDetails: original.customDetails ?? "", customConfirmations: original.customConfirmations ?? [], tradeIn: { ...defaultTradeIn, ...original.tradeIn }, calculation: normalizeTotals(original.calculation ?? {}, total) };
   if (!full) { snapshot.image = ""; snapshot.images = []; }
   return { id: String(row.id), number: String(row.number), type: row.type as QuoteRecord["type"], customerId: String(row.customer_id), customerName: String(row.customer_name), ownerId: String(row.owner_id), title: String(row.title), snapshot, data: snapshot, totals: normalizeTotals(parse<QuoteTotals>(row.totals), total), total, rootId: String(row.root_id), baseQuoteId: row.base_quote_id ? String(row.base_quote_id) : null, version: Number(row.version), createdAt: String(row.created_at), images: row.attached_images ? parse<string[]>(row.attached_images) : [] };
 }
@@ -98,7 +98,7 @@ export async function updatePreferences(request: Request) {
     return { paymentMethods: methods, inherited: false };
   } catch (error) { await cleanupImages(stored.keys); throw error; }
 }
-const SUMMARY_SNAPSHOT = "json_set(q.snapshot,'$.image','','$.images',json('[]'),'$.paymentMethods',json((SELECT json_group_array(json_set(p.value,'$.image','')) FROM json_each(q.snapshot,'$.paymentMethods') p)),'$.saleItems',json((SELECT json_group_array(json_set(s.value,'$.image','')) FROM json_each(q.snapshot,'$.saleItems') s)),'$.recyclingItems',json((SELECT json_group_array(json_set(r.value,'$.image','')) FROM json_each(q.snapshot,'$.recyclingItems') r)))";
+const SUMMARY_SNAPSHOT = "json_set(q.snapshot,'$.image','','$.images',json('[]'),'$.paymentMethods',json((SELECT json_group_array(json_set(p.value,'$.image','')) FROM json_each(q.snapshot,'$.paymentMethods') p)),'$.saleItems',json((SELECT json_group_array(json_set(s.value,'$.image','')) FROM json_each(q.snapshot,'$.saleItems') s)),'$.tradeInItems',json((SELECT json_group_array(json_set(t.value,'$.image','')) FROM json_each(q.snapshot,'$.tradeInItems') t)),'$.customConfirmations',json((SELECT json_group_array(json_set(c.value,'$.image','')) FROM json_each(q.snapshot,'$.customConfirmations') c)),'$.recyclingItems',json((SELECT json_group_array(json_set(r.value,'$.image','')) FROM json_each(q.snapshot,'$.recyclingItems') r)))";
 async function customerById(db: D1Database, user: StaffUser, id: string): Promise<Customer> { const row = await db.prepare("SELECT * FROM customers WHERE id=?").bind(id).first<Row>(); if (!row) throw new ApiError(404, "客户不存在"); const customer = customerRecord(row); assertOwner(user, customer.ownerId); return customer; }
 const QUOTE_SELECT = "SELECT q.*,a.images AS attached_images FROM quotes q LEFT JOIN quote_attachments a ON a.quote_id=q.id";
 async function quoteById(db: D1Database, user: StaffUser, id: string): Promise<QuoteRecord> { const row = await db.prepare(QUOTE_SELECT + " WHERE q.id=?").bind(id).first<Row>(); if (!row) throw new ApiError(404, "报价不存在"); const quote = quoteRecord(row); assertOwner(user, quote.ownerId); return quote; }
@@ -172,7 +172,7 @@ async function canReadImage(user: StaffUser, image: string, ownerId: string): Pr
   const sharedStyle = await database().prepare("SELECT id FROM styles WHERE active=1 AND json_extract(data,'$.image')=? LIMIT 1").bind(image).first();
   if (sharedStyle) return true;
   // A style may later be retired. A photograph already frozen into this employee's quote remains readable.
-  const historicalQuote = await database().prepare("SELECT id FROM quotes WHERE owner_id=? AND (json_extract(snapshot,'$.image')=? OR EXISTS(SELECT 1 FROM json_each(snapshot,'$.paymentMethods') p WHERE json_extract(p.value,'$.image')=?) OR EXISTS(SELECT 1 FROM json_each(snapshot,'$.saleItems') p WHERE json_extract(p.value,'$.image')=?) OR EXISTS(SELECT 1 FROM json_each(snapshot,'$.recyclingItems') p WHERE json_extract(p.value,'$.image')=?)) LIMIT 1").bind(user.id, image, image, image, image).first();
+  const historicalQuote = await database().prepare("SELECT id FROM quotes WHERE owner_id=? AND (json_extract(snapshot,'$.image')=? OR EXISTS(SELECT 1 FROM json_each(snapshot,'$.paymentMethods') p WHERE json_extract(p.value,'$.image')=?) OR EXISTS(SELECT 1 FROM json_each(snapshot,'$.saleItems') p WHERE json_extract(p.value,'$.image')=?) OR EXISTS(SELECT 1 FROM json_each(snapshot,'$.recyclingItems') p WHERE json_extract(p.value,'$.image')=?) OR EXISTS(SELECT 1 FROM json_each(snapshot,'$.tradeInItems') p WHERE json_extract(p.value,'$.image')=?) OR EXISTS(SELECT 1 FROM json_each(snapshot,'$.customConfirmations') p WHERE json_extract(p.value,'$.image')=?)) LIMIT 1").bind(user.id, image, image, image, image, image, image).first();
   return Boolean(historicalQuote);
 }
 async function assertImagesOwned(user: StaffUser, images: string[]) {
@@ -236,6 +236,7 @@ function priceOverrides(input: QuoteSnapshot, settings: Settings): { field: stri
   const compare = (field: string, original: number | string | null, current: number | string) => { if (original !== current) values.push({ field, oldValue: original, newValue: current }); };
   if (["sale", "custom", "tradein"].includes(input.type)) {
     if (input.type === "sale" && input.saleItems?.length) { for (const item of input.saleItems) { compare(`saleItems.${item.id}.goldPrice`, settings.sale.goldPrice, item.goldPrice); compare(`saleItems.${item.id}.laborPrice`, settings.sale.laborPrice, item.laborPrice); } }
+    else if (input.type === "tradein" && input.tradeInItems?.length) { for (const item of input.tradeInItems) { compare(`tradeInItems.${item.id}.goldPrice`, settings.sale.goldPrice, item.goldPrice); compare(`tradeInItems.${item.id}.laborPrice`, settings.sale.laborPrice, item.laborPrice); } }
     else { compare("goldPrice", settings.sale.goldPrice, input.goldPrice); compare("laborPrice", settings.sale.laborPrice, input.laborPrice); }
     if (input.type === "tradein") {
       const trade = { ...defaultTradeIn, ...input.tradeIn }, metal = settings.recycling.find(value => value.id === trade.oldMaterial);
@@ -259,7 +260,7 @@ export async function createQuote(request: Request) {
   const customer = await customerById(db, user, input.customerId), settings = await getSettings(db);
   // Exported customer images are attached once after the authoritative number is allocated.
   if (input.images.length) throw new ApiError(400, "请先保存报价，再生成并保存报价图片");
-  const sourceImages = [input.image, ...input.paymentMethods.map(item => item.image), ...input.saleItems.map(item => item.image), ...input.recyclingItems.map(item => item.image)];
+  const sourceImages = [input.image, ...input.paymentMethods.map(item => item.image), ...input.saleItems.map(item => item.image), ...input.recyclingItems.map(item => item.image), ...(input.tradeInItems || []).map(item => item.image), ...(input.customConfirmations || []).map(item => item.image)];
   await assertImagesOwned(user, sourceImages);
   const base = input.baseQuoteId ? await quoteById(db, user, input.baseQuoteId) : null;
   if (base && base.type !== input.type) throw new ApiError(400, "报价新版本必须使用原业务类型");
@@ -268,6 +269,11 @@ export async function createQuote(request: Request) {
   if (!Number.isFinite(totals.total) || Math.abs(totals.total) > 1_000_000_000 || totals.subtotal > 1_000_000_000 || totals.exchangeCredit > 1_000_000_000) throw new ApiError(400, "报价金额超出支持范围");
   const persisted = await persistImages(sourceImages, base?.ownerId || user.id); let imageIndex = 0;
   input.image = persisted.urls[imageIndex++]; for (const method of input.paymentMethods) method.image = persisted.urls[imageIndex++]; for (const item of input.saleItems) item.image = persisted.urls[imageIndex++]; for (const item of input.recyclingItems) item.image = persisted.urls[imageIndex++];
+  for (const item of input.tradeInItems || []) item.image = persisted.urls[imageIndex++];
+  for (const item of input.customConfirmations || []) {
+    const previous = base?.snapshot.customConfirmations?.find(old => old.id === item.id && old.image === item.image);
+    item.image = persisted.urls[imageIndex++]; item.createdAt = previous?.createdAt || now();
+  }
   const snapshot: QuoteSnapshot = { ...input, customer: { id: customer.id, name: customer.name, phone: customer.phone }, brand: settings.brand, issuedBy: { id: user.id, name: user.name }, calculation: totals, ...(input.type === "recycling" ? { recyclingName: settings.recycling.find(value => value.id === input.material)?.name || input.material } : {}), ...(input.type === "tradein" ? { tradeInMaterialName: settings.recycling.find(value => value.id === input.tradeIn.oldMaterial)?.name || input.tradeIn.oldMaterial } : {}) };
   try {
   for (let attempt = 0; attempt < 3; attempt++) {

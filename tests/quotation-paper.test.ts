@@ -11,7 +11,7 @@ import { quoteInputSchema, defaultSettings } from '../lib/domain.ts';
 const source = readFileSync(resolve('components/quote-card.tsx'), 'utf8').replace('import "./quote-paper.css";', '').replace('from "@/lib/domain";', `from ${JSON.stringify(pathToFileURL(resolve('lib/domain.ts')).href)};`);
 const script = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext, jsx: ts.JsxEmit.ReactJSX } }).outputText.replace('from "react/jsx-runtime";', `from ${JSON.stringify(import.meta.resolve('react/jsx-runtime'))};`) + '\n//# sourceURL=jewelry-paper-under-review.mjs';
 const paperModuleUrl = 'data:text/javascript;base64,' + Buffer.from(script).toString('base64');
-const { createQuotePages, calculateQuote: paperCalculate, default: QuoteCard } = await import(paperModuleUrl);
+const { createQuotePages, calculateQuote: paperCalculate, quotePaperLayout, default: QuoteCard } = await import(paperModuleUrl);
 const repair = (patch: Record<string, unknown> = {}) => quoteInputSchema.parse({ type: 'repair', customerId: 'customer-a', title: '首饰维修', repairItems: [{ id: 'resize', categoryId: 'ring-size', name: '指圈调整', mode: 'fixed', quantity: 1, price: 120 }], insured: false, insuredValue: 5000, insuranceRate: 6, ...patch });
 
 test('旧定制草稿残留销售数组不导致预览崩溃，也不把错误商品费用显示给客户', () => {
@@ -109,15 +109,15 @@ test('所有客户纸面与网页隐藏计算方式、公式、乘号和回收�
   assert.doesNotMatch(JSON.stringify(repairPages), /×|basis|计算方式/);
 });
 
-for (const type of ['sale', 'custom', 'tradein']) test(`${type}收款方式仅用当次快照，每页最多两项且二维码原地址完整保留`, () => {
+for (const type of ['sale', 'custom', 'tradein']) test(`${type}全部收款方式集中附在商品费用页，快照二维码完整保留`, () => {
   const pages = createQuotePages(sale({ type, tradeIn: { mode: 'gram', oldMaterial: 'gold', oldWeight: 2, depreciationPrice: 20, excessMode: 'recycle', excessGoldPrice: 450, excessCoefficient: .99 }, paymentMethods }), defaultSettings, { number: 'TEST-PAYMENT' });
   const paymentPages = pages.filter((paper: { payments?: object[] }) => paper.payments?.length);
-  assert.equal(paymentPages.length, 2);
-  assert.equal(paymentPages[0].paymentPlacement, 'inline');
-  assert.ok(paymentPages[0].lines.length <= 2);
+  assert.equal(paymentPages.length, 1);
+  assert.equal(paymentPages[0].paymentPlacement, 'attached');
+  assert.ok(paymentPages[0].lines.length > 0 || paymentPages[0].products?.length);
   assert.deepEqual(paymentPages.flatMap((paper: { payments: { id: string }[] }) => paper.payments.map(method => method.id)), ['wechat', 'alipay', 'bank', 'cash']);
   assert.equal(paymentPages[0].payments[0].image, paymentMethods[0].image);
-  paymentPages.forEach((paper: { payments: object[]; number: string }) => { assert.ok(paper.payments.length <= 2); assert.equal(paper.number, 'TEST-PAYMENT'); });
+  paymentPages.forEach((paper: { payments: object[]; number: string }) => { assert.equal(paper.payments.length,4); assert.equal(paper.number, 'TEST-PAYMENT'); const layout=quotePaperLayout(paper); assert.ok(layout.lineBottom <= layout.paymentTop-8); });
 });
 
 test('明确空收款方式和旧快照缺少收款字段均不继承后来公司的默认值', () => {
@@ -214,6 +214,38 @@ test('多件销售较多附加费仍完整保留，每款只出现一次，整�
   assert.equal(pages[0].total, 2730);
 });
 
+test('两件商品和两种带二维码收款方式同一张报价，内容不碰总价区域', () => {
+  const items=Array.from({length:2},(_,i)=>({id:`i${i}`,title:`珠宝${i+1}`,material:'黄金',specs:'',image:'',weight:2,goldPrice:450,laborPrice:80,quantity:1,extras:[{id:`stone${i}`,name:'钻石',amount:100}]}));
+  const pages=createQuotePages(sale({saleItems:items,discountType:'amount',discountValue:100,paymentMethods:paymentMethods.slice(0,2)}),defaultSettings);
+  assert.equal(pages.length,1);assert.equal(pages[0].products.length,2);assert.equal(pages[0].payments.length,2);
+  const layout=quotePaperLayout(pages[0]);assert.ok(layout.lineBottom<=layout.paymentTop-8);assert.ok(layout.paymentTop+layout.paymentHeight<=530);
+  const html=renderToStaticMarkup(QuoteCard({paper:pages[0]}));assert.match(html,/qp-attached-product/);assert.match(html,/qp-attached-payments/);assert.ok(html.includes(paymentMethods[0].image));assert.ok(html.includes(paymentMethods[1].image));
+});
+
+test('八种收款集中保留在同一商品页，所有二维码与收款说明不分散丢失', () => {
+  const methods=Array.from({length:8},(_,i)=>({id:`pay${i}`,name:`收款${i+1}`,details:`测试账户${i+1}`,image:`data:image/png;base64,CODE${i}=`}));
+  const items=Array.from({length:5},(_,i)=>({id:`j${i}`,title:`商品${i}`,material:'黄金',specs:'',image:'',weight:1,goldPrice:450,laborPrice:80,quantity:1,extras:[]}));
+  const pages=createQuotePages(sale({saleItems:items,paymentMethods:methods}),defaultSettings);
+  const paymentPages=pages.filter((page:{payments?:object[]})=>page.payments?.length);assert.equal(paymentPages.length,1);assert.equal(paymentPages[0].products.length,1);
+  assert.deepEqual(paymentPages[0].payments.map((method:{id:string;image:string})=>[method.id,method.image]),methods.map(method=>[method.id,method.image]));
+  const layout=quotePaperLayout(paymentPages[0]);assert.equal(layout.columns,4);assert.equal(layout.rows,2);assert.equal(layout.qrSize,60);assert.ok(layout.lineBottom<=layout.paymentTop-8);
+});
+
+for(const mode of ['gram','value'])test(`多件以旧换新${mode}逐款费用显示，旧料抵扣和优惠整单仅一次`,()=>{
+  const tradeInItems=[{id:'new-a',title:'新戒指',material:'黄金',specs:'圈号12',image:'',weight:2,goldPrice:450,laborPrice:80,quantity:1,extras:[]},{id:'new-b',title:'新链',material:'黄金',specs:'45cm',image:'',weight:3,goldPrice:500,laborPrice:70,quantity:1,extras:[{id:'stone',name:'配件',amount:50}]}];
+  const q=sale({type:'tradein',tradeInItems,weight:99999,extras:[{id:'stale',name:'旧根附加费',amount:999}],discountType:'amount',discountValue:100,paymentMethods:paymentMethods.slice(0,2),tradeIn:{mode,oldMaterial:'gold',oldWeight:6,depreciationPrice:20,excessMode:'recycle',excessGoldPrice:450,excessCoefficient:.99}});
+  const pages=createQuotePages(q,defaultSettings);const products=pages.flatMap((page:{products?:object[]})=>page.products||[]);
+  assert.deepEqual(products.map((item:{id:string})=>item.id),['new-a','new-b']);assert.equal(flatLines(pages).filter(line=>line.label==='优惠减免').length,1);
+  assert.equal(flatLines(pages).filter(line=>line.label.includes('回收抵扣')).length,1);assert.equal(pages.flatMap((page:{payments?:object[]})=>page.payments||[]).length,2);
+  assert.equal(pages[0].total,paperCalculate(q).total<0?-paperCalculate(q).total:paperCalculate(q).total);assert.doesNotMatch(JSON.stringify(pages),/99999|旧根附加费|系数|×/);
+  assert.equal(products.flatMap((item:{lines:{label:string}[]})=>item.lines).some((line:{label:string})=>line.label==='折旧费'),mode==='gram');
+});
+
+test('员工定制核对复选字段绝不写入客户报价页',()=>{
+  const q={...sale({type:'custom'}),customConfirmations:{specs:true,design:true,price:true,PRIVATE_CHECK_ONLY:'后台员工核对字段'}};
+  assert.doesNotMatch(JSON.stringify(createQuotePages(q,defaultSettings)),/customConfirmations|PRIVATE_CHECK_ONLY|后台员工核对字段/);
+});
+
 test('多件付款与说明续页只显示真实款数、件数和合计重量，不显示根草稿99999或0参数', () => {
   const items = [
     { id: 'a', title: '戒指', material: '黄金', specs: '', image: '', weight: 2, goldPrice: 450, laborPrice: 80, quantity: 2, extras: [] },
@@ -252,7 +284,7 @@ test('PNG绘制使用相同纸面数据，固定1080x1920并保留付款二维�
     const paper = createQuotePages(sale({ paymentMethods: paymentMethods.slice(0, 2) }), defaultSettings).find((page: { payments?: object[] }) => page.payments?.length);
     await createQuoteImage(paper);
     assert.deepEqual(canvases.map(canvas => [canvas.width, canvas.height]), [[1080, 1920]]);
-    assert.equal(drawings.filter(args => args[2] === 100 && args[3] === 100).length, 2);
+    assert.equal(drawings.filter(args => args[2] === 80 && args[3] === 80).length, 2);
     assert.ok(texts.includes('收款方式'));
     assert.doesNotMatch(texts.join(''), /计算方式|参考金价|回收系数|×/);
   } finally { if (previousDocument === undefined) delete globals.document; else globals.document = previousDocument; if (previousImage === undefined) delete globals.Image; else globals.Image = previousImage; }

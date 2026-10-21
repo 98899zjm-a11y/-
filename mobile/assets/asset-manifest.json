@@ -1,0 +1,336 @@
+{
+  "source": "public/favicon.svg",
+  "label": "鑫金源",
+  "colors": {
+    "background": "#ffffff",
+    "diamond": "#8a7655"
+  },
+  "generated": [
+    {
+      "file": "icon-192.png",
+      "width": 192,
+      "height": 192,
+      "opaque": true,
+      "bytes": 2657
+    },
+    {
+      "file": "icon-512.png",
+      "width": 512,
+      "height": 512,
+      "opaque": true,
+      "bytes": 6090
+    },
+    {
+      "file": "android/adaptive-foreground-192.png",
+      "width": 192,
+      "height": 192,
+      "opaque": false,
+      "bytes": 2089
+    },
+    {
+      "file": "android/adaptive-foreground-512.png",
+      "width": 512,
+      "height": 512,
+      "opaque": false,
+      "bytes": 4956
+    },
+    {
+      "file": "android/adaptive-background-512.png",
+      "width": 512,
+      "height": 512,
+      "opaque": true,
+      "bytes": 1508
+    },
+    {
+      "file": "android/res/mipmap-mdpi/ic_launcher.png",
+      "width": 48,
+      "height": 48,
+      "opaque": true,
+      "bytes": 978
+    },
+    {
+      "file": "android/res/mipmap-mdpi/ic_launcher_foreground.png",
+      "width": 108,
+      "height": 108,
+      "opaque": false,
+      "bytes": 1271
+    },
+    {
+      "file": "android/res/mipmap-hdpi/ic_launcher.png",
+      "width": 72,
+      "height": 72,
+      "opaque": true,
+      "bytes": 1312
+    },
+    {
+      "file": "android/res/mipmap-hdpi/ic_launcher_foreground.png",
+      "width": 162,
+      "height": 162,
+      "opaque": false,
+      "bytes": 1645
+    },
+    {
+      "file": "android/res/mipmap-xhdpi/ic_launcher.png",
+      "width": 96,
+      "height": 96,
+      "opaque": true,
+      "bytes": 1613
+    },
+    {
+      "file": "android/res/mipmap-xhdpi/ic_launcher_foreground.png",
+      "width": 216,
+      "height": 216,
+      "opaque": false,
+      "bytes": 2072
+    },
+    {
+      "file": "android/res/mipmap-xxhdpi/ic_launcher.png",
+      "width": 144,
+      "height": 144,
+      "opaque": true,
+      "bytes": 2173
+    },
+    {
+      "file": "android/res/mipmap-xxhdpi/ic_launcher_foreground.png",
+      "width": 324,
+      "height": 324,
+      "opaque": false,
+      "bytes": 2854
+    },
+    {
+      "file": "android/res/mipmap-xxxhdpi/ic_launcher.png",
+      "width": 192,
+      "height": 192,
+      "opaque": true,
+      "bytes": 2657
+    },
+    {
+      "file": "android/res/mipmap-xxxhdpi/ic_launcher_foreground.png",
+      "width": 432,
+      "height": 432,
+      "opaque": false,
+      "bytes": 3880
+    },
+    {
+      "file": "splash-1080x1920.png",
+      "width": 1080,
+      "height": 1920,
+      "opaque": true,
+      "bytes": 19949
+    },
+    {
+      "file": "android/res/drawable/splash.png",
+      "width": 1080,
+      "height": 1920,
+      "opaque": true,
+      "bytes": 19949
+    },
+    {
+      "file": "android/res/drawable-port-mdpi/splash.png",
+      "width": 320,
+      "height": 480,
+      "opaque": true,
+      "bytes": 4265
+    },
+    {
+      "file": "android/res/drawable-land-mdpi/splash.png",
+      "width": 480,
+      "height": 320,
+      "opaque": true,
+      "bytes": 4189
+    },
+    {
+      "file": "android/res/drawable-port-hdpi/splash.png",
+      "width": 480,
+      "height": 800,
+      "opaque": true,
+      "bytes": 7173
+    },
+    {
+      "file": "android/res/drawable-land-hdpi/splash.png",
+      "width": 800,
+      "height": 480,
+      "opaque": true,
+      "bytes": 6971
+    },
+    {
+      "file": "android/res/drawable-port-xhdpi/splash.png",
+      "width": 720,
+      "height": 1280,
+      "opaque": true,
+      "bytes": 11851
+    },
+    {
+      "file": "android/res/drawable-land-xhdpi/splash.png",
+      "width": 1280,
+      "height": 720,
+      "opaque": true,
+      "bytes": 12134
+    },
+    {
+      "file": "android/res/drawable-port-xxhdpi/splash.png",
+      "width": 960,
+      "height": 1600,
+      "opaque": true,
+      "bytes": 16766
+    },
+    {
+      "file": "android/res/drawable-land-xxhdpi/splash.png",
+      "width": 1600,
+      "height": 960,
+      "opaque": true,
+      "bytes": 17900
+    },
+    {
+      "file": "android/res/drawable-port-xxxhdpi/splash.png",
+      "width": 1280,
+      "height": 1920,
+      "opaque": true,
+      "bytes": 24458
+    },
+    {
+      "file": "android/res/drawable-land-xxxhdpi/splash.png",
+      "width": 1920,
+      "height": 1280,
+      "opaque": true,
+      "bytes": 24868
+    },
+    {
+      "file": "ios/AppIcon.appiconset/AppIcon-iphone-20@2x.png",
+      "width": 40,
+      "height": 40,
+      "opaque": true,
+      "bytes": 766
+    },
+    {
+      "file": "ios/AppIcon.appiconset/AppIcon-iphone-20@3x.png",
+      "width": 60,
+      "height": 60,
+      "opaque": true,
+      "bytes": 1061
+    },
+    {
+      "file": "ios/AppIcon.appiconset/AppIcon-iphone-29@2x.png",
+      "width": 58,
+      "height": 58,
+      "opaque": true,
+      "bytes": 1138
+    },
+    {
+      "file": "ios/AppIcon.appiconset/AppIcon-iphone-29@3x.png",
+      "width": 87,
+      "height": 87,
+      "opaque": true,
+      "bytes": 1511
+    },
+    {
+      "file": "ios/AppIcon.appiconset/AppIcon-iphone-40@2x.png",
+      "width": 80,
+      "height": 80,
+      "opaque": true,
+      "bytes": 1268
+    },
+    {
+      "file": "ios/AppIcon.appiconset/AppIcon-iphone-40@3x.png",
+      "width": 120,
+      "height": 120,
+      "opaque": true,
+      "bytes": 1712
+    },
+    {
+      "file": "ios/AppIcon.appiconset/AppIcon-iphone-60@2x.png",
+      "width": 120,
+      "height": 120,
+      "opaque": true,
+      "bytes": 1712
+    },
+    {
+      "file": "ios/AppIcon.appiconset/AppIcon-iphone-60@3x.png",
+      "width": 180,
+      "height": 180,
+      "opaque": true,
+      "bytes": 2393
+    },
+    {
+      "file": "ios/AppIcon.appiconset/AppIcon-ipad-20@1x.png",
+      "width": 20,
+      "height": 20,
+      "opaque": true,
+      "bytes": 396
+    },
+    {
+      "file": "ios/AppIcon.appiconset/AppIcon-ipad-20@2x.png",
+      "width": 40,
+      "height": 40,
+      "opaque": true,
+      "bytes": 766
+    },
+    {
+      "file": "ios/AppIcon.appiconset/AppIcon-ipad-29@1x.png",
+      "width": 29,
+      "height": 29,
+      "opaque": true,
+      "bytes": 604
+    },
+    {
+      "file": "ios/AppIcon.appiconset/AppIcon-ipad-29@2x.png",
+      "width": 58,
+      "height": 58,
+      "opaque": true,
+      "bytes": 1138
+    },
+    {
+      "file": "ios/AppIcon.appiconset/AppIcon-ipad-40@1x.png",
+      "width": 40,
+      "height": 40,
+      "opaque": true,
+      "bytes": 766
+    },
+    {
+      "file": "ios/AppIcon.appiconset/AppIcon-ipad-40@2x.png",
+      "width": 80,
+      "height": 80,
+      "opaque": true,
+      "bytes": 1268
+    },
+    {
+      "file": "ios/AppIcon.appiconset/AppIcon-ipad-76@1x.png",
+      "width": 76,
+      "height": 76,
+      "opaque": true,
+      "bytes": 1385
+    },
+    {
+      "file": "ios/AppIcon.appiconset/AppIcon-ipad-76@2x.png",
+      "width": 152,
+      "height": 152,
+      "opaque": true,
+      "bytes": 2311
+    },
+    {
+      "file": "ios/AppIcon.appiconset/AppIcon-ipad-83.5@2x.png",
+      "width": 167,
+      "height": 167,
+      "opaque": true,
+      "bytes": 2396
+    },
+    {
+      "file": "ios/AppIcon.appiconset/AppIcon-ios-marketing-1024@1x.png",
+      "width": 1024,
+      "height": 1024,
+      "opaque": true,
+      "bytes": 13205
+    },
+    {
+      "file": "ios/Splash.imageset/splash-2732x2732.png",
+      "width": 2732,
+      "height": 2732,
+      "opaque": true,
+      "bytes": 59593
+    }
+  ],
+  "nativeCopies": [
+    "E:\\珠宝销售软件\\mobile\\android\\app\\src\\main\\res",
+    "E:\\珠宝销售软件\\mobile\\ios\\App\\App\\Assets.xcassets"
+  ]
+}

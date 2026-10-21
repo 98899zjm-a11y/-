@@ -67,6 +67,29 @@ html:has(.a4-print-root),body:has(.a4-print-root){overflow:hidden}
 .a4-payment h4{font:400 2cqw/1.4 SimSun,serif;overflow-wrap:anywhere}
 .a4-payment p{font-size:1.6cqw;color:#81735e;line-height:1.6;margin-top:.7cqw;white-space:pre-wrap;overflow-wrap:anywhere}
 .a4-qr{width:14cqw;height:14cqw;object-fit:contain;background:#fff;image-rendering:pixelated}
+.a4-payments-compact .a4-payment-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:2cqw}
+.a4-payments-compact .a4-payment{display:flex;flex-direction:column;gap:1.4cqw;padding:1cqw}
+.a4-payments-compact .a4-payment h4{font-size:1.7cqw;line-height:1.35}
+.a4-payments-compact .a4-payment p{font-size:1.4cqw;line-height:1.4;min-height:4cqw}
+.a4-payments-compact .a4-qr{width:25mm;height:25mm;align-self:center;max-width:100%}
+.a4-has-payments .a4-products{gap:2cqw}
+.a4-has-payments .a4-brand{padding-bottom:1.5cqw}
+.a4-has-payments .a4-brand>div{font-size:3.5cqw}
+.a4-has-payments .a4-meta{padding:.8cqw 0}
+.a4-has-payments .a4-document-title{padding:.5cqw 0 1.2cqw}
+.a4-has-payments .a4-document-title h1{font-size:2.7cqw}
+.a4-has-payments .a4-item{padding-bottom:1cqw}
+.a4-has-payments .a4-item-heading p{line-height:1.35}
+.a4-has-payments .a4-item-parameters{margin-top:.5cqw!important;line-height:1.3}
+.a4-has-payments .a4-item .a4-fees table{line-height:1.25}
+.a4-has-payments .a4-item .a4-fees th{padding:.35cqw 0}
+.a4-has-payments .a4-item .a4-fees td{padding:.2cqw 0}
+.a4-has-payments .a4-item-subtotal{font-size:1.65cqw;line-height:1.35}
+.a4-has-payments .a4-payments{margin:1cqw 0}
+.a4-has-payments .a4-qr{width:25mm;height:25mm}
+.a4-has-payments .a4-payments-compact .a4-payment{padding:.6cqw}
+.a4-has-payments .a4-payments-compact .a4-payment{padding:.4cqw;gap:.8cqw}
+.a4-has-payments .a4-payments-compact .a4-payment-grid{gap:1.5cqw}
 .a4-total{display:flex;justify-content:space-between;align-items:center;gap:3cqw;padding-top:2cqw;border-top:.18cqw solid #7a2939;margin-top:2.5cqw;break-inside:avoid}
 .a4-total>span{font-size:2cqw;color:#81735e}
 .a4-total>strong{font:400 4.2cqw/1.15 Arial,sans-serif;white-space:nowrap;font-variant-numeric:tabular-nums}
@@ -84,6 +107,8 @@ html:has(.a4-print-root),body:has(.a4-print-root){overflow:hidden}
   .a4-print-root .a4-document{width:210mm!important;max-width:none!important;margin:0!important}
   .a4-print-root .a4-preview-page{width:210mm!important;max-width:none!important;margin:0!important;box-shadow:none!important;break-after:page;page-break-after:always}
   .a4-print-root .a4-preview-page:last-child{break-after:auto;page-break-after:auto}
-  .a4-print-root .a4-sheet{width:210mm!important;min-height:297mm!important;height:auto!important;padding:12mm!important;box-shadow:none!important;border:0!important;overflow:visible!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+  .a4-print-root .a4-sheet{width:210mm!important;min-height:294mm!important;height:auto!important;padding:12mm!important;display:block!important;box-shadow:none!important;border:0!important;overflow:visible!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}
   .a4-print-root .a4-qr{width:28mm!important;height:28mm!important;object-fit:contain}
+  .a4-print-root .a4-has-payments .a4-qr{width:25mm!important;height:25mm!important}
+  .a4-print-root .a4-payments-compact .a4-qr{width:25mm!important;height:25mm!important}
 }

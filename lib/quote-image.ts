@@ -1,5 +1,5 @@
 import type { QuotePaper } from "@/components/quote-card";
-import { money } from "@/components/quote-card";
+import { money, quotePaperLayout } from "@/components/quote-card";
 
 const ink = "#27231f", muted = "#746b60", line = "#e3ded5", accent = "#7a2939";
 function loadImage(src: string): Promise<HTMLImageElement> {
@@ -21,7 +21,35 @@ export async function createQuoteImage(paper: QuotePaper): Promise<string> {
   text(wordmark, 180, 37, Math.min(23, 316 / Math.max(1, wordmark.length * .68)), ink, "center", true);
   text(paper.brand.name || "鑫金源", 180, 57, 11, ink, "center", true); rule(69);
   text(`客户：${paper.customerName}`, 20, 88, 11, muted); text(paper.date, 340, 88, 11, muted, "right");
-  if (paper.products) {
+  const layout = quotePaperLayout(paper);
+  if (layout.attached) {
+    if (paper.products?.length) paper.products.forEach((product,index)=>{
+      const y=layout.productTop+index*(layout.productHeight+layout.productGap);
+      coverImage(productImages[index],20,y,44);
+      wrapped(product.title,258,12).forEach((value,i)=>text(value,74,y+13+i*15,12,ink,"left",true));
+      wrapped(product.specs,258,8.5).forEach((value,i)=>text(value,74,y+31+i*11,8.5,muted));
+      const parameterWidth=320/Math.max(1,product.parameters.length);
+      product.parameters.forEach((parameter,i)=>text(`${parameter.label}：${parameter.value}`,20+i*parameterWidth,y+55,8,muted));
+      product.lines.forEach((item,i)=>{const x=20+(i%2)*164,baseline=y+73+Math.floor(i/2)*16;text(item.label,x,baseline,9,muted);text(item.value,x+156,baseline,9,ink,"right");});
+      rule(y+92);text(product.totalLabel,20,y+106,10,muted);text(`${money(product.total)} 元`,340,y+106,10,ink,"right");
+    });
+    else {
+      coverImage(image,20,105,52);
+      const titleLines=wrapped(paper.title,258,12);titleLines.forEach((value,i)=>text(value,82,118+i*15,12,ink,"left",true));
+      wrapped(paper.specs,258,9).forEach((value,i)=>text(value,82,134+(titleLines.length-1)*15+i*11,9,muted));
+      const col=320/Math.max(1,paper.parameters.length);
+      paper.parameters.forEach((parameter,i)=>{text(parameter.label,20+i*col,179,8,muted);text(parameter.value,20+i*col,192,9);});
+    }
+    paper.lines.forEach((item,i)=>{const y=layout.linePositions[i]+10;if(item.divider)rule(y-14);text(item.label,20,y,10,muted);text(item.value,340,y,10,ink,"right");if(item.detail)text(item.detail,20,y+11,8,muted);});
+    text("收款方式",20,layout.paymentTop+11,11,ink,"left",true);
+    paper.payments?.forEach((method,index)=>{
+      const column=index%layout.columns,row=Math.floor(index/layout.columns),x=20+column*(layout.paymentWidth+8),y=layout.paymentGridTop+row*(layout.cardHeight+8);
+      text(method.name,x,y+10,paper.payments!.length>2?8.5:10,ink,"left",true);
+      method.detailLines.forEach((value,i)=>text(value,x,y+23+i*10,8,muted));
+      const source=paymentImages[index];
+      if(source){const scale=Math.min(layout.qrSize/source.naturalWidth,layout.qrSize/source.naturalHeight),width=source.naturalWidth*scale,height=source.naturalHeight*scale;ctx.save();ctx.imageSmoothingEnabled=false;ctx.drawImage(source,x+(layout.paymentWidth-width)/2,y+34+(layout.qrSize-height)/2,width,height);ctx.restore();}
+    });
+  } else if (paper.products) {
     paper.products.forEach((product, index) => {
       const y = 105 + index * 195;
       coverImage(productImages[index], 20, y, 64);
@@ -31,7 +59,7 @@ export async function createQuoteImage(paper: QuotePaper): Promise<string> {
       product.lines.forEach((item, i) => { text(item.label, 20, y + 94 + i * 17, 10, muted); text(item.value, 340, y + 94 + i * 17, 10, ink, "right"); });
       rule(y + 155); text(product.totalLabel, 20, y + 170, 11, muted); text(`${money(product.total)} 元`, 340, y + 170, 11, ink, "right");
     });
-    paper.lines.forEach((item, index) => { text(item.label, 20, 500 + index * 17, 10, muted); text(item.value, 340, 500 + index * 17, 10, ink, "right"); });
+    paper.lines.forEach((item, index) => { const y=layout.linePositions[index]+10;text(item.label,20,y,10,muted);text(item.value,340,y,10,ink,"right");if(item.detail)text(item.detail,20,y+11,8,muted); });
   } else {
     coverImage(image, 20, 105, 94);
     text(paper.typeLabel, 127, 120, 10, accent);
@@ -46,7 +74,7 @@ export async function createQuoteImage(paper: QuotePaper): Promise<string> {
       paper.continuation?.forEach((value, index) => text(value, 20, 315 + index * 16, 11, muted));
     }
   }
-  if (paper.payments?.length) {
+  if (paper.payments?.length && !layout.attached) {
     const inline = paper.paymentPlacement === "inline";
     text("收款方式", 20, inline ? 370 : 290, 13, ink, "left", true);
     paper.payments.forEach((method, index) => {

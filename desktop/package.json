@@ -1,0 +1,28 @@
+{
+  "name": "xjy-jewelry-offline",
+  "version": "1.1.0",
+  "description": "鑫金源珠宝离线报价工作室",
+  "author": "鑫金源",
+  "private": true,
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "build": "node build.cjs",
+    "package": "electron-builder --win portable --x64"
+  },
+  "devDependencies": {
+    "electron": "44.7.0",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "cn.xjy.jewelry.offline",
+    "productName": "鑫金源珠宝报价",
+    "copyright": "鑫金源珠宝",
+    "asar": true,
+    "directories": { "output": "release" },
+    "files": ["main.cjs", "preload.cjs", "backup.cjs", "backend.cjs", "runtime.cjs", "local-auth.cjs", "lan.cjs", "network-workspace.cjs", "print-settings.cjs", "generated/**", "renderer-dist/**", "migrations/**", "assets/**", "package.json"],
+    "win": { "target": [{ "target": "portable", "arch": ["x64"] }, { "target": "nsis", "arch": ["x64"] }], "signExecutable": false, "icon": "assets/icon.ico" },
+    "portable": { "artifactName": "鑫金源珠宝报价-局域网版-1.1.0.exe" },
+    "nsis": { "oneClick": false, "perMachine": false, "allowToChangeInstallationDirectory": true, "createDesktopShortcut": true, "shortcutName": "鑫金源珠宝工作室", "artifactName": "鑫金源珠宝-局域网版-安装程序-1.1.0.exe" }
+  }
+}

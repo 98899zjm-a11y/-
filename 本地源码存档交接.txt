@@ -1,0 +1,28 @@
+本地源码存档交接记录（2026-10-21）
+
+本次范围：将 E:\珠宝销售软件 当前工作树中的源码安全存入本地 Git。
+基准：main，e0b3d5f；原有4次提交保留。
+提交身份：mingsir888 <98899zjm@gmail.com>。
+
+安全检查：
+Gitleaks 8.30.1，从 gitleaks/gitleaks 官方 GitHub Release 下载，SHA256 与发布校验文件一致。
+候选源码副本及原有4次提交扫描均退出0，无密钥规则命中。扫描仅在本机运行，无源码上传。
+补充手机号、身份证、邮箱、凭据赋值与SQL数据语句检查：手机号均为13800000000测试值；命中邮箱为测试域名、依赖作者联系信息或图片文件名误报；SQL命中是程序语句而非客户数据导出。
+口令命中来自测试用例；mobile/tests/protocol-fixtures.cjs 中固定私钥明确属于 PUBLIC TEST MATERIAL，不能用于生产。
+desktop/local-auth.cjs 正常账号口令来自用户输入，使用随机salt及scrypt；局域网正式身份通过运行时生成。
+public/warranty-template.jpg 已目视检查，为未填写的模板。
+desktop/tests/payment-code.ts 中二维码经本地解码为 XJY-TEST-PAYMENT，无真实收款地址。
+.openai/hosting.json 中项目标识为部署关联标识，不是访问凭据。
+
+排除项：
+SQLite数据库及sidecar、环境文件、常见密钥、依赖、构建输出、安装包与压缩包。
+旧补丁/交付目录作为发布副本整体忽略，保留本地文件；*.asar 不纳入源码。
+保留 build/ 中原有源码与许可证例外。
+未读取或修改正式业务数据库；未运行软件、备份/恢复流程或业务测试。
+
+提交前需确保实际暂存清单与已扫描清单一致，并对暂存内容再次执行密钥扫描。
+本次存档包含此前已有开发成果；业务行为、完整构建及安装验收未在此次重测，不据此宣称功能通过。
+待 DeepSeek 审查：当前没有可调用的DeepSeek审查工具，未执行独立外部审查。
+仅保存本地提交，不设置远程、不上传、不清理、不重置。
+
+实际暂存格式检查发现Android生成工程的尾随空格/末尾空行，已备份并只修正 mobile/android/build.gradle 和 mobile/android/gradle/wrapper/gradle-wrapper.properties 的空白格式，未改变执行逻辑。

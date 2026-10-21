@@ -32,7 +32,7 @@ function Product({ product }: { product: PaperProduct }) {
 // Semantic text, original photographs and QR codes are laid out directly on A4.
 // QuotePaper already applies customer visibility rules and historical snapshots.
 export function A4Page({ paper }: { paper: QuotePaper }) {
-  return <div className="a4-preview-page"><article className="a4-sheet" aria-label={`${paper.typeLabel} A4 第${paper.page}页`} data-quote-number={paper.number}>
+  return <div className="a4-preview-page"><article className={`a4-sheet${paper.payments?.length ? " a4-has-payments" : ""}`} aria-label={`${paper.typeLabel} A4 第${paper.page}页`} data-quote-number={paper.number}>
     <header className="a4-brand"><div>{paper.brand.english || "XIN JIN YUAN"}</div><p>{paper.brand.name || "鑫金源"}</p></header>
     <div className="a4-meta"><span>客户：{paper.customerName}</span><span>日期：{paper.date}</span></div>
     <div className="a4-document-title"><h1>{paper.typeLabel}</h1><p>报价编号：{paper.number}</p></div>
@@ -43,7 +43,7 @@ export function A4Page({ paper }: { paper: QuotePaper }) {
       </>}
       {!!paper.lines.length && <PriceTable lines={paper.lines} heading={paper.products?.length ? "整单明细" : "费用明细"} />}
       {paper.continuation && <section className="a4-continuation"><h3>{paper.continuationTitle || "补充说明"}</h3><p>{paper.continuation.join("\n")}</p></section>}
-      {!!paper.payments?.length && <section className="a4-payments"><h3>收款方式</h3><div className="a4-payment-grid">{paper.payments.map(method => <section className="a4-payment" key={method.id}><div><h4>{method.name}</h4><p>{method.detailLines.join("\n")}</p></div>{method.image && <img className="a4-qr" src={method.image} alt={`${method.name}收款二维码`} />}</section>)}</div></section>}
+      {!!paper.payments?.length && <section className={`a4-payments${paper.payments.length>2 ? " a4-payments-compact" : ""}`}><h3>收款方式</h3><div className="a4-payment-grid">{paper.payments.map(method => <section className="a4-payment" key={method.id}><div><h4>{method.name}</h4><p>{method.detailLines.join("\n")}</p></div>{method.image && <img className="a4-qr" src={method.image} alt={`${method.name}收款二维码`} />}</section>)}</div></section>}
     </div>
     <div className="a4-total"><span>{paper.totalLabel}</span><strong>{amount(paper.total)}<small>元</small></strong></div>
     {paper.note && <p className="a4-note">{paper.note}</p>}

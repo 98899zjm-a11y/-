@@ -73,7 +73,7 @@ test('A4以旧换新退款方向与金额保留，打印不重新套销售价格
 test('A4打印合同：真实纸张、单层12mm留白、打印隔离、二维码至少25mm、末页无额外分页', () => {
   const css = readFileSync(resolve('components/a4-quotation.css'), 'utf8');
   assert.match(css, /@page\s*\{size:A4 portrait;margin:0\}/);
-  assert.match(css, /width:210mm!important;min-height:297mm!important;height:auto!important;padding:12mm!important/);
+  assert.match(css, /width:210mm!important;min-height:294mm!important;height:auto!important;padding:12mm!important/);
   assert.match(css, /body:has\(\.a4-print-root\)>\*:not\(\.a4-print-root\)\{display:none!important\}/);
   assert.match(css, /\.a4-print-root \.a4-toolbar\{display:none!important\}/);
   assert.match(css, /\.a4-preview-page:last-child\{break-after:auto;page-break-after:auto\}/);

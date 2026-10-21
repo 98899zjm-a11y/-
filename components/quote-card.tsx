@@ -15,13 +15,37 @@ export type QuotePaper = {
   title: string; specs: string; image: string; parameters: { label: string; value: string }[];
   lines: PaperLine[]; total: number; totalLabel: string; note: string; page: number; pages: number;
   number: string; continuation?: string[]; continuationTitle?: string;
-  payments?: PaperPayment[]; paymentPlacement?: "inline" | "page"; products?: PaperProduct[];
+  payments?: PaperPayment[]; paymentPlacement?: "inline" | "page" | "attached"; products?: PaperProduct[];
 };
 export const money = (value: number) => Number(value || 0).toLocaleString("zh-CN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const round = (value: number) => Math.round((value + Number.EPSILON) * 100) / 100;
 const weight = (value: number) => `${Math.max(0, value || 0).toFixed(3)} 克`;
 const metalNames: Record<string, string> = { gold: "黄金", platinum: "Pt950铂金", silver: "白银", kgold: "K金" };
 const saleKinds = ["sale", "custom", "tradein"];
+
+export function quotePaperLayout(paper: QuotePaper) {
+  const attached = paper.paymentPlacement === "attached";
+  const paymentCount = paper.payments?.length || 0;
+  const columns = paymentCount <= 2 ? Math.max(1, paymentCount) : Math.min(4, paymentCount);
+  const rows = Math.ceil(paymentCount / columns);
+  const qrSize = paper.payments?.some(method => method.image) ? paymentCount <= 2 ? 80 : 60 : 0;
+  const cardHeight = paymentCount <= 2 ? 35 + qrSize : 34 + qrSize;
+  const paymentHeight = paymentCount ? 18 + rows * cardHeight + Math.max(0, rows - 1) * 8 : 0;
+  const paymentTop = 530 - paymentHeight;
+  const productHeight = attached ? 112 : 188, productGap = attached ? 6 : 7;
+  const productTop = 105;
+  const contentBottom = paper.products?.length ? productTop + paper.products.length * (productHeight + productGap) - productGap : attached ? 201 : 290;
+  const linesTop = paper.products?.length ? contentBottom + 6 : attached ? 207 : 316;
+  let next = linesTop;
+  const linePositions = paper.lines.map(line => { const position = next; next += (attached || paper.products ? 16 : Math.min(42, 212 / Math.max(1, paper.lines.length))) + (line.detail && (attached || paper.products) ? 10 : 0); return position; });
+  const paymentWidth = (320 - Math.max(0, columns - 1) * 8) / columns;
+  return { attached, productTop, productHeight, productGap, contentBottom, linesTop, linePositions, lineBottom: next, paymentTop, paymentHeight, columns, rows, qrSize, cardHeight, paymentWidth, paymentGridTop: paymentTop + 18 };
+}
+
+function fitsQuoteContent(paper: QuotePaper) {
+  const layout = quotePaperLayout(paper);
+  return layout.lineBottom <= (paper.payments?.length ? layout.paymentTop - 8 : 532);
+}
 
 export function calculateQuote(q: QuoteDraft) {
   const subtotal = domainCalculate({ ...q, discountType: "none" }).subtotal;
@@ -45,6 +69,7 @@ export function wrapQuoteText(value: string, width = 26): string[] {
 export function createQuotePages(q: QuoteDraft, settings: AppSettings, meta: { customerName?: string; date?: string; number?: string } = {}): QuotePaper[] {
   const t = calculateQuote(q), trade = { ...defaultTradeIn, ...q.tradeIn };
   const itemizedSale = q.type === "sale" && !!q.saleItems?.length;
+  const itemizedTradeIn = q.type === "tradein" && !!q.tradeInItems?.length;
   const itemizedRecycling = q.type === "recycling" && !!q.recyclingItems?.length;
   const supplemental: string[] = [];
   const appendText = (label: string, value: string) => { if (value) supplemental.push(`${label}：`, ...wrapQuoteText(value, 25), ""); };
@@ -54,7 +79,7 @@ export function createQuotePages(q: QuoteDraft, settings: AppSettings, meta: { c
     return `${wrapQuoteText(value, width - 6)[0]}（见续页）`;
   };
   const displayTitle = shorten(q.title || "珠宝报价", "报价名称", 22);
-  const displaySpecs = shorten(itemizedSale ? `共 ${q.saleItems!.length} 款珠宝` : itemizedRecycling ? `共 ${q.recyclingItems!.length} 件回收首饰` : q.specs || (q.type === "recycling" ? q.recyclingName || metalNames[q.material] || q.material : q.material), "规格说明", 32);
+  const displaySpecs = shorten(itemizedSale ? `共 ${q.saleItems!.length} 款珠宝` : itemizedTradeIn ? `共 ${q.tradeInItems!.length} 款新珠宝` : itemizedRecycling ? `共 ${q.recyclingItems!.length} 件回收首饰` : q.specs || (q.type === "recycling" ? q.recyclingName || metalNames[q.material] || q.material : q.material), "规格说明", 32);
   const displayCustomer = shorten(meta.customerName || "未填写客户", "客户姓名", 14);
   const fullNote = q.note || settings.brand.note || "";
   const displayNote = wrapQuoteText(fullNote, 26).length > 2 ? "完整备注见补充说明续页" : fullNote;
@@ -62,7 +87,7 @@ export function createQuotePages(q: QuoteDraft, settings: AppSettings, meta: { c
   if (q.type === "custom" && q.customDetails) appendText("定制要求", q.customDetails);
   const typeLabels: Record<QuoteType, string> = { sale: "珠宝报价单", custom: "定制报价单", tradein: "以旧换新报价单", repair: "维修报价单", recycling: "回收报价单" };
   const aggregateWeight = t.itemTotals.reduce((sum, item) => sum + Math.round(item.weight * 1000) * item.quantity, 0) / 1000;
-  const parameters = itemizedSale
+  const parameters = itemizedSale || itemizedTradeIn
     ? [{ label: "商品款数", value: `${t.itemTotals.length} 款` }, { label: "件数", value: `${t.itemTotals.reduce((sum, item) => sum + item.quantity, 0)} 件` }, { label: "合计金重", value: weight(aggregateWeight) }]
     : itemizedRecycling
       ? [{ label: "回收物品", value: `${t.itemTotals.length} 件` }, { label: "合计重量", value: weight(aggregateWeight) }]
@@ -73,7 +98,7 @@ export function createQuotePages(q: QuoteDraft, settings: AppSettings, meta: { c
       : q.type === "repair"
         ? [{ label: "维修项目", value: `${q.repairItems.length} 项` }, ...(q.insured ? [{ label: "确认价值", value: `${money(q.insuredValue)} 元` }, { label: "保价比例", value: `${q.insuranceRate}%` }] : [])]
         : [{ label: "金重", value: weight(q.weight) }, { label: "金价", value: `${money(q.goldPrice)} 元/克` }, { label: "每克工费", value: `${money(q.laborPrice)} 元/克` }];
-  const extraLines = itemizedSale ? [] : q.extras.map((item, index) => ({ label: shorten(item.name || "附加费", `附加费${index + 1}名称`, 15), value: `${money(item.amount)} 元` }));
+  const extraLines = itemizedSale || itemizedTradeIn ? [] : q.extras.map((item, index) => ({ label: shorten(item.name || "附加费", `附加费${index + 1}名称`, 15), value: `${money(item.amount)} 元` }));
   let source: PaperLine[];
   const ending: PaperLine[] = [];
   if (q.type === "repair") {
@@ -91,6 +116,7 @@ export function createQuotePages(q: QuoteDraft, settings: AppSettings, meta: { c
       : [{ label: "金料费", value: `${money(t.metal)} 元` }, { label: "加工费", value: `${money(t.labor)} 元` }, ...extraLines];
     const adjustment = round(t.base - (t.metal + t.labor + t.extras + (q.type === "tradein" ? t.depreciation : 0)));
     if (adjustment) source.push({ label: "金额调整", value: `${adjustment < 0 ? "− " : ""}${money(Math.abs(adjustment))} 元` });
+    if (itemizedTradeIn) ending.push({ label: `旧料 · ${q.tradeInMaterialName || metalNames[trade.oldMaterial]}`, value: weight(trade.oldWeight) });
     ending.push({ label: q.type === "tradein" && trade.mode === "value" ? "新首饰价" : "报价合计", value: `${money(t.base)} 元`, divider: true });
     if (q.discountType !== "none") ending.push({ label: q.discountType === "percent" ? `整单折扣 · ${Number((q.discountValue / 10).toFixed(3))} 折` : "优惠减免", value: `− ${money(t.discount)} 元` });
     if (q.type === "tradein") {
@@ -100,14 +126,15 @@ export function createQuotePages(q: QuoteDraft, settings: AppSettings, meta: { c
   }
   const products: PaperProduct[] = [];
   const productDetails: { product: PaperProduct; lines: PaperLine[] }[] = [];
-  if (itemizedSale) {
-    q.saleItems!.forEach((item, index) => {
+  if (itemizedSale || itemizedTradeIn) {
+    (itemizedTradeIn ? q.tradeInItems! : q.saleItems!).forEach((item, index) => {
       const totals = t.itemTotals.find(value => value.id === item.id);
       if (!totals) throw new Error("商品明细未能完成计算，请重新填写报价");
-      const fullLines: PaperLine[] = [{ label: "金料费", value: `${money(totals.metal)} 元` }, { label: "加工费", value: `${money(totals.labor)} 元` }, ...item.extras.map((extra, i) => ({ label: shorten(extra.name, `商品${index + 1}附加费${i + 1}名称`, 15), value: `${money(extra.amount * totals.quantity)} 元` }))];
-      const adjustment = round(totals.subtotal - totals.metal - totals.labor - totals.extras);
+      const fullLines: PaperLine[] = [...(itemizedTradeIn && trade.mode === "gram" ? [{ label: "折旧费", value: `${money(totals.depreciation || 0)} 元` }, ...(totals.additionalWeight ? [{ label: "补金费用", value: `${money(totals.metal)} 元` }] : [])] : [{ label: "金料费", value: `${money(totals.metal)} 元` }]), { label: "加工费", value: `${money(totals.labor)} 元` }, ...item.extras.map((extra, i) => ({ label: shorten(extra.name, `商品${index + 1}附加费${i + 1}名称`, 15), value: `${money(extra.amount * totals.quantity)} 元` }))];
+      const adjustment = round(totals.subtotal - totals.metal - totals.labor - totals.extras - (itemizedTradeIn ? totals.depreciation || 0 : 0));
       if (adjustment) fullLines.push({ label: "金额调整", value: `${adjustment < 0 ? "− " : ""}${money(Math.abs(adjustment))} 元` });
-      const product: PaperProduct = { id: item.id, title: shorten(item.title, `商品${index + 1}名称`, 17), specs: shorten([item.material, item.specs].filter(Boolean).join(" · "), `商品${index + 1}规格`, 24), image: item.image || "/ring.jpg", parameters: [{ label: "单件重量", value: weight(item.weight) }, { label: "数量", value: `${totals.quantity} 件` }], lines: fullLines.slice(0, 4), total: totals.subtotal, totalLabel: totals.quantity > 1 ? "款式合计" : "单件小计" };
+      const product: PaperProduct = { id: item.id, title: shorten(item.title, `商品${index + 1}名称`, 17), specs: shorten([item.material, item.specs].filter(Boolean).join(" · "), `商品${index + 1}规格`, 24), image: item.image || "/ring.jpg", parameters: [{ label: "单件重量", value: weight(item.weight) }, { label: "数量", value: `${totals.quantity} 件` }, ...(itemizedTradeIn && trade.mode === "gram" ? [{ label: "抵换", value: weight(totals.exchangeWeight || 0) }, ...(totals.additionalWeight ? [{ label: "补金", value: weight(totals.additionalWeight) }] : [])] : [])], lines: fullLines.slice(0, 4), total: totals.subtotal, totalLabel: itemizedTradeIn ? "本款换新费用" : totals.quantity > 1 ? "款式合计" : "单件小计" };
+      if (q.paymentMethods?.length) product.lines = product.lines.map(line => { if (wrapQuoteText(line.label,7).length <= 1) return line; appendText(`商品${index + 1}费用名称`,line.label); return { ...line,label:`${wrapQuoteText(line.label,5)[0]}…` }; });
       products.push(product);
       if (fullLines.length > 4) productDetails.push({ product, lines: fullLines.slice(4) });
     });
@@ -123,9 +150,12 @@ export function createQuotePages(q: QuoteDraft, settings: AppSettings, meta: { c
   // A snapshot's empty list means no payment section, even when defaults change.
   const methods: PaymentMethod[] = saleKinds.includes(q.type) ? q.paymentMethods ?? [] : [];
   const payments: PaperPayment[] = methods.map(method => {
-    const name = shorten(method.name, "收款方式名称", 14);
-    const details = wrapQuoteText(method.details || "", 15);
-    if (details.length > 2) { appendText(`${method.name}收款信息`, method.details); return { id: method.id, name, detailLines: ["完整收款信息见续页"], image: method.image || "" }; }
+    const compact = methods.length > 2;
+    let name = method.name;
+    const maxName = compact ? 7 : 14;
+    if (wrapQuoteText(name,maxName).length > 1) { appendText("收款方式名称", name); name = `${wrapQuoteText(name,compact ? 5 : 11)[0]}…`; }
+    const details = wrapQuoteText(method.details || "", compact ? 7 : 15);
+    if (details.length > 2) { appendText(`${method.name}收款信息`, method.details); return { id: method.id, name, detailLines: [compact ? "详见补充说明" : "完整收款信息见续页"], image: method.image || "" }; }
     return { id: method.id, name, detailLines: details, image: method.image || "" };
   });
   const signedTotal = t.total;
@@ -134,21 +164,27 @@ export function createQuotePages(q: QuoteDraft, settings: AppSettings, meta: { c
   const pages: QuotePaper[] = [];
   const addPage = (value: Partial<QuotePaper> & { lines: PaperLine[] }) => pages.push({ ...common, ...value, page: 0, pages: 0 });
   if (products.length) {
-    for (let index = 0; index < products.length; index += 2) addPage({ lines: [], products: products.slice(index, index + 2) });
+    const paymentPart = payments.length ? { payments, paymentPlacement: "attached" as const } : {};
+    const two = { ...common, ...paymentPart, lines: ending, products: products.slice(-2), page: 0, pages: 0 };
+    const capacity = fitsQuoteContent(two) && payments.length <= 2 ? 2 : 1;
+    const lastCount = Math.min(capacity, products.length % 2 || 2);
+    const finalStart = products.length - lastCount;
+    for (let index = 0; index < finalStart; index += 2) addPage({ lines: [], products: products.slice(index, Math.min(index + 2, finalStart)) });
+    const last = { ...common, ...paymentPart, lines: ending, products: products.slice(finalStart), page: 0, pages: 0 };
+    if (!fitsQuoteContent(last)) throw new Error("商品费用与收款信息过多，请精简备注或收款方式后重新生成");
+    addPage({ ...paymentPart, lines: ending, products: products.slice(finalStart) });
     for (const detail of productDetails) for (let index = 0; index < detail.lines.length; index += 4) addPage({ title: detail.product.title, specs: detail.product.specs, image: detail.product.image, parameters: detail.product.parameters, lines: detail.lines.slice(index, index + 4) });
-    if (!payments.length && ending.length <= 2) pages[products.length % 2 ? Math.floor(products.length / 2) : products.length / 2 - 1].lines = ending;
-  }
-  if (!payments.length && !products.length) {
+  } else if (!payments.length) {
     const size = q.type === "repair" ? 3 : 4;
     const chunks: PaperLine[][] = [];
     for (let i = 0; i < source.length; i += size) chunks.push(source.slice(i, i + size));
     if (!chunks.length) chunks.push([]);
     chunks.forEach((chunk, index) => addPage({ lines: index === chunks.length - 1 ? [...chunk, ...ending] : chunk }));
   } else if (payments.length) {
-    const remaining = [...source, ...ending];
-    while (remaining.length > 2) addPage({ lines: remaining.splice(0, Math.min(4, remaining.length - 2)) });
-    addPage({ lines: remaining, payments: payments.slice(0, 2), paymentPlacement: "inline" });
-    for (let index = 2; index < payments.length; index += 2) addPage({ lines: [], payments: payments.slice(index, index + 2), paymentPlacement: "page" });
+    const remaining = [...source];
+    while (!fitsQuoteContent({ ...common, lines: [...remaining, ...ending], payments, paymentPlacement: "attached", page:0, pages:0 }) && remaining.length) addPage({ lines: remaining.splice(0, Math.min(4, remaining.length)) });
+    if (!fitsQuoteContent({ ...common, lines: [...remaining, ...ending], payments, paymentPlacement: "attached", page:0, pages:0 })) throw new Error("费用与收款信息无法完整放入报价单，请减少收款方式后重新生成");
+    addPage({ lines: [...remaining, ...ending], payments, paymentPlacement: "attached" });
   }
   for (let index = 0; index < supplemental.length; index += 11) addPage({ lines: [], continuation: supplemental.slice(index, index + 11), continuationTitle: "补充说明", note: "" });
   return pages.map((paper, index) => ({ ...paper, page: index + 1, pages: pages.length }));
@@ -156,12 +192,19 @@ export function createQuotePages(q: QuoteDraft, settings: AppSettings, meta: { c
 
 export default function QuoteCard({ paper }: { paper: QuotePaper }) {
   const rowHeight = paper.paymentPlacement === "inline" ? 28 : Math.min(42, 212 / Math.max(1, paper.lines.length));
+  const layout = quotePaperLayout(paper), cq = (value: number) => `${value / 3.6}cqw`;
   return <div className="paper-frame"><article className={`quote-paper qp-paper ${paper.paymentPlacement ? `qp-payment-${paper.paymentPlacement}` : ""} ${paper.products ? "qp-multi" : ""}`} aria-label={`${paper.typeLabel} 第${paper.page}页`}>
     <header className="paper-brand"><div style={{ fontSize: `${Math.min(6.4, 88 / Math.max(1, (paper.brand.english || "XIN JIN YUAN").length * .68))}cqw` }}>{paper.brand.english || "XIN JIN YUAN"}</div><span>{paper.brand.name || "鑫金源"}</span></header>
     <div className="paper-meta"><span>客户：{paper.customerName}</span><span>{paper.date}</span></div>
-    {paper.products ? <><section className="qp-product-stack">{paper.products.map((product, index) => <section className="qp-compact-product" key={product.id} style={{ top: `${index * 195 / 3.6}cqw` }}><img src={product.image} alt={product.title} /><div className="qp-compact-heading"><h3>{product.title}</h3><p>{product.specs}</p></div><div className="qp-compact-parameters">{product.parameters.map(parameter => <span key={parameter.label}>{parameter.label}：{parameter.value}</span>)}</div><dl>{product.lines.map((item, i) => <div key={i}><dt>{item.label}</dt><dd>{item.value}</dd></div>)}</dl><div className="qp-item-total"><span>{product.totalLabel}</span><strong>{money(product.total)} 元</strong></div></section>)}</section><div className="qp-multi-summary">{paper.lines.map((item, index) => <div key={index}><span>{item.label}</span><span>{item.value}</span></div>)}</div></> : <><section className="paper-product"><img src={paper.image} alt={paper.title} /><div><p>{paper.typeLabel}</p><h3>{paper.title}</h3><span>{paper.specs}</span></div></section><section className="paper-parameters" style={{ gridTemplateColumns: `repeat(${paper.parameters.length}, minmax(0, 1fr))` }}>{paper.parameters.map(item => <div key={item.label}><span>{item.label}</span><strong>{item.value}</strong></div>)}</section></>}
-    {!paper.products && paper.paymentPlacement !== "page" && <section className="paper-details"><h4>{paper.continuation ? paper.continuationTitle || "补充说明" : "费用明细"}</h4>{paper.continuation ? <p className="paper-continuation">{paper.continuation.join("\n")}</p> : <dl>{paper.lines.map((item, index) => <div className={`paper-line ${item.divider ? "divider" : ""}`} key={index} style={{ top: `${(28 + index * rowHeight) / 3.6}cqw` }}><dt>{item.label}{item.detail && <small>{item.detail}</small>}</dt><dd>{item.value}</dd></div>)}</dl>}</section>}
-    {!!paper.payments?.length && <section className="qp-payments" aria-label="收款方式"><h4>收款方式</h4><div className="qp-payment-grid">{paper.payments.map(method => <div className="qp-payment-card" key={method.id}><h5>{method.name}</h5><p>{method.detailLines.join("\n")}</p>{method.image && <img src={method.image} alt={`${method.name}收款二维码`} />}</div>)}</div></section>}
+    {layout.attached ? <>
+      {paper.products?.length ? paper.products.map((product,index) => <section className="qp-attached-product" key={product.id} style={{top:cq(layout.productTop+index*(layout.productHeight+layout.productGap)),height:cq(layout.productHeight)}}><img src={product.image} alt={product.title}/><div className="qp-attached-heading"><h3>{product.title}</h3><p>{product.specs}</p></div><div className="qp-attached-parameters">{product.parameters.map(parameter=><span key={parameter.label}>{parameter.label}：{parameter.value}</span>)}</div><dl className="qp-attached-fees">{product.lines.map((line,index)=><div key={index}><dt>{line.label}</dt><dd>{line.value}</dd></div>)}</dl><div className="qp-attached-subtotal"><span>{product.totalLabel}</span><strong>{money(product.total)} 元</strong></div></section>) : <section className="qp-attached-single"><img src={paper.image} alt={paper.title}/><div><h3>{paper.title}</h3><p>{paper.specs}</p></div><dl>{paper.parameters.map(parameter=><div key={parameter.label}><dt>{parameter.label}</dt><dd>{parameter.value}</dd></div>)}</dl></section>}
+      <dl className="qp-attached-summary">{paper.lines.map((line,index)=><div className={line.divider ? "divider" : ""} key={index} style={{top:cq(layout.linePositions[index])}}><dt>{line.label}{line.detail&&<small>{line.detail}</small>}</dt><dd>{line.value}</dd></div>)}</dl>
+      <section className="qp-attached-payments" aria-label="收款方式" style={{top:cq(layout.paymentTop),height:cq(layout.paymentHeight)}}><h4>收款方式</h4><div className="qp-attached-payment-grid" style={{gridTemplateColumns:`repeat(${layout.columns},minmax(0,1fr))`,gap:cq(8)}}>{paper.payments!.map(method=><div className="qp-attached-payment" key={method.id} style={{height:cq(layout.cardHeight)}}><h5 style={{fontSize:cq(paper.payments!.length>2?8.5:10)}}>{method.name}</h5><p>{method.detailLines.join("\n")}</p>{method.image&&<img src={method.image} alt={`${method.name}收款二维码`} style={{width:cq(layout.qrSize),height:cq(layout.qrSize)}}/>}</div>)}</div></section>
+    </> : <>
+      {paper.products ? <><section className="qp-product-stack">{paper.products.map((product, index) => <section className="qp-compact-product" key={product.id} style={{ top: `${index * 195 / 3.6}cqw` }}><img src={product.image} alt={product.title} /><div className="qp-compact-heading"><h3>{product.title}</h3><p>{product.specs}</p></div><div className="qp-compact-parameters">{product.parameters.map(parameter => <span key={parameter.label}>{parameter.label}：{parameter.value}</span>)}</div><dl>{product.lines.map((item, i) => <div key={i}><dt>{item.label}</dt><dd>{item.value}</dd></div>)}</dl><div className="qp-item-total"><span>{product.totalLabel}</span><strong>{money(product.total)} 元</strong></div></section>)}</section><div className="qp-multi-summary" style={{top:cq(layout.linesTop)}}>{paper.lines.map((item, index) => <div key={index}><span>{item.label}{item.detail&&<small>{item.detail}</small>}</span><span>{item.value}</span></div>)}</div></> : <><section className="paper-product"><img src={paper.image} alt={paper.title} /><div><p>{paper.typeLabel}</p><h3>{paper.title}</h3><span>{paper.specs}</span></div></section><section className="paper-parameters" style={{ gridTemplateColumns: `repeat(${paper.parameters.length}, minmax(0, 1fr))` }}>{paper.parameters.map(item => <div key={item.label}><span>{item.label}</span><strong>{item.value}</strong></div>)}</section></>}
+      {!paper.products && paper.paymentPlacement !== "page" && <section className="paper-details"><h4>{paper.continuation ? paper.continuationTitle || "补充说明" : "费用明细"}</h4>{paper.continuation ? <p className="paper-continuation">{paper.continuation.join("\n")}</p> : <dl>{paper.lines.map((item, index) => <div className={`paper-line ${item.divider ? "divider" : ""}`} key={index} style={{ top: `${(28 + index * rowHeight) / 3.6}cqw` }}><dt>{item.label}{item.detail && <small>{item.detail}</small>}</dt><dd>{item.value}</dd></div>)}</dl>}</section>}
+      {!!paper.payments?.length && <section className="qp-payments" aria-label="收款方式"><h4>收款方式</h4><div className="qp-payment-grid">{paper.payments.map(method => <div className="qp-payment-card" key={method.id}><h5>{method.name}</h5><p>{method.detailLines.join("\n")}</p>{method.image && <img src={method.image} alt={`${method.name}收款二维码`} />}</div>)}</div></section>}
+    </>}
     <div className="paper-total"><span>{paper.totalLabel}</span><strong className={money(paper.total).length > 12 ? "long" : ""}>{money(paper.total)}<small>元</small></strong></div>
     <div className="paper-note">{paper.note}</div><footer className="paper-footer"><span>{paper.number}</span><span>{paper.pages > 1 ? `${paper.page} / ${paper.pages}` : paper.brand.contact || "专属报价"}</span></footer>
   </article></div>;
