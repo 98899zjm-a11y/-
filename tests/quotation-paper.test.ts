@@ -94,7 +94,7 @@ const flatLines = (pages: { lines: { label: string; value: string }[] }[]) => pa
 const paymentMethods = [
   { id: 'wechat', name: '微信', details: '收款人：鑫金源', image: 'data:image/png;base64,AAA=' },
   { id: 'alipay', name: '支付宝', details: '收款人：鑫金源', image: 'data:image/png;base64,BBB=' },
-  { id: 'bank', name: '银行卡', details: '工商银行 6222001234567890123', image: '' },
+  { id: 'bank', name: '银行卡', details: '测试银行（仅用于自动测试，不含账号）', image: '' },
   { id: 'cash', name: '现金', details: '门店收款', image: '' },
 ];
 
