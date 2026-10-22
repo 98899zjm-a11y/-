@@ -1,0 +1,21 @@
+{
+  "product": "xjy-business-standalone",
+  "version": "0.1.0-dev",
+  "asOf": "2026-10-23",
+  "scope": "local-fictional-development-only",
+  "codeCommit": "e8f7d9b62f681cde680bb9e57ac1ad7ea1f30e3c",
+  "developmentAccepted": true,
+  "productionQualified": false,
+  "mergedIntoSales": false,
+  "automatedTests": {
+    "methods": 44,
+    "seconds": 46.157,
+    "failures": 0,
+    "errors": 0
+  },
+  "httpSmokePassed": true,
+  "desktopChecks": 7,
+  "desktopSmokePassed": true,
+  "independentDeepSeekReview": "three actual reports; final scoped signoff received",
+  "deferred": "BACKLOG.md"
+}

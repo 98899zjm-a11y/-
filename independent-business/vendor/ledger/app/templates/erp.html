@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>采购与往来 · 鑫金源财务系统</title>
+  <link rel="stylesheet" href="/erp/static/app.css">
+  <link rel="stylesheet" href="/erp/static/workspace.css">
+  <link rel="stylesheet" href="/erp/static/xjy-theme.css">
+  <link rel="stylesheet" href="/erp/static/erp.css">
+</head>
+<body class="app-body erp-body">
+<aside class="app-sidebar" id="finance-navigation" data-module-nav>
+  <a class="app-brand" href="/"><span>鑫</span><span>鑫金源珠宝</span></a>
+  <nav aria-label="财务 ERP 导航">
+    <h3>采购与往来</h3>
+    <div class="erp-nav-tabs" role="tablist" aria-label="ERP 栏目">
+      <button id="tab-overview" data-erp-tab="overview" role="tab" aria-controls="panel-overview" aria-selected="true" class="active">业务概览</button>
+      <button id="tab-parties" data-erp-tab="parties" role="tab" aria-controls="panel-parties" aria-selected="false">往来单位</button>
+      <button id="tab-purchase" data-erp-tab="purchase" role="tab" aria-controls="panel-purchase" aria-selected="false">采购 · 收货</button>
+      <button id="tab-bills" data-erp-tab="bills" role="tab" aria-controls="panel-bills" aria-selected="false">应收 · 应付</button>
+      <button id="tab-settlement" data-erp-tab="settlement" role="tab" aria-controls="panel-settlement" aria-selected="false">收付款 · 冲销</button>
+      <button id="tab-review" data-erp-tab="review" role="tab" aria-controls="panel-review" aria-selected="false">待审核 <span class="erp-nav-count" id="pending-count">0</span></button>
+      <button id="tab-reports" data-erp-tab="reports" role="tab" aria-controls="panel-reports" aria-selected="false" data-requires="erp.reports.view">往来报表</button>
+    </div>
+    <h3>返回</h3>
+    <a href="/native/ledger/">财务原功能预览</a>
+    <a href="/">主机工作台</a>
+  </nav>
+  <div class="sidebar-bottom">采购验收 · 独立复核<br>确认金额与操作均可追溯</div>
+</aside>
+<header class="workspace-header">
+  <div class="inline">
+    <button class="menu-toggle" data-menu-toggle type="button" aria-controls="finance-navigation" aria-expanded="false" aria-label="展开导航"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 5h16"></path><path d="M4 12h16"></path><path d="M4 19h16"></path></svg></button>
+    <strong>财务系统</strong><span class="erp-header-caption">采购与往来</span>
+  </div>
+  <div class="userbox"><span class="who" id="erp-actor">正在验证身份…</span><a class="mini" href="/">返回工作台</a></div>
+</header>
+<main class="wrap" id="erp-app">
+  <div class="page-head erp-page-head"><div><p class="erp-eyebrow">FINANCE · PROCUREMENT & ACCOUNTS</p><h1>采购与往来</h1><p class="sub">采购、验收、欠款和资金登记，按确认记录核对。</p></div><button type="button" id="refresh-erp" class="secondary">刷新数据</button></div>
+  <div class="erp-status" id="erp-status" role="status" aria-live="polite" hidden></div>
+
+  <section id="panel-overview" data-erp-panel="overview" role="tabpanel" aria-labelledby="tab-overview">
+    <div class="erp-stats">
+      <article class="erp-stat"><p>当前未结应收</p><strong id="overview-receivable">—</strong><span>已确认欠款减已核销收款</span></article>
+      <article class="erp-stat" data-sensitive><p>当前未结应付</p><strong id="overview-payable">—</strong><span>验收及期初审核后起账</span></article>
+      <article class="erp-stat"><p>待审核单据</p><strong id="overview-pending">—</strong><span>制单人与复核人分开</span></article>
+      <article class="erp-stat"><p>往来单位</p><strong id="overview-parties">—</strong><span>供应商与财务客户</span></article>
+    </div>
+    <article class="card erp-card"><div class="erp-card-head"><div><h2>近期单据</h2><p>查看明细、凭证及审批记录</p></div></div><div class="table-wrap"><table><thead><tr><th scope="col">单号</th><th scope="col">类型</th><th scope="col">往来单位</th><th scope="col">日期</th><th scope="col">金额</th><th scope="col">状态</th><th scope="col">操作</th></tr></thead><tbody id="recent-body" data-protected-list></tbody></table></div></article>
+    <div class="erp-flow"><strong>推荐操作顺序</strong><p>建立供应商 → 采购制单与复核 → 分批验收与复核 → 形成应付 → 分次付款核销。客户应收由财务人工确认。</p><p class="erp-note">本批收货保留待库管人工关联；不会自动扣减销售或库管库存。收付款只登记已发生的事实。</p></div>
+  </section>
+
+  <section id="panel-parties" data-erp-panel="parties" role="tabpanel" aria-labelledby="tab-parties" hidden>
+    <div class="erp-split">
+      <article class="card erp-card"><div class="erp-card-head"><h2 id="party-form-title">新增往来单位</h2></div>
+        <form id="party-form" class="erp-form"><div class="erp-fields two">
+          <label for="party-kind">单位类型<select id="party-kind" name="kind"><option value="supplier">供应商</option><option value="customer">财务客户</option></select></label>
+          <label for="party-name">名称<input id="party-name" name="name" required maxlength="120" autocomplete="organization"></label>
+          <label for="party-contact">联系人<input id="party-contact" name="contact" maxlength="80" autocomplete="name"></label>
+          <label for="party-phone">联系电话<input id="party-phone" name="phone" maxlength="40" autocomplete="tel"></label>
+          <label for="party-terms">账期天数<input id="party-terms" name="termsDays" type="number" min="0" max="3650" step="1" value="0" required></label>
+          <label class="erp-check" for="party-active"><input id="party-active" name="active" type="checkbox" checked>启用该单位</label>
+          <label class="erp-span" for="party-note">备注<textarea id="party-note" name="note" rows="3" maxlength="2000"></textarea></label>
+        </div><p class="erp-note">已被单据引用的档案可停用，确认单据保留当时名称。</p><div class="erp-actions"><button type="submit" id="party-save" data-write-action disabled>保存单位</button><button type="button" id="party-cancel" class="secondary" hidden>取消编辑</button></div></form>
+      </article>
+      <article class="card erp-card"><div class="erp-card-head"><h2>单位档案</h2></div><div class="erp-filters"><label for="party-search">搜索<input id="party-search" type="search" placeholder="名称、编码、联系人或电话"></label><label for="party-filter">类型<select id="party-filter"><option value="">全部</option><option value="supplier">供应商</option><option value="customer">财务客户</option></select></label></div><div class="table-wrap"><table><thead><tr><th scope="col">编码</th><th scope="col">名称</th><th scope="col">类型</th><th scope="col">联系方式</th><th scope="col">账期</th><th scope="col">状态</th><th scope="col">操作</th></tr></thead><tbody id="parties-body" data-protected-list></tbody></table></div></article>
+    </div>
+  </section>
+
+  <section id="panel-purchase" data-erp-panel="purchase" role="tabpanel" aria-labelledby="tab-purchase" hidden>
+    <article class="card erp-card"><div class="erp-card-head"><div><h2>采购订单</h2><p>订单复核确认订货承诺，验收审核后才形成应付。</p></div></div>
+      <form id="purchase-form" class="erp-form erp-document-form"><p data-editing-hint class="erp-editing-hint"></p><div class="erp-fields four">
+        <label for="purchase-party">供应商<select id="purchase-party" name="partyId" required><option value="">请选择供应商</option></select></label>
+        <label for="purchase-business">采购类型<select id="purchase-business" name="businessType"><option value="own">自有采购</option><option value="consignment">寄售 / 代卖</option></select></label>
+        <label for="purchase-date">采购日期<input id="purchase-date" name="date" type="date" required data-date-default></label>
+        <label for="purchase-due">预计到货日<input id="purchase-due" name="dueDate" type="date" required data-date-default></label>
+      </div><div class="erp-line-head"><h3>商品明细</h3><button id="add-purchase-line" type="button" class="secondary" data-requires="erp.purchase.prepare erp.reports.sensitive">添加商品</button></div><p class="erp-note">约定金额为本行合计；估算克重与实际验收克重分别记录。长表格可横向滚动。</p>
+        <section class="erp-ocr-tools" data-requires="erp.purchase.prepare erp.attachments.write erp.reports.sensitive"><h3>供货单图片识别</h3><p class="erp-note">先在下方上传销售单照片或截图，主机本地识别，不上传到云端。识别文字可能有错；逐行对照原图核对后只保存采购草稿。</p><div class="erp-fields two"><label for="ocr-source">已上传的原图<select id="ocr-source"><option value="">请选择 PNG / JPEG 原图</option></select></label><div class="erp-actions"><button type="button" id="ocr-recognize" data-write-action disabled>识别所选供货单</button></div></div><p id="ocr-availability" class="erp-note"></p></section>
+        <section id="ocr-review" class="erp-ocr-review" hidden><h3>对照原图逐行核对</h3><div class="erp-ocr-reference"><a id="ocr-original-link" target="_blank" rel="noopener">查看原图凭证</a><img id="ocr-original-image" alt="本次供货单原图" /><label for="ocr-original-text">原识别文字（保持原样）<textarea id="ocr-original-text" readonly rows="5"></textarea></label></div><p id="ocr-issues" class="erp-note"></p><div class="erp-fields two"><label for="ocr-header-reason">供应商、采购类型、日期核对说明<textarea id="ocr-header-reason" rows="2" maxlength="500" placeholder="请对照原图确认供应商及日期，并明确自有采购或寄售"></textarea></label><label for="ocr-confirmed-total">人工确认单据合计 / 元<input id="ocr-confirmed-total" inputmode="decimal" /></label><label for="ocr-total-difference">与原图合计不同的原因<textarea id="ocr-total-difference" rows="2" maxlength="500"></textarea></label><label class="erp-check"><input id="ocr-header-confirm" type="checkbox" />已对照原图核对供应商、采购类型、日期和合计</label></div><p class="erp-note">单价与单位保留在核对记录中；采购约定金额以人工确认的行合计为准。不确定字段留空，请手工补齐。保存后仍按原采购、验收和另一人审核流程处理。</p></section>
+        <div class="table-wrap erp-item-table"><table><thead><tr><th scope="col">品名</th><th scope="col">材质</th><th scope="col">成色</th><th scope="col">件数</th><th scope="col">估算克重 / g</th><th scope="col">约定金额 / 元</th><th scope="col" data-ocr-only hidden>识别单价 / 元</th><th scope="col" data-ocr-only hidden>单价单位</th><th scope="col" data-ocr-only hidden>核对 / 修正说明</th><th scope="col">操作</th></tr></thead><tbody id="purchase-lines"></tbody></table></div>
+        <div class="erp-total">约定金额合计 <strong id="purchase-total">¥ 0.00</strong></div><div class="erp-fields two"><label for="purchase-note">备注<textarea id="purchase-note" name="note" rows="2" maxlength="2000"></textarea></label><div class="erp-upload"><label for="purchase-attachment">采购凭证<input id="purchase-attachment" type="file" accept="image/png,image/jpeg,application/pdf" data-attachment-input disabled></label><p class="erp-note">PNG / JPEG / PDF，单份最多 2MB</p><div data-attachment-list></div></div></div><p class="erp-permission-hint"></p><div class="erp-actions"><button type="submit" data-submit="true" data-write-action disabled>保存并提交审核</button><button type="submit" class="secondary" data-submit="false" data-write-action disabled>保存草稿</button><button type="button" class="secondary" data-cancel-edit hidden>取消编辑</button></div>
+      </form>
+    </article>
+    <article class="card erp-card"><div class="erp-card-head"><div><h2>分批收货验收</h2><p>关联确认订单的商品行，复核本批数量、实重和结算金额。</p></div></div>
+      <form id="receipt-form" class="erp-form erp-document-form"><p data-editing-hint class="erp-editing-hint"></p><div class="erp-fields four"><label for="receipt-source">原采购单<select id="receipt-source" name="sourceId" required><option value="">请选择已确认采购单</option></select></label><div class="erp-readout"><span>供应商</span><strong id="receipt-party-name">选择采购单后显示供应商</strong></div><label for="receipt-date">验收日期<input id="receipt-date" name="date" type="date" required data-date-default></label><label for="receipt-due">应付到期日<input id="receipt-due" name="dueDate" type="date" required data-date-default></label></div>
+        <p id="receipt-type-hint" class="erp-note">尚未验收的行填 0 件，仅提交本次验收行。</p><div class="table-wrap erp-receipt-table"><table><thead><tr><th scope="col">采购商品</th><th scope="col">订货数量</th><th scope="col">可验收数量</th><th scope="col">原估算克重</th><th scope="col">本次件数</th><th scope="col">本次实收克重 / g</th><th scope="col">本次确认金额 / 元</th></tr></thead><tbody id="receipt-lines"></tbody></table></div><div class="erp-total">本次确认金额 <strong id="receipt-total">¥ 0.00</strong></div>
+        <div class="erp-fields two"><label for="receipt-note">验收说明<textarea id="receipt-note" name="note" rows="2" maxlength="2000"></textarea></label><div class="erp-upload"><label for="receipt-attachment">验收凭证<input id="receipt-attachment" type="file" accept="image/png,image/jpeg,application/pdf" data-attachment-input disabled></label><div data-attachment-list></div></div></div><p class="erp-permission-hint"></p><div class="erp-actions"><button type="submit" data-submit="true" data-write-action disabled>保存并提交审核</button><button type="submit" class="secondary" data-submit="false" data-write-action disabled>保存草稿</button><button type="button" class="secondary" data-cancel-edit hidden>取消编辑</button></div>
+      </form>
+    </article>
+  </section>
+
+  <section id="panel-bills" data-erp-panel="bills" role="tabpanel" aria-labelledby="tab-bills" hidden>
+    <article class="card erp-card"><div class="erp-card-head"><div><h2>人工确认欠款</h2><p>应收由财务确认；应付由已审核验收形成，期初余额单独登记。</p></div></div>
+      <form id="bill-form" class="erp-form erp-document-form"><p data-editing-hint class="erp-editing-hint"></p><div class="erp-fields four">
+        <label for="bill-kind">单据类型<select id="bill-kind" name="kind"><option value="receivable">当期应收</option><option value="opening_receivable">期初应收</option><option value="opening_payable" data-sensitive>期初应付</option></select></label><label for="bill-party">往来单位<select id="bill-party" name="partyId" required><option value="">请选择财务客户</option></select></label><label for="bill-date">确认日期<input id="bill-date" name="date" type="date" required data-date-default></label><label for="bill-due">到期日<input id="bill-due" name="dueDate" type="date" required data-date-default></label><label for="bill-amount">欠款金额 / 元<input id="bill-amount" name="amount" type="text" inputmode="decimal" value="0.00" required></label><label for="bill-sale-id" id="source-sale-field">原财务销售行 ID（可选）<input id="bill-sale-id" name="sourceSaleId" type="number" min="1" step="1"><span class="erp-note">只关联明确行 ID，不按单号或差额猜测。</span></label><label for="bill-evidence" id="opening-evidence-field" class="erp-span" hidden>期初依据<textarea id="bill-evidence" name="evidence" rows="2" maxlength="2000"></textarea></label><label for="bill-note" class="erp-span">备注说明<textarea id="bill-note" name="note" rows="2" maxlength="2000"></textarea></label>
+      </div><div class="erp-upload"><label for="bill-attachment">欠款凭证<input id="bill-attachment" type="file" accept="image/png,image/jpeg,application/pdf" data-attachment-input disabled></label><div data-attachment-list></div></div><p class="erp-permission-hint"></p><div class="erp-actions"><button type="submit" data-submit="true" data-write-action disabled>保存并提交审核</button><button type="submit" class="secondary" data-submit="false" data-write-action disabled>保存草稿</button><button type="button" class="secondary" data-cancel-edit hidden>取消编辑</button></div></form>
+    </article>
+    <article class="card erp-card"><div class="erp-card-head"><h2>已确认往来余额</h2></div><div class="table-wrap"><table><thead><tr><th scope="col">往来单号</th><th scope="col">方向</th><th scope="col">往来单位</th><th scope="col">到期日</th><th scope="col">确认金额</th><th scope="col">已核销</th><th scope="col">未结余额</th></tr></thead><tbody id="bills-body" data-protected-list></tbody></table></div></article>
+  </section>
+
+  <section id="panel-settlement" data-erp-panel="settlement" role="tabpanel" aria-labelledby="tab-settlement" hidden>
+    <article class="card erp-card"><div class="erp-card-head"><div><h2>收付款登记与核销</h2><p>一笔资金可核销多张同一单位的欠款单，也可分次核销。</p></div></div>
+      <form id="settlement-form" class="erp-form erp-document-form"><p data-editing-hint class="erp-editing-hint"></p><div class="erp-fields four"><label for="settlement-direction">资金方向<select id="settlement-direction" name="direction"><option value="receive">收款 · 核销应收</option><option value="pay" data-sensitive>付款 · 核销应付</option></select></label><label for="settlement-party">往来单位<select id="settlement-party" name="partyId" required><option value="">请选择收款客户</option></select></label><label for="settlement-date">实际收付款日期<input id="settlement-date" name="date" type="date" required data-date-default></label><label for="settlement-account">资金账户<input id="settlement-account" name="account" list="account-options" required maxlength="120" placeholder="例如：现金、公司账户"><datalist id="account-options"></datalist></label><label for="settlement-amount">本次金额 / 元<input id="settlement-amount" name="amount" type="text" inputmode="decimal" value="0.00" required></label><label for="settlement-note" class="erp-span">备注<textarea id="settlement-note" name="note" rows="2" maxlength="2000"></textarea></label></div>
+        <h3>本次核销明细</h3><p class="erp-note">不核销的单据填 0。全部分配金额须等于本次收付款金额，审批时会再核对最新余额。</p><div class="table-wrap"><table><thead><tr><th scope="col">欠款单号</th><th scope="col">到期日</th><th scope="col">当前未结余额</th><th scope="col">本次核销 / 元</th></tr></thead><tbody id="allocation-lines"></tbody></table></div><div class="erp-total erp-allocation-summary"><span>已分配 <strong id="allocation-total">¥ 0.00</strong></span><span>待分配差额 <strong id="allocation-difference">¥ 0.00</strong></span></div><div class="erp-upload"><label for="settlement-attachment">收付款凭证<input id="settlement-attachment" type="file" accept="image/png,image/jpeg,application/pdf" data-attachment-input disabled></label><div data-attachment-list></div></div><p class="erp-permission-hint"></p><div class="erp-actions"><button type="submit" data-submit="true" data-write-action disabled>保存并提交审核</button><button type="submit" class="secondary" data-submit="false" data-write-action disabled>保存草稿</button><button type="button" class="secondary" data-cancel-edit hidden>取消编辑</button></div>
+      </form>
+    </article>
+    <article class="card erp-card"><div class="erp-card-head"><div><h2>冲销申请</h2><p>确认后原单保持不变，通过另一个审批单保留纠正记录。</p></div></div><form id="reversal-form" class="erp-form erp-document-form"><p data-editing-hint class="erp-editing-hint"></p><div class="erp-fields two"><label for="reversal-target">待冲销原单<select id="reversal-target" name="targetId" required><option value="">请选择已确认单据</option></select></label><label for="reversal-date">冲销业务日期<input id="reversal-date" name="date" type="date" required data-date-default></label><label for="reversal-note" class="erp-span">冲销原因<textarea id="reversal-note" name="note" rows="3" required maxlength="2000"></textarea></label></div><p class="erp-note">已经核销的欠款须先处理关联收付款；系统拒绝直接抹去余额和原审批记录。</p><div class="erp-upload"><label for="reversal-attachment">说明凭证<input id="reversal-attachment" type="file" accept="image/png,image/jpeg,application/pdf" data-attachment-input disabled></label><div data-attachment-list></div></div><p class="erp-permission-hint"></p><div class="erp-actions"><button type="submit" data-submit="true" data-write-action disabled>保存并提交审核</button><button type="submit" class="secondary" data-submit="false" data-write-action disabled>保存草稿</button><button type="button" class="secondary" data-cancel-edit hidden>取消编辑</button></div></form></article>
+  </section>
+
+  <section id="panel-review" data-erp-panel="review" role="tabpanel" aria-labelledby="tab-review" hidden>
+    <article class="card erp-card"><div class="erp-card-head"><div><h2>待复核单据</h2><p>打开单据核对来源、金额和凭证；编制人不能审核自己的单据。</p></div></div><div class="table-wrap"><table><thead><tr><th scope="col">单号</th><th scope="col">类型</th><th scope="col">往来单位</th><th scope="col">日期</th><th scope="col">金额</th><th scope="col">状态</th><th scope="col">操作</th></tr></thead><tbody id="pending-body" data-protected-list></tbody></table></div></article>
+    <article class="card erp-card"><div class="erp-card-head"><h2>全部单据与审批记录</h2></div><div class="erp-filters"><label for="document-search">搜索单据<input id="document-search" type="search" placeholder="单号、单位、制单人或备注"></label><label for="document-status">状态<select id="document-status"><option value="">全部状态</option><option value="draft">草稿</option><option value="pending">待审核</option><option value="confirmed">已确认</option><option value="rejected">已退回</option><option value="reversed">已冲销</option></select></label></div><div class="table-wrap"><table><thead><tr><th scope="col">单号</th><th scope="col">类型</th><th scope="col">往来单位</th><th scope="col">日期</th><th scope="col">金额</th><th scope="col">状态</th><th scope="col">操作</th></tr></thead><tbody id="documents-body" data-protected-list></tbody></table></div></article>
+  </section>
+
+  <section id="panel-reports" data-erp-panel="reports" role="tabpanel" aria-labelledby="tab-reports" hidden>
+    <article class="card erp-card"><div class="erp-card-head"><div><h2>往来报表</h2><p>历史余额按截至日的确认、核销和冲销记录重建。</p></div></div><form id="report-form" class="erp-form"><div class="erp-fields four"><label for="report-asof">截至日期<input id="report-asof" name="asOf" type="date" required data-date-default></label><label for="report-from">业务起始日<input id="report-from" name="from" type="date"></label><label for="report-to">业务结束日<input id="report-to" name="to" type="date"></label><label for="report-party">往来单位<select id="report-party" name="partyId"><option value="">全部往来单位</option></select></label><label for="report-kind">来源单据<select id="report-kind" name="kind"><option value="">全部来源</option><option value="purchase" data-sensitive>采购订单</option><option value="receipt" data-sensitive>收货验收</option><option value="receivable">应收确认</option><option value="opening_receivable">期初应收</option><option value="opening_payable" data-sensitive>期初应付</option><option value="settlement">收付款核销</option><option value="reversal">冲销</option></select></label><label for="report-state">单据状态<select id="report-state" name="status"><option value="">全部状态</option><option value="draft">草稿</option><option value="pending">待审核</option><option value="confirmed">已确认</option><option value="rejected">已退回</option><option value="reversed">已冲销</option></select></label><label for="report-creator">制单人<select id="report-creator" name="creatorId"><option value="">全部制单人</option></select></label></div><div class="erp-actions"><button type="submit" data-requires="erp.reports.view">查询报表</button><button type="button" id="export-report" class="secondary" data-requires="erp.reports.view">导出 Excel</button><span id="report-asof-label" class="erp-note"></span></div></form></article>
+    <div class="erp-stats"><article class="erp-stat"><p>未结应收</p><strong id="report-receivable">—</strong><span id="report-receivable-count">—</span></article><article class="erp-stat" data-sensitive><p>未结应付</p><strong id="report-payable">—</strong><span id="report-payable-count">—</span></article><article class="erp-stat"><p>已确认收款</p><strong id="report-received">—</strong></article><article class="erp-stat" data-sensitive><p>已确认付款</p><strong id="report-paid">—</strong></article></div>
+    <article class="card erp-card"><div class="erp-card-head"><h2>未结余额账龄</h2></div><div id="aging-chart" class="erp-aging" data-protected-list></div></article>
+    <article class="card erp-card"><div class="erp-card-head"><h2>往来明细</h2></div><div class="table-wrap"><table><thead><tr><th scope="col">单号</th><th scope="col">方向</th><th scope="col">单位</th><th scope="col">日期</th><th scope="col">到期日</th><th scope="col">原金额</th><th scope="col">截至日已核销</th><th scope="col">截至日未结</th></tr></thead><tbody id="report-bills" data-protected-list></tbody></table></div></article>
+    <article class="card erp-card"><div class="erp-card-head"><h2>已确认收付款</h2></div><div class="table-wrap"><table><thead><tr><th scope="col">单号</th><th scope="col">日期</th><th scope="col">方向</th><th scope="col">单位</th><th scope="col">账户</th><th scope="col">金额</th><th scope="col">备注</th></tr></thead><tbody id="report-cash" data-protected-list></tbody></table></div></article>
+    <article class="card erp-card" data-sensitive><div class="erp-card-head"><h2>采购及验收记录</h2></div><div class="table-wrap"><table><thead><tr><th scope="col">单号</th><th scope="col">类型</th><th scope="col">单位</th><th scope="col">日期</th><th scope="col">金额</th><th scope="col">状态</th><th scope="col">操作</th></tr></thead><tbody id="report-purchase" data-protected-list></tbody></table></div></article>
+  </section>
+</main>
+<footer class="foot">鑫金源财务系统 · 隔离虚构账套 · 正式首页及原业务数据保持原样</footer>
+<dialog id="document-dialog" class="erp-dialog" aria-labelledby="detail-title"><div class="erp-dialog-head"><div><h2 id="detail-title">单据详情</h2><div id="detail-status"></div></div><button id="detail-close" type="button" class="secondary" aria-label="关闭单据详情">关闭</button></div><div class="erp-dialog-body"><dl id="detail-meta" class="erp-detail-meta" data-protected-list></dl><section id="detail-sale-source" hidden><h3>原财务销售来源快照</h3><dl id="detail-sale-meta" class="erp-detail-meta" data-protected-list></dl><p id="detail-sale-note" class="erp-note"></p></section><div class="table-wrap" id="detail-line-table"><table><thead><tr><th scope="col">品名 / 核销单</th><th scope="col">件数</th><th scope="col">原估重 / g</th><th scope="col">实收 / g</th><th scope="col">实收 − 原估重 / g</th><th scope="col">金额</th></tr></thead><tbody id="detail-lines" data-protected-list></tbody></table></div><h3>凭证附件</h3><div id="detail-attachments" class="erp-detail-attachments" data-protected-list></div><h3>操作与审批记录</h3><ol id="detail-events" class="erp-events" data-protected-list></ol><label id="review-note-field" for="review-note" hidden>核对结果 / 退回原因<textarea id="review-note" rows="3" maxlength="2000"></textarea></label><div id="detail-actions" class="erp-actions" data-protected-list></div></div></dialog>
+<script src="/erp/static/xjy-shell.js"></script>
+<script src="/erp/static/erp.js"></script>
+</body>
+</html>

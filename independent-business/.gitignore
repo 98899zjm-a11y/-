@@ -1,0 +1,11 @@
+runtime/
+runtime-temp/
+artifacts/
+__pycache__/
+*.py[cod]
+*.sqlite*
+*.db*
+.env*
+node_modules/
+dist/
+*.log

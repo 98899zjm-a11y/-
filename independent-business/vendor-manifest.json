@@ -1,0 +1,158 @@
+{
+  "source": "E:\\codex\\2026-10-15\\work\\xjy-v16-deep-audit\\project\\desktop\\legacy-source\\ledger",
+  "sourceHead": "1e63eb8",
+  "sourceUncommittedLines": 787,
+  "copyKind": "selected source only, no databases or configuration",
+  "files": [
+    {
+      "path": "cashier_engine.py",
+      "size": 64839,
+      "sha256": "f97d326ef79c255ca6899c51d2930d9213c76e60237b3c80619c1fbc7d6891a1"
+    },
+    {
+      "path": "cashier_maintenance.py",
+      "size": 20350,
+      "sha256": "9a48976469dc72105cd30149b8a85848e1dec6048ad896584e4a58a6fa6b1839"
+    },
+    {
+      "path": "cashier_numbers.py",
+      "size": 3424,
+      "sha256": "dfaa8f528eb790377a0428de14cef8ee7ae989840a3f3013ce9b6174202a621e"
+    },
+    {
+      "path": "cashier_restore.py",
+      "size": 20471,
+      "sha256": "ba68128571dbd504f7746b05afbda6d1964bcbcad93887d272a3d6cbd6c7177c"
+    },
+    {
+      "path": "cashier_runtime.py",
+      "size": 1291,
+      "sha256": "d324a85564287d5524af43a11a31f7a4e0827464b7c2f886dabba2a36fc1f460"
+    },
+    {
+      "path": "cashier_schema.py",
+      "size": 9788,
+      "sha256": "5121909dd753bcd97c09ef7eea86863089f4b0e94ff9d91b73659b6a52defaa5"
+    },
+    {
+      "path": "cashier.py",
+      "size": 6515,
+      "sha256": "224671be77f6c9cfa77b66bc42bdfa87778a3fba56c151d8b07584815f6cb2df"
+    },
+    {
+      "path": "erp_attachments.py",
+      "size": 13864,
+      "sha256": "e2a4da7902dfc3e708de181bf1bccbc515b5e995911b0935132585b12deee7b3"
+    },
+    {
+      "path": "erp_common.py",
+      "size": 6666,
+      "sha256": "7a682328bb61aecd664a9ae507a30dfbb37c8aa0d551298b5639a926c2f963ab"
+    },
+    {
+      "path": "erp_documents.py",
+      "size": 16999,
+      "sha256": "fd60ca35b92371092c81654b99697ca5ca151978cd4b8e8b65acecb891c1004f"
+    },
+    {
+      "path": "erp_numbers.py",
+      "size": 2182,
+      "sha256": "1b9657b3044d20acbec960e4a2b1bf8ba00e5826099416dd72d85a32cb981d7b"
+    },
+    {
+      "path": "erp_ocr.py",
+      "size": 1763,
+      "sha256": "a2c3a26b822a1b3fbe0e06e949ebb2c33be1acbc78047f2d2e916a9e289b38c0"
+    },
+    {
+      "path": "erp_reports.py",
+      "size": 14937,
+      "sha256": "fc316d96468da729438129586deae8c2003f5ae1075757832644cccf3d292a1d"
+    },
+    {
+      "path": "erp_runtime.py",
+      "size": 4039,
+      "sha256": "cc142c0b7f1537c6bd5ffad37bf437cfd52fbbbd6c1709044c006a8a01cf417a"
+    },
+    {
+      "path": "erp_schema.py",
+      "size": 5641,
+      "sha256": "427dadf39f697e206cbc5b95c16c88048a641232ee85b77e8f8bd008a305fb96"
+    },
+    {
+      "path": "erp_settlement.py",
+      "size": 6260,
+      "sha256": "8f88be6acbce6d5d916b98c028ec0e9882e1a1fc8d9701c54c687c93f9f0b1b1"
+    },
+    {
+      "path": "erp_suppliers.py",
+      "size": 3989,
+      "sha256": "d5100befc966344fa6d027c88c2feca31c27625d93ca4e30bd9940decf411a17"
+    },
+    {
+      "path": "erp_values.py",
+      "size": 3797,
+      "sha256": "e7be9186775fcdf935322d40a7de1757bd1e91b4ad5b69f4090239d1b0a74419"
+    },
+    {
+      "path": "erp.py",
+      "size": 6348,
+      "sha256": "cb3e1c463029e719939f8cf718b2218a99e08831fcb4bc3c4d1199eb8bfc28a0"
+    },
+    {
+      "path": "ocr.py",
+      "size": 27417,
+      "sha256": "e881d51cbba20d707b9137eab529839d82fb177d0ddaf798ca830de5b015071c"
+    },
+    {
+      "path": "app/static/app.css",
+      "size": 9950,
+      "sha256": "de3d7cfbac3d1df3e9e3070fb8bedbba35e9647182ab58b490778911328cad9b"
+    },
+    {
+      "path": "app/static/cashier.css",
+      "size": 2476,
+      "sha256": "5d69be57e1357afb9c677fdd0466ef5475ed9030280a006b4617ab666791d626"
+    },
+    {
+      "path": "app/static/cashier.js",
+      "size": 21585,
+      "sha256": "fdf356a76b810828cd476bd3f7d19569ebb1071ee70d2a885e38af0368a8fe4e"
+    },
+    {
+      "path": "app/static/erp.css",
+      "size": 11766,
+      "sha256": "33a608f75c91e7a69cf5cf8a1b2559fd3033f653e554e6a7ad904882d771f11f"
+    },
+    {
+      "path": "app/static/erp.js",
+      "size": 64517,
+      "sha256": "1dc8b0958bfa2f4b5ce6cf10990d06bcce957707d6fe6d027747ba4dff3e60ba"
+    },
+    {
+      "path": "app/static/workspace.css",
+      "size": 6102,
+      "sha256": "54d35d07929d3e412ab247b8daa25d9b563e766e07687ee809b30d7af6591921"
+    },
+    {
+      "path": "app/static/xjy-shell.js",
+      "size": 2387,
+      "sha256": "0ec8a7023d86a834a436a113afe1a889c05c09eacd996246a7bc250d0d3de2cb"
+    },
+    {
+      "path": "app/static/xjy-theme.css",
+      "size": 22749,
+      "sha256": "2ccf671fa13d63fc9efea356b00c981a1370598a43f466d146a20335b39cc27d"
+    },
+    {
+      "path": "app/templates/cashier.html",
+      "size": 5231,
+      "sha256": "7465c0edbc0cad755e299997252d9bb8fad6385121f1376740f58e70a23f6232"
+    },
+    {
+      "path": "app/templates/erp.html",
+      "size": 29051,
+      "sha256": "c09b0df919efa8059b336889e751c70c9c305234003bc5ea64984f3c22c06f37"
+    }
+  ]
+}
