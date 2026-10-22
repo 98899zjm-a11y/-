@@ -1,0 +1,75 @@
+{
+    "tool":  "verify-production.ps1",
+    "stamp":  "real-baseline",
+    "mode":  "baseline",
+    "installDir":  "F:\\自制软件\\xjy-jewelry-offline",
+    "dataDir":  "F:\\鑫金源珠宝资料",
+    "versionFile":  "44.7.0",
+    "activation":  {
+                       "version":  1,
+                       "product":  "xjy-jewelry-offline",
+                       "programVersion":  "1.6.2",
+                       "role":  "host",
+                       "installationDir":  "F:\\自制软件\\xjy-jewelry-offline"
+                   },
+    "stateProbe":  [
+                       {
+                           "path":  "F:\\自制软件\\.xjy-jewelry-offline.xjy-engine-state",
+                           "exists":  false
+                       },
+                       {
+                           "path":  "F:\\自制软件\\xjy-jewelry-offline\\.xjy-engine-state",
+                           "exists":  false
+                       },
+                       {
+                           "path":  "F:\\自制软件\\.program.xjy-engine-state",
+                           "exists":  false
+                       },
+                       {
+                           "path":  "F:\\自制软件\\xjy-jewelry-offline\\.program.xjy-engine-state",
+                           "exists":  false
+                       }
+                   ],
+    "checks":  [
+                   {
+                       "id":  "install-dir-exists",
+                       "ok":  true,
+                       "detail":  "F:\\自制软件\\xjy-jewelry-offline",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "version-is-44.7.0",
+                       "ok":  true,
+                       "detail":  "version=44.7.0",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "activation-is-1.6.2",
+                       "ok":  true,
+                       "detail":  "programVersion=1.6.2",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "activation-role-host",
+                       "ok":  true,
+                       "detail":  "role=host",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "no-engine-state-yet",
+                       "ok":  true,
+                       "detail":  "state dirs found=0",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "data-dir-exists",
+                       "ok":  true,
+                       "detail":  "F:\\鑫金源珠宝资料",
+                       "fatal":  true
+                   }
+               ],
+    "ok":  true,
+    "notes":  [
+
+              ]
+}

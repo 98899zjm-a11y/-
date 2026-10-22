@@ -1,0 +1,17 @@
+﻿[
+    {
+        "Id":  1860,
+        "CPU":  2.828125,
+        "Responding":  true
+    },
+    {
+        "Id":  5500,
+        "CPU":  22.15625,
+        "Responding":  true
+    },
+    {
+        "Id":  3516,
+        "CPU":  453.09375,
+        "Responding":  true
+    }
+]

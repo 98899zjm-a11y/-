@@ -1,0 +1,105 @@
+{
+  "source": "D:/Codex/xjy-1.7.0/c28-package-source/prepare-native170-c28-internal-BOUND-a1.cjs",
+  "sourceSha256": "901bebaa5825eb9b2f926402f9f93fec4645940e33b7c7651e5e1420ad61ca31",
+  "output": "D:/Codex/xjy-release-20261022/source/prepare-release.cjs",
+  "outputSha256": "f483f3dd414a692e001f767b31be1cc3f92e2fafffb63b62678e88dd482e5e9d",
+  "prepareSha256": "f483f3dd414a692e001f767b31be1cc3f92e2fafffb63b62678e88dd482e5e9d",
+  "manifestSha256": "16fead81b0eb71c1247563610ef99d5dd378dfe0f93ef7830f11036c4d2e7ffd",
+  "purpose": "native170-known14-and20-target21-worker28",
+  "finalAsar": {
+    "source": "E:/codex/2026-10-15/work/xjy-v16-deep-audit/release-work/deepseek-r2-a1/final-asar/app.asar",
+    "size": 13493619,
+    "sha256": "9593b161f7091f5b471ce4918afee480097105b5668abbe154eb60075b1025a4",
+    "reportSource": "E:/codex/2026-10-15/work/xjy-v16-deep-audit/release-work/deepseek-r2-a1/final-asar/report.json",
+    "reportSha256": "139fd30e9afc4324e76a4e571c9bba5b043ddd4fd43bf7cbef004b9c51541c2f"
+  },
+  "reviewed": true,
+  "overlays": [
+    {
+      "path": "worker-draft/delivery-tools/engine-tree-runtime170.cjs",
+      "source": "D:/Codex/xjy-1.7.0/c28-repair-source/retry-integrated-a16/engine-tree-runtime170.cjs",
+      "size": 200809,
+      "sha256": "a294ec51027e2dff4aaff5d23cfa0e39d15531c4c51f6d5ae8d773d920b53ecf"
+    },
+    {
+      "path": "worker-draft/delivery-tools/native-employee-slot170.cjs",
+      "source": "D:/Codex/xjy-1.7.0/c28-repair-source/slot-integrated-a1/native-employee-slot170.cjs",
+      "size": 70201,
+      "sha256": "553aab48981c4b8de9080faa16cb1bb9caf5ff416ff04ab84aa230ab9ead934f"
+    },
+    {
+      "path": "worker-draft/delivery-tools/install-location.cjs",
+      "source": "D:/Codex/xjy-release-20261022/source/install-location.cjs",
+      "size": 17214,
+      "sha256": "3e4698f282d521ea9456375f1948ca5032db79783fb5e9b486b8c68fc5f24cba"
+    },
+    {
+      "path": "worker-draft/delivery-tools/delivery-native-170.cjs",
+      "source": "D:/Codex/xjy-release-20261022/source/delivery-native-170.cjs",
+      "size": 11527,
+      "sha256": "c962f1c314866be0a57d7aef819954f47a389998e6eb78dd30562d99b0cb52fc"
+    }
+  ],
+  "fork": {
+    "tool": "D:/Codex/xjy-release-20261022/make-prepare-r2.cjs",
+    "toolSha256": "a62d91ba7d13e376bdb54841df5d08409b22011c4045ad974e05d038d850a989",
+    "edits": [
+      "SEQUENCE.target",
+      "SLOT_SOURCE_PIN",
+      "verifySlotSourceCatalog",
+      "verifySlotSourceCatalog.msg",
+      "verifySource19Envelope",
+      "SOURCE19.envelopeSource",
+      "SOURCE19.envelopeSha256",
+      "SOURCE19.sequence",
+      "TARGET20_REUSE",
+      "verifyDefaultSource14.target",
+      "verifyDefaultSource14.msg",
+      "SIGNATURE.target",
+      "SIGNATURE.typed-source19",
+      "purpose.1",
+      "A12_DRAFT.asarSha256",
+      "A12_DRAFT.asarReportSha256",
+      "a12VerifyAsar"
+    ],
+    "forkedSha256": "7580ecde9f998542477d34649b2995a7c10d6ee2cfbc6bec3051892c0b00bf90"
+  },
+  "changes": [
+    {
+      "before": "const SOURCE_ROOT='D:/Codex/xjy-1.7.0/c28-package-source'",
+      "after": "const SOURCE_ROOT='D:/Codex/xjy-release-20261022/source'"
+    },
+    {
+      "before": "const A11='D:/Codex/xjy-1.7.0/c28-candidate'",
+      "after": "const A11='D:/Codex/xjy-release-20261022/candidate'"
+    },
+    {
+      "before": "const ROOT_RUNTIME_SOURCE='D:/Codex/xjy-1.7.0/c28-repair-source/retry-integrated-a14/engine-tree-runtime170.cjs'",
+      "after": "const ROOT_RUNTIME_SOURCE='D:/Codex/xjy-1.7.0/c28-repair-source/retry-integrated-a16/engine-tree-runtime170.cjs'"
+    },
+    {
+      "before": "const C28_PREIMAGES=Object.freeze([{path:'worker-draft/delivery-tools/engine-tree-runtime170.cjs',size:135825,sha256:'67cf3275f00c65150f784e92e8628b1896eb674b752b6e9bfc893c41273ebb8b'},{path:'worker-draft/delivery-tools/native-employee-slot170.cjs',size:69538,sha256:'48f6da518d83192fd9641c01100fba50689abbe8925b061d3ba8505c896ddd6c'}]);",
+      "after": "const C28_PREIMAGES=Object.freeze([{\"path\":\"worker-draft/delivery-tools/engine-tree-runtime170.cjs\",\"size\":135825,\"sha256\":\"67cf3275f00c65150f784e92e8628b1896eb674b752b6e9bfc893c41273ebb8b\"},{\"path\":\"worker-draft/delivery-tools/native-employee-slot170.cjs\",\"size\":69538,\"sha256\":\"48f6da518d83192fd9641c01100fba50689abbe8925b061d3ba8505c896ddd6c\"},{\"path\":\"worker-draft/delivery-tools/install-location.cjs\",\"size\":11958,\"sha256\":\"e4d012dab2d1972c49fa22692ceaf4e90fd6ceb8fd4029257e4b03b22553af5a\"},{\"path\":\"worker-draft/delivery-tools/delivery-native-170.cjs\",\"size\":11123,\"sha256\":\"2011ecc3614d0044de189902fac9d8926d08a1d2735567c66a6eb275eab7f287\"}]);"
+    },
+    {
+      "before": "const WORKER28_OVERLAYS=Object.freeze([{path:C28_PREIMAGES[0].path,source:ROOT_RUNTIME_SOURCE,size:199034,sha256:'b856fc516b0e97fa99951fb2bb1880c8f4bd86cf4481bd2199fba2ad5531e0fa'},{path:C28_PREIMAGES[1].path,source:ROOT_SLOT_SOURCE,size:70201,sha256:'553aab48981c4b8de9080faa16cb1bb9caf5ff416ff04ab84aa230ab9ead934f'}]);",
+      "after": "const WORKER28_OVERLAYS=Object.freeze([{\"path\":\"worker-draft/delivery-tools/engine-tree-runtime170.cjs\",\"source\":\"D:/Codex/xjy-1.7.0/c28-repair-source/retry-integrated-a16/engine-tree-runtime170.cjs\",\"size\":200809,\"sha256\":\"a294ec51027e2dff4aaff5d23cfa0e39d15531c4c51f6d5ae8d773d920b53ecf\"},{\"path\":\"worker-draft/delivery-tools/native-employee-slot170.cjs\",\"source\":\"D:/Codex/xjy-1.7.0/c28-repair-source/slot-integrated-a1/native-employee-slot170.cjs\",\"size\":70201,\"sha256\":\"553aab48981c4b8de9080faa16cb1bb9caf5ff416ff04ab84aa230ab9ead934f\"},{\"path\":\"worker-draft/delivery-tools/install-location.cjs\",\"source\":\"D:/Codex/xjy-release-20261022/source/install-location.cjs\",\"size\":17214,\"sha256\":\"3e4698f282d521ea9456375f1948ca5032db79783fb5e9b486b8c68fc5f24cba\"},{\"path\":\"worker-draft/delivery-tools/delivery-native-170.cjs\",\"source\":\"D:/Codex/xjy-release-20261022/source/delivery-native-170.cjs\",\"size\":11527,\"sha256\":\"c962f1c314866be0a57d7aef819954f47a389998e6eb78dd30562d99b0cb52fc\"}]);"
+    },
+    {
+      "before": "WORKER28_OVERLAYS.length!==2",
+      "after": "WORKER28_OVERLAYS.length!==4"
+    },
+    {
+      "before": ",{path:'delivery-tools/delivery-native-170.cjs',size:11123,sha256:'2011ecc3614d0044de189902fac9d8926d08a1d2735567c66a6eb275eab7f287'}",
+      "after": ""
+    },
+    {
+      "before": "unchangedWorkerRows:99",
+      "after": "unchangedWorkerRows:97"
+    },
+    {
+      "before": "FIXED_INPUTS_PIN='b45ee45f649866319851af915c3102427a839430bf0befb7cc76a31ec16337e0'",
+      "after": "FIXED_INPUTS_PIN='16fead81b0eb71c1247563610ef99d5dd378dfe0f93ef7830f11036c4d2e7ffd'"
+    }
+  ]
+}

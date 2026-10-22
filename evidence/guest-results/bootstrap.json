@@ -1,0 +1,64 @@
+﻿{
+    "at":  "2026-10-22T13:20:40.7549490+08:00",
+    "sid":  "S-1-5-21-2047949552-857980807-821054962-504",
+    "install":  "F:\\自制软件\\xjy-jewelry-offline",
+    "dataRoot":  "F:\\鑫金源珠宝资料",
+    "steps":  [
+                  {
+                      "step":  "vhd",
+                      "ok":  true,
+                      "out":  "Microsoft DiskPart version 10.0.26100.1150\r\n\r\nCopyright (C) Microsoft Corporation.\r\nOn computer: FE0B3F51-3704-4\r\n\r\n\r\n    0 percent completed\r\n  100 percent completed\r\n\r\n\r\nDiskPart successfully created the virtual disk file.\r\n\r\nDiskPart successfully selected the virtual disk file.\r\n\r\n\r\n  100 percent completed\r\n\r\n\r\nDiskPart successfully attached the virtual disk file.\r\n\r\nDiskPart succeeded in creating the specified partition.\r\n\r\n\r\n    0 percent completed\r\n  100 percent completed\r\n\r\n\r\nDiskPart successfully formatted the volume.\r\n\r\nDiskPart successfully assigned the drive letter or mount point."
+                  },
+                  {
+                      "step":  "acl-c-root",
+                      "ok":  true,
+                      "out":  "processed file: C:\\\r\nSuccessfully processed 1 files; Failed processing 0 files"
+                  },
+                  {
+                      "step":  "format-f",
+                      "ok":  true,
+                      "out":  "The type of the file system is NTFS.\r\nQuickFormatting 8.0 GB\r\nCreating file system structures.\r\nFormat complete.                         \r\n       8.0 GB total disk space.\r\n       8.0 GB are available."
+                  },
+                  {
+                      "step":  "mkdir",
+                      "ok":  true,
+                      "out":  "MKDONE"
+                  },
+                  {
+                      "step":  "acl-f-root",
+                      "ok":  true,
+                      "out":  "Successfully processed 3 files; Failed processing 0 files"
+                  },
+                  {
+                      "step":  "seed-install",
+                      "ok":  true,
+                      "out":  "rc=1"
+                  },
+                  {
+                      "step":  "registry",
+                      "ok":  true,
+                      "out":  "REGKEY-DONE"
+                  },
+                  {
+                      "step":  "copy-package",
+                      "ok":  true,
+                      "out":  "rc=1"
+                  },
+                  {
+                      "step":  "acl-local",
+                      "ok":  true,
+                      "out":  "done"
+                  },
+                  {
+                      "step":  "selfcheck",
+                      "ok":  true,
+                      "out":  "bad=1 C:\\XjyLocal :: FE0B3F51-3704-4\\WDAGUtilityAccount :: FullControl"
+                  },
+                  {
+                      "step":  "final-list",
+                      "ok":  false,
+                      "out":  "You cannot call a method on a null-valued expression."
+                  }
+              ],
+    "ok":  false
+}

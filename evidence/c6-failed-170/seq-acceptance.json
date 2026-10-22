@@ -1,0 +1,49 @@
+{
+  "results": [
+    {
+      "label": "sequence20_same_as_installed",
+      "sequence": 20,
+      "targetVersion": "1.7.0",
+      "expect": "STALE expected",
+      "outcome": {
+        "ok": false,
+        "code": "BAD_NATIVE_MANIFEST",
+        "message": "缺少固定受信维护入口"
+      }
+    },
+    {
+      "label": "sequence21_target1.7.0",
+      "sequence": 21,
+      "targetVersion": "1.7.0",
+      "expect": "accepted expected",
+      "outcome": {
+        "ok": false,
+        "code": "BAD_NATIVE_MANIFEST",
+        "message": "缺少固定受信维护入口"
+      }
+    },
+    {
+      "label": "sequence21_target1.7.1",
+      "sequence": 21,
+      "targetVersion": "1.7.1",
+      "expect": "accepted expected",
+      "outcome": {
+        "ok": false,
+        "code": "BAD_NATIVE_MANIFEST",
+        "message": "原生员工更新身份不符"
+      }
+    },
+    {
+      "label": "sequence22_target1.7.2",
+      "sequence": 22,
+      "targetVersion": "1.7.2",
+      "expect": "accepted expected",
+      "outcome": {
+        "ok": false,
+        "code": "BAD_NATIVE_MANIFEST",
+        "message": "原生员工更新身份不符"
+      }
+    }
+  ],
+  "versionLogic": null
+}

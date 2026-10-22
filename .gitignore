@@ -1,0 +1,29 @@
+# 二进制与打包产物：不进版本库（体积大、可重现、且含 Chromium/Electron 载荷）
+*.zip
+*.asar
+*.exe
+*.dll
+*.pak
+*.dat
+*.bin
+*.7z
+*.rar
+
+# 依赖与构建输出
+node_modules/
+dist/
+build/
+out/
+
+# 大日志与流式事件日志（本仓库只收 <5MB 的 JSON/MD 文本证据）
+*.log
+*.events.jsonl
+*.bak
+
+# 本机/临时
+tmp/
+.tmp/
+~$*
+Thumbs.db
+desktop.ini
+.DS_Store

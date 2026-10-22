@@ -1,0 +1,466 @@
+{
+    "tool":  "verify-production.ps1",
+    "schemaVersion":  1,
+    "stamp":  "fixture-pass",
+    "mode":  "post-upgrade",
+    "readOnly":  true,
+    "installDir":  "D:\\Codex\\xjy-release-20261022\\s5-tools\\_selftest\\fakehost\\xjy-jewelry-offline",
+    "dataDir":  "D:\\Codex\\xjy-release-20261022\\s5-tools\\_selftest\\fakehost\\data",
+    "stateDir":  "D:\\Codex\\xjy-release-20261022\\s5-tools\\_selftest\\fakehost\\.xjy-jewelry-offline.xjy-engine-state",
+    "stateDirCandidates":  [
+                               {
+                                   "path":  "D:\\Codex\\xjy-release-20261022\\s5-tools\\_selftest\\fakehost\\.xjy-jewelry-offline.xjy-engine-state",
+                                   "exists":  true
+                               },
+                               {
+                                   "path":  "D:\\Codex\\xjy-release-20261022\\s5-tools\\_selftest\\fakehost\\xjy-jewelry-offline\\.xjy-engine-state",
+                                   "exists":  false
+                               },
+                               {
+                                   "path":  "D:\\Codex\\xjy-release-20261022\\s5-tools\\_selftest\\fakehost\\.program.xjy-engine-state",
+                                   "exists":  false
+                               },
+                               {
+                                   "path":  "D:\\Codex\\xjy-release-20261022\\s5-tools\\_selftest\\fakehost\\xjy-jewelry-offline\\.program.xjy-engine-state",
+                                   "exists":  false
+                               }
+                           ],
+    "versionFile":  "44.9.0",
+    "journal":  {
+                    "path":  "D:\\Codex\\xjy-release-20261022\\s5-tools\\_selftest\\fakehost\\.xjy-jewelry-offline.xjy-engine-state\\journal.json",
+                    "bytes":  206133,
+                    "sha256":  "b415e2fc903d74ee03dbbfa8d326a13221bee892e78c3adedbee30900f11358c",
+                    "phase":  "committed",
+                    "targetVersion":  "1.7.0",
+                    "sourceVersion":  "1.6.2",
+                    "transactionId":  "e467bd7b-a0b8-474d-8fa4-657b5f44f5a7",
+                    "targetFilesCount":  1079,
+                    "sourceFilesCount":  1,
+                    "dataFilesCount":  0,
+                    "stageDir":  "D:\\Codex\\xjy-release-20261022\\s5-tools\\_selftest\\fakehost\\.stage-fixture",
+                    "backupDir":  "D:\\Codex\\xjy-release-20261022\\s5-tools\\_selftest\\fakehost\\.backup-fixture",
+                    "failedDir":  "D:\\Codex\\xjy-release-20261022\\s5-tools\\_selftest\\fakehost\\.failed-fixture"
+                },
+    "receipt":  {
+                    "path":  "D:\\Codex\\xjy-release-20261022\\s5-tools\\_selftest\\fakehost\\.xjy-jewelry-offline.xjy-engine-state\\engine-startup-status.json",
+                    "version":  2,
+                    "phase":  "committed",
+                    "mode":  "upgrade",
+                    "transactionId":  "e467bd7b-a0b8-474d-8fa4-657b5f44f5a7",
+                    "businessReleased":  true
+                },
+    "catalog":  {
+                    "path":  "D:\\Codex\\xjy-release-20261022\\s5-tools\\_selftest\\fakehost\\.xjy-jewelry-offline.xjy-engine-state\\target-catalog-envelope.json",
+                    "sha256":  "4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef",
+                    "pinned":  "4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef",
+                    "signature":  "True",
+                    "files":  1079
+                },
+    "activation":  {
+                       "version":  1,
+                       "product":  "xjy-jewelry-offline",
+                       "programVersion":  "1.7.0",
+                       "role":  "host",
+                       "installationDir":  "D:\\Codex\\xjy-release-20261022\\s5-tools\\_selftest\\fakehost\\xjy-jewelry-offline"
+                   },
+    "targetFiles":  {
+                        "checked":  1079,
+                        "total":  1079,
+                        "missing":  0,
+                        "sizeMismatch":  0,
+                        "hashMismatch":  0,
+                        "samples":  [
+
+                                    ]
+                    },
+    "dataTree":  {
+                     "path":  "D:\\Codex\\xjy-release-20261022\\s5-tools\\_selftest\\fakehost\\data",
+                     "exists":  true,
+                     "files":  1,
+                     "bytes":  18
+                 },
+    "checks":  [
+                   {
+                       "id":  "install-dir-exists",
+                       "ok":  true,
+                       "detail":  "D:\\Codex\\xjy-release-20261022\\s5-tools\\_selftest\\fakehost\\xjy-jewelry-offline",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "state-dir-found",
+                       "ok":  true,
+                       "detail":  "D:\\Codex\\xjy-release-20261022\\s5-tools\\_selftest\\fakehost\\.xjy-jewelry-offline.xjy-engine-state",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "journal-exists",
+                       "ok":  true,
+                       "detail":  "D:\\Codex\\xjy-release-20261022\\s5-tools\\_selftest\\fakehost\\.xjy-jewelry-offline.xjy-engine-state\\journal.json",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "receipt-exists",
+                       "ok":  true,
+                       "detail":  "D:\\Codex\\xjy-release-20261022\\s5-tools\\_selftest\\fakehost\\.xjy-jewelry-offline.xjy-engine-state\\engine-startup-status.json",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "catalog-envelope-exists",
+                       "ok":  true,
+                       "detail":  "D:\\Codex\\xjy-release-20261022\\s5-tools\\_selftest\\fakehost\\.xjy-jewelry-offline.xjy-engine-state\\target-catalog-envelope.json",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "journal-key-exists",
+                       "ok":  true,
+                       "detail":  "D:\\Codex\\xjy-release-20261022\\s5-tools\\_selftest\\fakehost\\.xjy-jewelry-offline.xjy-engine-state\\journal-key.bin",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "journal-key-length",
+                       "ok":  true,
+                       "detail":  "bytes=32",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "receipt-parse",
+                       "ok":  true,
+                       "detail":  "bytes=1016",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "receipt-top-keys",
+                       "ok":  true,
+                       "detail":  "missing= extra=",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "receipt-hmac",
+                       "ok":  true,
+                       "detail":  "mac=a97fd205def19ed212e51f589665dcaf34c4add31b281648fc3422f77b1a138f expected=a97fd205def19ed212e51f589665dcaf34c4add31b281648fc3422f77b1a138f",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "receipt-payload-keys",
+                       "ok":  true,
+                       "detail":  "version=2 missing= extra=",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "receipt-version-native",
+                       "ok":  true,
+                       "detail":  "version=2 (native host receipts must be 2)",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "receipt-purpose",
+                       "ok":  true,
+                       "detail":  "purpose=xjy-engine-startup-v1",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "receipt-phase-committed",
+                       "ok":  true,
+                       "detail":  "phase=committed",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "receipt-rollbackForbidden",
+                       "ok":  true,
+                       "detail":  "rollbackForbidden=True",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "receipt-role-host",
+                       "ok":  true,
+                       "detail":  "role=host",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "receipt-programVersion",
+                       "ok":  true,
+                       "detail":  "programVersion=1.7.0",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "receipt-engineVersion",
+                       "ok":  true,
+                       "detail":  "engineVersion=44.9.0",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "receipt-publisher",
+                       "ok":  true,
+                       "detail":  "publisherPublicKeySha256=6e8b9cadb59aeb53f30d41f4471f70f644f0dfc7376ffb9d8a4c62defb98458c",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "receipt-catalog-pin",
+                       "ok":  true,
+                       "detail":  "catalogSha256=4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "receipt-installationDir",
+                       "ok":  true,
+                       "detail":  "receipt=D:\\Codex\\xjy-release-20261022\\s5-tools\\_selftest\\fakehost\\xjy-jewelry-offline actual=D:\\Codex\\xjy-release-20261022\\s5-tools\\_selftest\\fakehost\\xjy-jewelry-offline",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "receipt-stateDir",
+                       "ok":  true,
+                       "detail":  "receipt=D:\\Codex\\xjy-release-20261022\\s5-tools\\_selftest\\fakehost\\.xjy-jewelry-offline.xjy-engine-state actual=D:\\Codex\\xjy-release-20261022\\s5-tools\\_selftest\\fakehost\\.xjy-jewelry-offline.xjy-engine-state",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "receipt-osUserNamespace",
+                       "ok":  true,
+                       "detail":  "receipt=张晋铭\\administrator expected=张晋铭\\administrator",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "receipt-mode",
+                       "ok":  true,
+                       "detail":  "mode=upgrade",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "receipt-identities",
+                       "ok":  true,
+                       "detail":  "installationIdentity=11:22:33 stateIdentity=11:22:33",
+                       "fatal":  false
+                   },
+                   {
+                       "id":  "receipt-businessReleased-type",
+                       "ok":  true,
+                       "detail":  "businessReleased=True",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "journal-parse",
+                       "ok":  true,
+                       "detail":  "bytes=206133",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "journal-top-keys",
+                       "ok":  true,
+                       "detail":  "missing= extra=",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "receipt-journalSha256-binding",
+                       "ok":  true,
+                       "detail":  "receipt=b415e2fc903d74ee03dbbfa8d326a13221bee892e78c3adedbee30900f11358c actual=b415e2fc903d74ee03dbbfa8d326a13221bee892e78c3adedbee30900f11358c",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "journal-hmac",
+                       "ok":  true,
+                       "detail":  "mac=76851a21272ab18c647c4d27fd05f2ec3c422d7f95a4f5d12dc748f1ebbadb4e expected=76851a21272ab18c647c4d27fd05f2ec3c422d7f95a4f5d12dc748f1ebbadb4e",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "journal-record-keys",
+                       "ok":  true,
+                       "detail":  "missing=",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "journal-purpose",
+                       "ok":  true,
+                       "detail":  "purpose=xjy-engine-tree170",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "journal-transactionId-binding",
+                       "ok":  true,
+                       "detail":  "journal=e467bd7b-a0b8-474d-8fa4-657b5f44f5a7 receipt=e467bd7b-a0b8-474d-8fa4-657b5f44f5a7",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "journal-phase-committed",
+                       "ok":  true,
+                       "detail":  "phase=committed",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "journal-rollbackForbidden",
+                       "ok":  true,
+                       "detail":  "rollbackForbidden=True",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "journal-runtimeWrites",
+                       "ok":  true,
+                       "detail":  "runtimeWrites=True",
+                       "fatal":  false
+                   },
+                   {
+                       "id":  "journal-role-host",
+                       "ok":  true,
+                       "detail":  "role=host",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "journal-publisher",
+                       "ok":  true,
+                       "detail":  "publisherPublicKeySha256=6e8b9cadb59aeb53f30d41f4471f70f644f0dfc7376ffb9d8a4c62defb98458c",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "journal-targetVersion",
+                       "ok":  true,
+                       "detail":  "targetVersion=1.7.0",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "journal-targetEngineVersion",
+                       "ok":  true,
+                       "detail":  "targetEngineVersion=44.9.0",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "journal-sourceVersion",
+                       "ok":  true,
+                       "detail":  "sourceVersion=1.6.2",
+                       "fatal":  false
+                   },
+                   {
+                       "id":  "journal-sourceEngineVersion",
+                       "ok":  true,
+                       "detail":  "sourceEngineVersion=44.7.0",
+                       "fatal":  false
+                   },
+                   {
+                       "id":  "journal-targetCatalog-binding",
+                       "ok":  true,
+                       "detail":  "journal=4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef receipt=4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "journal-backup-exists",
+                       "ok":  false,
+                       "detail":  "backupDir=D:\\Codex\\xjy-release-20261022\\s5-tools\\_selftest\\fakehost\\.backup-fixture",
+                       "fatal":  false
+                   },
+                   {
+                       "id":  "catalog-envelope-keys",
+                       "ok":  true,
+                       "detail":  "missing= extra=",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "catalog-sha-matches-receipt",
+                       "ok":  true,
+                       "detail":  "catalog=4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef receipt=4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "catalog-sha-pin",
+                       "ok":  true,
+                       "detail":  "catalog=4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef pin=4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "catalog-signature-ed25519",
+                       "ok":  true,
+                       "detail":  "verify=True",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "publisher-key-spki-pin",
+                       "ok":  true,
+                       "detail":  "pem spki sha256=6e8b9cadb59aeb53f30d41f4471f70f644f0dfc7376ffb9d8a4c62defb98458c",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "catalog-app",
+                       "ok":  true,
+                       "detail":  "app=xjy-jewelry-offline",
+                       "fatal":  false
+                   },
+                   {
+                       "id":  "catalog-version",
+                       "ok":  true,
+                       "detail":  "version=1.7.0",
+                       "fatal":  false
+                   },
+                   {
+                       "id":  "version-size-in-catalog",
+                       "ok":  true,
+                       "detail":  "actual=6 catalog=6",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "version-sha-in-catalog",
+                       "ok":  true,
+                       "detail":  "actual=9331b8f378c9763a3bdd6870abf39ed41af9e675435294a06ec6f4bd6c82165e",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "version-value",
+                       "ok":  true,
+                       "detail":  "value=44.9.0 expected=44.9.0",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "activation-parse",
+                       "ok":  true,
+                       "detail":  "",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "activation-keys",
+                       "ok":  true,
+                       "detail":  "missing= extra=",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "activation-version-1",
+                       "ok":  true,
+                       "detail":  "version=1",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "activation-product",
+                       "ok":  true,
+                       "detail":  "product=xjy-jewelry-offline",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "activation-programVersion",
+                       "ok":  true,
+                       "detail":  "programVersion=1.7.0",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "activation-role",
+                       "ok":  true,
+                       "detail":  "role=host",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "activation-installationDir",
+                       "ok":  true,
+                       "detail":  "activation=D:\\Codex\\xjy-release-20261022\\s5-tools\\_selftest\\fakehost\\xjy-jewelry-offline",
+                       "fatal":  true
+                   },
+                   {
+                       "id":  "journal-targetFiles-match",
+                       "ok":  true,
+                       "detail":  "checked=1079/1079 missing=0 sizeMismatch=0 hashMismatch=0",
+                       "fatal":  true
+                   }
+               ],
+    "failedChecks":  0,
+    "notes":  [
+                  "receipt transactionId=e467bd7b-a0b8-474d-8fa4-657b5f44f5a7 mode=upgrade",
+                  "journal stageDir=D:\\Codex\\xjy-release-20261022\\s5-tools\\_selftest\\fakehost\\.stage-fixture backupDir=D:\\Codex\\xjy-release-20261022\\s5-tools\\_selftest\\fakehost\\.backup-fixture",
+                  "catalog files=1079 sequence=20 expiresAt=2027-04-18T20:25:45.605Z",
+                  "journal targetActivation recorded (169 chars)",
+                  "business data dir: 1 files / 18 bytes"
+              ],
+    "verdict":  "PASS",
+    "exitCode":  0
+}

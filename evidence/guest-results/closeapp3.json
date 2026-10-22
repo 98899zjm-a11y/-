@@ -1,0 +1,59 @@
+﻿{
+    "at":  "2026-10-22T14:29:36.9225222+08:00",
+    "seen":  [
+                 {
+                     "id":  372,
+                     "name":  "鑫金源珠宝报价",
+                     "path":  "F:\\自制软件\\xjy-jewelry-offline\\鑫金源珠宝报价.exe",
+                     "closeMain":  true
+                 },
+                 {
+                     "id":  2216,
+                     "name":  "鑫金源珠宝报价",
+                     "path":  "F:\\自制软件\\xjy-jewelry-offline\\鑫金源珠宝报价.exe",
+                     "closeMain":  false
+                 },
+                 {
+                     "id":  2452,
+                     "name":  "鑫金源珠宝报价",
+                     "path":  "F:\\自制软件\\xjy-jewelry-offline\\鑫金源珠宝报价.exe",
+                     "closeMain":  false
+                 },
+                 {
+                     "id":  2804,
+                     "name":  "鑫金源珠宝报价",
+                     "path":  "F:\\自制软件\\xjy-jewelry-offline\\鑫金源珠宝报价.exe",
+                     "closeMain":  false
+                 },
+                 {
+                     "id":  4256,
+                     "name":  "鑫金源珠宝报价",
+                     "path":  "F:\\自制软件\\xjy-jewelry-offline\\鑫金源珠宝报价.exe",
+                     "closeMain":  false
+                 },
+                 {
+                     "id":  4892,
+                     "name":  "鑫金源珠宝报价",
+                     "path":  "F:\\自制软件\\xjy-jewelry-offline\\鑫金源珠宝报价.exe",
+                     "closeMain":  false
+                 },
+                 {
+                     "id":  6416,
+                     "name":  "鑫金源珠宝报价",
+                     "path":  "F:\\自制软件\\xjy-jewelry-offline\\鑫金源珠宝报价.exe",
+                     "closeMain":  false
+                 }
+             ],
+    "killedIds":  [
+                      372,
+                      2216,
+                      2452,
+                      2804,
+                      4256,
+                      4892,
+                      6416
+                  ],
+    "remaining":  [
+
+                  ]
+}

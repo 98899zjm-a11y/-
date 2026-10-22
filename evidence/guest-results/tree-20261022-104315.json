@@ -1,0 +1,79 @@
+﻿{
+    "at":  "2026-10-22T10:43:15.6625038+08:00",
+    "root5184":  [
+                     {
+                         "id":  5184,
+                         "ppid":  2968,
+                         "name":  "cmd.exe",
+                         "cpu":  0.1,
+                         "created":  "10/22/2026 09:42:38",
+                         "cmd":  "C:\\Windows\\System32\\cmd.exe /d /c C:\\XjyReleaseResults\\StartUpgrade.cmd"
+                     },
+                     {
+                         "id":  2968,
+                         "ppid":  940,
+                         "name":  "CExecSvc.exe",
+                         "cpu":  251.9,
+                         "created":  "10/16/2026 13:08:04",
+                         "cmd":  "C:\\Windows\\system32\\cexecsvc.exe"
+                     },
+                     {
+                         "id":  940,
+                         "ppid":  1000,
+                         "name":  "services.exe",
+                         "cpu":  22.1,
+                         "created":  "10/16/2026 13:08:02",
+                         "cmd":  null
+                     },
+                     {
+                         "id":  1000,
+                         "ppid":  928,
+                         "name":  "wininit.exe",
+                         "cpu":  0.6,
+                         "created":  "10/16/2026 13:08:02",
+                         "cmd":  null
+                     }
+                 ],
+    "children":  [
+                     {
+                         "id":  5500,
+                         "ppid":  5184,
+                         "name":  "powershell.exe",
+                         "cpu":  43.1,
+                         "created":  "10/22/2026 09:42:39",
+                         "cmd":  "\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\"  -NoLogo -NoProfile -STA -WindowStyle Hidden -EncodedCommand JABFAHIAcgBvAHIAQQBjAHQAaQBvAG4AUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwB0AG8AcAAnADs"
+                     },
+                     {
+                         "id":  5184,
+                         "ppid":  2968,
+                         "name":  "cmd.exe",
+                         "cpu":  0.1,
+                         "created":  "10/22/2026 09:42:38",
+                         "cmd":  "C:\\Windows\\System32\\cmd.exe /d /c C:\\XjyReleaseResults\\StartUpgrade.cmd"
+                     },
+                     {
+                         "id":  2968,
+                         "ppid":  940,
+                         "name":  "CExecSvc.exe",
+                         "cpu":  251.9,
+                         "created":  "10/16/2026 13:08:04",
+                         "cmd":  "C:\\Windows\\system32\\cexecsvc.exe"
+                     },
+                     {
+                         "id":  940,
+                         "ppid":  1000,
+                         "name":  "services.exe",
+                         "cpu":  22.1,
+                         "created":  "10/16/2026 13:08:02",
+                         "cmd":  null
+                     },
+                     {
+                         "id":  1000,
+                         "ppid":  928,
+                         "name":  "wininit.exe",
+                         "cpu":  0.6,
+                         "created":  "10/16/2026 13:08:02",
+                         "cmd":  null
+                     }
+                 ]
+}

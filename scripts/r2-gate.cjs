@@ -1,0 +1,10 @@
+const fs=require('node:fs');
+const src=fs.readFileSync('C:/Users/Administrator/Documents/deepseek-harness/default-workspace/_dsh/native-publication-update.patched.cjs','utf8');
+const a=src.indexOf('const MIN_PROGRAM_VERSION=');
+const b=src.indexOf('\n', src.indexOf('const versionAtLeast='));
+const block=src.slice(a,b);
+const f=new Function('return (function(){'+block+'\nreturn versionAtLeast;})()')();
+const gate={'1.6.2':f('1.6.2','1.7.0'),'1.7.0':f('1.7.0','1.7.0'),'1.7.1':f('1.7.1','1.7.0'),'2.0.0':f('2.0.0','1.7.0')};
+const out={gate,blockChars:block.length};
+fs.writeFileSync('evidence-c6-failed-170/r2-version-gate.json',JSON.stringify(out,null,2));
+console.log(JSON.stringify(out));

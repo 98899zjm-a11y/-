@@ -1,0 +1,37 @@
+﻿{
+    "at":  "2026-10-22T12:45:33.2589369+08:00",
+    "paths":  [
+                  {
+                      "path":  "C:\\ProgramData",
+                      "exists":  true,
+                      "owner":  "S-1-5-18",
+                      "rules":  [
+                                    {
+                                        "sid":  "S-1-5-18",
+                                        "rights":  "FullControl",
+                                        "allow":  true,
+                                        "inherited":  false
+                                    },
+                                    {
+                                        "sid":  "S-1-5-32-544",
+                                        "rights":  "FullControl",
+                                        "allow":  true,
+                                        "inherited":  false
+                                    },
+                                    {
+                                        "sid":  "S-1-5-32-545",
+                                        "rights":  "ReadAndExecute, Synchronize",
+                                        "allow":  true,
+                                        "inherited":  false
+                                    },
+                                    {
+                                        "sid":  "S-1-5-32-545",
+                                        "rights":  "Write",
+                                        "allow":  true,
+                                        "inherited":  false
+                                    }
+                                ]
+                  }
+              ],
+    "sid":  "S-1-5-21-2047949552-857980807-821054962-504"
+}

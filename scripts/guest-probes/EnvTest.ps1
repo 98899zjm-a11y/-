@@ -1,0 +1,21 @@
+$ErrorActionPreference = 'Continue'
+$b64 = 'WwBDAG8AbgBzAG8AbABlAF0AOgA6AE8AdQB0AHAAdQB0AEUAbgBjAG8AZABpAG4AZwA9AFsAVABlAHgAdAAuAFUAVABGADgARQBuAGMAbwBkAGkAbgBnAF0AOgA6AG4AZQB3ACgAJABmAGEAbABzAGUAKQA7ACAAJABFAHIAcgBvAHIAQQBjAHQAaQBvAG4AUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwB0AG8AcAAnADsAIABAAHsAYwBvAG0AbQBvAG4APQBbAEUAbgB2AGkAcgBvAG4AbQBlAG4AdABdADoAOgBHAGUAdABGAG8AbABkAGUAcgBQAGEAdABoACgAWwBFAG4AdgBpAHIAbwBuAG0AZQBuAHQAKwBTAHAAZQBjAGkAYQBsAEYAbwBsAGQAZQByAF0AOgA6AEMAbwBtAG0AbwBuAEEAcABwAGwAaQBjAGEAdABpAG8AbgBEAGEAdABhACkAOwBsAG8AYwBhAGwAPQBbAEUAbgB2AGkAcgBvAG4AbQBlAG4AdABdADoAOgBHAGUAdABGAG8AbABkAGUAcgBQAGEAdABoACgAWwBFAG4AdgBpAHIAbwBuAG0AZQBuAHQAKwBTAHAAZQBjAGkAYQBsAEYAbwBsAGQAZQByAF0AOgA6AEwAbwBjAGEAbABBAHAAcABsAGkAYwBhAHQAaQBvAG4ARABhAHQAYQApADsAcgBvAGEAbQBpAG4AZwA9AFsARQBuAHYAaQByAG8AbgBtAGUAbgB0AF0AOgA6AEcAZQB0AEYAbwBsAGQAZQByAFAAYQB0AGgAKABbAEUAbgB2AGkAcgBvAG4AbQBlAG4AdAArAFMAcABlAGMAaQBhAGwARgBvAGwAZABlAHIAXQA6ADoAQQBwAHAAbABpAGMAYQB0AGkAbwBuAEQAYQB0AGEAKQA7AHcAaQBuAGQAbwB3AHMAPQBbAEUAbgB2AGkAcgBvAG4AbQBlAG4AdABdADoAOgBHAGUAdABGAG8AbABkAGUAcgBQAGEAdABoACgAWwBFAG4AdgBpAHIAbwBuAG0AZQBuAHQAKwBTAHAAZQBjAGkAYQBsAEYAbwBsAGQAZQByAF0AOgA6AFcAaQBuAGQAbwB3AHMAKQA7AHMAaQBkAD0AWwBTAGUAYwB1AHIAaQB0AHkALgBQAHIAaQBuAGMAaQBwAGEAbAAuAFcAaQBuAGQAbwB3AHMASQBkAGUAbgB0AGkAdAB5AF0AOgA6AEcAZQB0AEMAdQByAHIAZQBuAHQAKAApAC4AVQBzAGUAcgAuAFYAYQBsAHUAZQB9ACAAfAAgAEMAbwBuAHYAZQByAHQAVABvAC0ASgBzAG8AbgAgAC0AQwBvAG0AcAByAGUAcwBzAA=='
+$psi = New-Object System.Diagnostics.ProcessStartInfo
+$psi.FileName = 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
+$psi.Arguments = '-NoLogo -NoProfile -NonInteractive -EncodedCommand ' + $b64
+$psi.UseShellExecute = $false
+$psi.RedirectStandardOutput = $true
+$psi.RedirectStandardError = $true
+$psi.CreateNoWindow = $true
+$psi.EnvironmentVariables.Clear()
+$psi.EnvironmentVariables['SystemRoot'] = $env:SystemRoot
+$psi.EnvironmentVariables['WINDIR'] = $env:WINDIR
+$psi.EnvironmentVariables['SystemDrive'] = $env:SystemDrive
+$psi.EnvironmentVariables['PATHEXT'] = $env:PATHEXT
+$p = [System.Diagnostics.Process]::Start($psi)
+$out = $p.StandardOutput.ReadToEnd()
+$err = $p.StandardError.ReadToEnd()
+$p.WaitForExit()
+$r = [ordered]@{ exit = $p.ExitCode; stdout = $out; stderr = $err; envUsed = @('SystemRoot','WINDIR','SystemDrive','PATHEXT') }
+$r | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath 'C:\XjyResults\envtest.json' -Encoding UTF8
+Write-Output ('EXIT=' + $p.ExitCode)

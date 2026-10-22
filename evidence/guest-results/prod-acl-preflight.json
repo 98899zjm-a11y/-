@@ -1,0 +1,62 @@
+{
+  "at": "2026-10-22T14:47:43.0959734+08:00",
+  "sid": "S-1-5-21-3280743368-706568478-3016959556-500",
+  "verdict": "PASS",
+  "failCount": 0,
+  "checks": [
+    {
+      "path": "F:\\",
+      "ancestor": true,
+      "exists": true,
+      "ownerOk": true,
+      "owner": "S-1-5-18",
+      "bad": [],
+      "error": null
+    },
+    {
+      "path": "F:\\自制软件",
+      "ancestor": true,
+      "exists": true,
+      "ownerOk": true,
+      "owner": "S-1-5-32-544",
+      "bad": [],
+      "error": null
+    },
+    {
+      "path": "F:\\自制软件\\xjy-jewelry-offline",
+      "ancestor": false,
+      "exists": true,
+      "ownerOk": true,
+      "owner": "S-1-5-32-544",
+      "bad": [],
+      "error": null
+    },
+    {
+      "path": "F:\\鑫金源珠宝资料",
+      "ancestor": false,
+      "exists": true,
+      "ownerOk": true,
+      "owner": "S-1-5-32-544",
+      "bad": [],
+      "error": null
+    },
+    {
+      "path": "C:\\",
+      "ancestor": true,
+      "exists": true,
+      "ownerOk": true,
+      "owner": "S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464",
+      "bad": [],
+      "error": null
+    },
+    {
+      "path": "C:\\ProgramData",
+      "ancestor": true,
+      "exists": true,
+      "ownerOk": true,
+      "owner": "S-1-5-18",
+      "bad": [],
+      "error": null
+    }
+  ]
+}

@@ -1,0 +1,255 @@
+{
+  "schemaVersion": 1,
+  "purpose": "ROOT_GUEST_RELEASE_STAGE",
+  "runId": "20261022T013806243Z-1cd189",
+  "node": "v24.19.0",
+  "startedAt": "2026-10-22T01:38:06.244Z",
+  "status": "INSTALLER_EXIT_NONZERO",
+  "ok": false,
+  "passed": false,
+  "pending": false,
+  "failure": true,
+  "c6": {
+    "sandboxId": "c6b4f1f6-411e-4272-b4a4-a1ca62701e39",
+    "hostname": "fe0b3f51-3704-4e3e-a876-8c6d64ce551f",
+    "user": "WDAGUtilityAccount",
+    "wdag": true
+  },
+  "paths": {
+    "results": "C:\\XjyReleaseResults",
+    "round": "C:\\XjyReleaseResults\\rounds\\20261022T013806243Z-1cd189",
+    "before": "C:\\XjyReleaseResults\\rounds\\20261022T013806243Z-1cd189\\before.json",
+    "beforeCurrent": "C:\\XjyReleaseResults\\before.json",
+    "state": "C:\\XjyReleaseResults\\rounds\\20261022T013806243Z-1cd189\\state.json",
+    "stateCurrent": "C:\\XjyReleaseResults\\state.json",
+    "final": "C:\\XjyReleaseResults\\rounds\\20261022T013806243Z-1cd189\\final.json",
+    "stdout": "C:\\XjyReleaseResults\\stdout-20261022T013806243Z-1cd189.log",
+    "stderr": "C:\\XjyReleaseResults\\stderr-20261022T013806243Z-1cd189.log",
+    "exitFile": "C:\\XjyReleaseResults\\rounds\\20261022T013806243Z-1cd189\\installer-exit.txt",
+    "host": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program",
+    "hostRoot": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2",
+    "stage": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyRootRelease170\\program",
+    "stageRoot": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyRootRelease170",
+    "data": "F:\\鑫金源珠宝资料",
+    "candidate": "C:\\XjyReleaseCandidate"
+  },
+  "guard": {
+    "at": "2026-10-22T01:38:06.294Z",
+    "identity": {
+      "hostname": "fe0b3f51-3704-4e3e-a876-8c6d64ce551f",
+      "hostnameLower": "fe0b3f51-3704-4e3e-a876-8c6d64ce551f",
+      "user": "WDAGUtilityAccount",
+      "wdag": true,
+      "sandboxId": "c6b4f1f6-411e-4272-b4a4-a1ca62701e39",
+      "hostnameAccepted": true
+    },
+    "hostMarker": {
+      "version": 1,
+      "product": "xjy-jewelry-offline",
+      "programVersion": "1.6.2",
+      "role": "host",
+      "installationDir": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program",
+      "exists": true,
+      "path": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program\\xjy-install-activation.json"
+    },
+    "hostVersion": "44.7.0",
+    "journal": {
+      "exists": false,
+      "path": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\.program.xjy-engine-state\\journal.json",
+      "phase": null,
+      "committed": false,
+      "active": false,
+      "terminal": false
+    },
+    "employeeSlots": [
+      "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\鑫金源珠宝\\员工程序-slot-4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef",
+      "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\鑫金源珠宝\\员工程序-slot-c049bc4d886a1aefd4100e0e397fb12a94293838609712ce6404d6227c294535"
+    ],
+    "maintenance": [],
+    "locks": {
+      "hits": [],
+      "reparse": [],
+      "truncated": false
+    },
+    "checks": [
+      {
+        "name": "WDAGUtilityAccount",
+        "ok": true,
+        "detail": "WDAGUtilityAccount"
+      },
+      {
+        "name": "known C6 hostname",
+        "ok": true,
+        "detail": "fe0b3f51-3704-4e3e-a876-8c6d64ce551f"
+      },
+      {
+        "name": "host marker 1.6.2/host",
+        "ok": true,
+        "detail": {
+          "version": 1,
+          "product": "xjy-jewelry-offline",
+          "programVersion": "1.6.2",
+          "role": "host",
+          "installationDir": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program",
+          "exists": true,
+          "path": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program\\xjy-install-activation.json"
+        }
+      },
+      {
+        "name": "host marker installationDir",
+        "ok": true,
+        "detail": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program"
+      },
+      {
+        "name": "employee slot present",
+        "ok": true,
+        "detail": [
+          "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\鑫金源珠宝\\员工程序-slot-4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef",
+          "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\鑫金源珠宝\\员工程序-slot-c049bc4d886a1aefd4100e0e397fb12a94293838609712ce6404d6227c294535"
+        ]
+      },
+      {
+        "name": "staging target absent (CreateNew)",
+        "ok": true,
+        "detail": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyRootRelease170\\program"
+      },
+      {
+        "name": "no active maintenance process",
+        "ok": true,
+        "detail": []
+      },
+      {
+        "name": "no .lock in scanned roots",
+        "ok": true,
+        "detail": []
+      },
+      {
+        "name": "no active journal",
+        "ok": true,
+        "detail": {
+          "exists": false,
+          "path": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\.program.xjy-engine-state\\journal.json",
+          "phase": null,
+          "committed": false,
+          "active": false,
+          "terminal": false
+        }
+      },
+      {
+        "name": "journal consistent with 1.6.2 host",
+        "ok": true,
+        "detail": {
+          "exists": false,
+          "path": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\.program.xjy-engine-state\\journal.json",
+          "phase": null,
+          "committed": false,
+          "active": false,
+          "terminal": false
+        }
+      },
+      {
+        "name": "journal readable",
+        "ok": true,
+        "detail": {
+          "exists": false,
+          "path": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\.program.xjy-engine-state\\journal.json",
+          "phase": null,
+          "committed": false,
+          "active": false,
+          "terminal": false
+        }
+      }
+    ],
+    "pass": true
+  },
+  "package": {
+    "assembly": "C:\\XjyReleaseCandidate\\build\\assembly.json",
+    "assemblySha256": "53cd54497a1d73f53e684a7bc4a2e01c669f3d7186dfc687f54929d2ce173d2f",
+    "packageRoot": "C:\\XjyReleaseCandidate\\build\\package",
+    "memberCount": 3293,
+    "totalBytes": 1819803269
+  },
+  "target": {
+    "path": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyRootRelease170\\program",
+    "real": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyRootRelease170\\program",
+    "files": 3293,
+    "bytes": 1819803269,
+    "upgrade": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyRootRelease170\\program\\一键升级.cmd",
+    "upgradeSize": 2956,
+    "upgradeSha256": "21835954f0719069dcc16f2196fb545956b04b745ad05e5a6e4364b107253aa9"
+  },
+  "before": {
+    "dataTreeHash": "fcb3135565a9974af8218df5e53975af63b7ffe87d011d35945553105453676f",
+    "dataFiles": 98,
+    "dataBytes": 54823949,
+    "dataDbWal": 15,
+    "slots": [
+      {
+        "path": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\鑫金源珠宝\\员工程序-slot-4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef",
+        "files": 1080,
+        "bytes": 550497063,
+        "entriesHash": "6d0caa411bbfcf7bce14c6c257f32625d00f1bd099ef23121dcff6f714bb5ffa",
+        "keysHash": "1ae6d22f56bd6ecb5d4ecb0b28d7ac4f21a900ee5a556929997e316c32053a0d"
+      },
+      {
+        "path": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\鑫金源珠宝\\员工程序-slot-c049bc4d886a1aefd4100e0e397fb12a94293838609712ce6404d6227c294535",
+        "files": 1080,
+        "bytes": 550497063,
+        "entriesHash": "95c5b4ee0f396afa47799bc936ad38cdddd9cbef51eb0f7c2b2fd56ccb306696",
+        "keysHash": "55eb04e12b0c9f61180db29f8d4236618b6121199cc551836e285de550842adc"
+      }
+    ]
+  },
+  "cmd": {
+    "pid": 7520,
+    "startedAt": "2026-10-22T01:38:37.503Z",
+    "command": "call \"C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyRootRelease170\\program\\一键升级.cmd\" & set \"XJY_EXIT=!ERRORLEVEL!\" & echo !XJY_EXIT!>\"C:\\XjyReleaseResults\\rounds\\20261022T013806243Z-1cd189\\installer-exit.txt\" & exit /b !XJY_EXIT!",
+    "cwd": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyRootRelease170\\program",
+    "stdout": "C:\\XjyReleaseResults\\stdout-20261022T013806243Z-1cd189.log",
+    "stderr": "C:\\XjyReleaseResults\\stderr-20261022T013806243Z-1cd189.log",
+    "exitFile": "C:\\XjyReleaseResults\\rounds\\20261022T013806243Z-1cd189\\installer-exit.txt",
+    "exited": true,
+    "exitCode": 1,
+    "signal": null,
+    "spawnError": null,
+    "timedOut": false,
+    "elapsedMs": 2243,
+    "exitFromFile": null,
+    "stdoutTail": "",
+    "stderrTail": "'\\\"C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyRootRelease170\\program\\一键升级.cmd\\\"' is not recognized as an internal or external command,\r\noperable program or batch file.\r\nThe filename, directory name, or volume label syntax is incorrect.\r\n"
+  },
+  "targetState": {
+    "at": "2026-10-22T01:38:39.742Z",
+    "marker": {
+      "version": 1,
+      "product": "xjy-jewelry-offline",
+      "programVersion": "1.6.2",
+      "role": "host",
+      "installationDir": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program",
+      "exists": true,
+      "path": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program\\xjy-install-activation.json"
+    },
+    "markerOk": false,
+    "version": "44.7.0",
+    "journal": {
+      "exists": false,
+      "path": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\.program.xjy-engine-state\\journal.json",
+      "phase": null,
+      "committed": false,
+      "active": false,
+      "terminal": false
+    },
+    "committed": false
+  },
+  "failurePopup": {
+    "text": "UNKNOWN",
+    "exitCode": 1,
+    "button": null,
+    "source": "UNKNOWN",
+    "note": "用户未提供 popup.json；不猜测弹窗文字。"
+  },
+  "error": null,
+  "completedAt": "2026-10-22T01:38:39.757Z",
+  "phase": "DONE",
+  "updatedAt": "2026-10-22T01:38:39.757Z"
+}

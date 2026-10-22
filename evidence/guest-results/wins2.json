@@ -1,0 +1,103 @@
+﻿[
+    {
+        "hwnd":  459366,
+        "pid":  3584,
+        "cls":  "WindowsForms10.Window.8.app.0.e2d19d_r13_ad1",
+        "title":  "鑫金源珠宝 1.7.0 重复升级审定",
+        "children":  [
+                         {
+                             "hwnd":  196714,
+                             "cls":  "WindowsForms10.STATIC.app.0.e2d19d_r13_ad1",
+                             "text":  "已自动定位候选程序；最终仍会核验真实角色和程序指纹。\n请先保存单据并正常退出原软件；确认后才会写入本发布的审批记录。"
+                         },
+                         {
+                             "hwnd":  131658,
+                             "cls":  "WindowsForms10.STATIC.app.0.e2d19d_r13_ad1",
+                             "text":  "自动识别的现有软件路径"
+                         },
+                         {
+                             "hwnd":  262550,
+                             "cls":  "WindowsForms10.EDIT.app.0.e2d19d_r13_ad1",
+                             "text":  "F:\\自制软件\\xjy-jewelry-offline\\鑫金源珠宝报价.exe"
+                         },
+                         {
+                             "hwnd":  131526,
+                             "cls":  "WindowsForms10.BUTTON.app.0.e2d19d_r13_ad1",
+                             "text":  "已定位"
+                         },
+                         {
+                             "hwnd":  197054,
+                             "cls":  "WindowsForms10.STATIC.app.0.e2d19d_r13_ad1",
+                             "text":  "安装会核验原程序和补丁，保留资料及旧程序备份。\n已有同一补丁的审定记录时，会在最终确认中说明重新审定。"
+                         },
+                         {
+                             "hwnd":  131548,
+                             "cls":  "WindowsForms10.BUTTON.app.0.e2d19d_r13_ad1",
+                             "text":  "取消"
+                         },
+                         {
+                             "hwnd":  197078,
+                             "cls":  "WindowsForms10.BUTTON.app.0.e2d19d_r13_ad1",
+                             "text":  "开始核验并安装"
+                         }
+                     ]
+    },
+    {
+        "hwnd":  393318,
+        "pid":  2584,
+        "cls":  "WindowsForms10.Window.8.app.0.176132_r8_ad1",
+        "title":  "鑫金源珠宝 1.7.0 电脑版 · 升级",
+        "children":  [
+                         {
+                             "hwnd":  328386,
+                             "cls":  "WindowsForms10.STATIC.app.0.176132_r8_ad1",
+                             "text":  "正在安装或升级程序"
+                         },
+                         {
+                             "hwnd":  197204,
+                             "cls":  "WindowsForms10.STATIC.app.0.176132_r8_ad1",
+                             "text":  "正在安装及校验，已用 3 分 47 秒。请不要重复运行；完成后会明确提示结果。"
+                         }
+                     ]
+    },
+    {
+        "hwnd":  197312,
+        "pid":  5160,
+        "cls":  "#32770",
+        "title":  "安装或升级未完成",
+        "children":  [
+                         {
+                             "hwnd":  262748,
+                             "cls":  "Button",
+                             "text":  "确定"
+                         },
+                         {
+                             "hwnd":  786668,
+                             "cls":  "Static",
+                             "text":  "安装或升级未确认完成。请保留原程序、备份和错误记录。\nworker 退出码为 1，不等于 0\n安装或升级已停止：4294901760 Command failed: C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -NoLogo -NoProfile -NonInteractive -EncodedCommand WwBDAG8AbgBzAG8AbABlAF0AOgA6AE8AdQB0AHAAdQB0AEUAbgBjAG8AZABpAG4AZwA9AFsAVABlAHgAdAAuAFUAVABGADgARQBuAGMAbwBkAGkAbgBnAF0AOgA6AG4AZQB3ACgAJABmAGEAbABzAGUAKQA7ACAAJABFAHIAcgBvAHIAQQBjAHQAaQBvAG4AUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwB0AG8AcAAnADsAIABAAHsAYwBvAG0AbQBvAG4APQBbAEUAbgB2AGkAcgBvAG4AbQBlAG4AdABdADoAOgBHAGUAdABGAG8AbABkAGUAcgBQAGEAdABoACgAWwBFAG4AdgBpAHIAbwBuAG0AZQBuAHQAKwBTAHAAZQBjAGkAYQBsAEYAbwBsAGQAZQByAF0AOgA6AEMAbwBtAG0AbwBuAEEAcABwAGwAaQBjAGEAdABpAG8AbgBEAGEAdABhACkAOwBsAG8AYwBhAGwAPQBbAEUAbgB2AGkAcgBvAG4AbQBlAG4AdABdADoAOgBHAGUAdABGAG8AbABkAGUAcgBQAGEAdABoACgAWwBFAG4AdgBpAHIAbwBuAG0AZQBuAHQAKwBTAHAAZQBjAGkAYQBsAEYAbwBsAGQAZQByAF0AOgA6AEwAbwBjAGEAbABBAHAAcABsAGkAYwBhAHQAaQBvAG4ARABhAHQAYQApADsAcgBvAGEAbQBpAG4AZwA9AFsARQBuAHYAaQByAG8AbgBtAGUAbgB0AF0AOgA6AEcAZQB0AEYAbwBsAGQAZQByAFAAYQB0AGgAKABbAEUAbgB2AGkAcgBvAG4"
+                         }
+                     ]
+    },
+    {
+        "hwnd":  131670,
+        "pid":  6512,
+        "cls":  "Windows.UI.Core.CoreWindow",
+        "title":  "Windows 输入体验",
+        "children":  [
+
+                     ]
+    },
+    {
+        "hwnd":  65798,
+        "pid":  4460,
+        "cls":  "Progman",
+        "title":  "Program Manager",
+        "children":  [
+                         {
+                             "hwnd":  65804,
+                             "cls":  "SysListView32",
+                             "text":  "FolderView"
+                         }
+                     ]
+    }
+]

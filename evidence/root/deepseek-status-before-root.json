@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "product": "xjy-jewelry-offline-1.7.0-first-batch-desktop",
+  "asOf": "2026-10-22",
+  "asOfNote": "round 9 route probes; install authorization recorded, gates NOT met",
+  "status": "BLOCKED_TOOLING",
+  "secondaryStatus": "SOURCE_PATCHES_DELIVERABLE; FIX4_48_48_AND_PRODCHAIN_10_10_GREEN; BUILD/SIGN/C6_NEED_PLATFORM_ITEMS",
+  "statusMeaning": "Four compliant routes were probed with real tooling. (1) The two fixes cannot be merged into the existing two-entry overlay closure without changing the trust chain (requireA13Review hard-codes WORKER28_OVERLAYS.length===2). (2) The existing worker28 signer runs without Root scope and the issuer key is process-readable (not exported), so internal worker signing is possible once a new proposal exists; the outer signer is hard-bound to the old build via a Root scope file (sha da5eb1fd..., proposal 16908be7...) and a new Root scope is required. (3) host_node+host_ast cannot yet replace the child-process checks: the Node ASAR verifier is artifact-scoped and failed on the C28 asar (NEW_MEMBER_METADATA), and host_ast on the final wrapper returned 208 parse errors, so a builder revision accepting sha-bound external AST evidence would be needed. (4) No platform action can create a new clean C6. Deliverable source patches are materialized on D (fixed4 7efed34a..., patched delivery-native c962f1c3...). releaseQualified=false; nothing built, signed, installed, or published; production system and data untouched.",
+  "round9": {
+    "patchArtifacts": {
+      "installLocation": { "file": "continuation-20261022/ds-r7-fixed4-install-location-a1.cjs", "bytes": 17192, "sha256": "7efed34a22afaa96df2a942060869d921b4998a46abf71f35b468307da7a260b" },
+      "deliveryNative": { "file": "continuation-20261022/ds-r8-delivery-native-patched-a1.cjs", "bytes": 11527, "sha256": "c962f1c314866be0a57d7aef819954f47a389998e6eb78dd30562d99b0cb52fc", "source": "shipped 2011ecc3... + 1 anchor, match=1" },
+      "evidence": "continuation-20261022/r9-patch-artifacts-a1.json"
+    },
+    "routes": {
+      "oneOverlayForBothFixes": "NOT FEASIBLE: overlay entries are single files; gate requires exactly 2 overlays",
+      "signing": "worker28 signer exists and has no Root scope (issuer key R_OK by process, not exported); outer signer pinned to old build and requires a new Root scope (da5eb1fd.../16908be7...)",
+      "hostAstHostNodeReplacement": "NOT EQUIVALENT: Node ASAR verifier is artifact-scoped (failed NEW_MEMBER_METADATA on C28 asar); host_ast on final wrapper returned errorCount=208 (encoding/ParseFile vs strict UTF8 ParseInput). Needs builder revision accepting sha-bound AST evidence or pinned one-shot powershell.exe",
+      "newCleanC6": "NOT AVAILABLE: fixed guest id, no create/reset/clone actions"
+    },
+    "evidence": ["r9-routes-a1.json", "r9-signer-audit-a1.json", "r9-route3-a1.json", "r9-asar-node-verify-a1.json", "r9-patch-artifacts-a1.json"],
+    "report": "continuation-20261022/ROUND9_ROUTES.md"
+  },
+  "installAuthorization": {
+    "file": "continuation-20261022/USER_FINAL_INSTALL_AUTHORIZATION.md",
+    "sha256": "ad6af9171e0c15c95253182842e01199282c08cf06f3844072817ff20d385a9c",
+    "state": "RECORDED_GATES_NOT_MET",
+    "checklist": "continuation-20261022/PRE_INSTALL_GATE_CHECKLIST.md",
+    "productionTouched": false
+  },
+  "fixEvidence": {
+    "fixed4": { "bytes": 17192, "sha256": "7efed34a22afaa96df2a942060869d921b4998a46abf71f35b468307da7a260b" },
+    "hostMatrix": { "artifact": "continuation-20261022/ds-r7-tests-a1.json", "artifactSha256": "19c908cef91d78a91cc78eb40c53a9d8fd3829a93b4d1967c3ad30fea15a97ea", "fixed4Pass": 48, "shippedPass": 24, "total": 48 },
+    "prodchain": { "artifact": "guest-diagnostics-a1/results/ds-r7-prodchain-b1.json", "artifactSha256": "78bdf37d43b18dafdc44d981edf3e0bf8b5b00e886d40a927fc14c7a93e4036c", "passed": 10, "total": 10 }
+  },
+  "minimalPlatformRequest": [
+    "Root trust-chain amendment: new reviewed-inputs-ROOT.json with install-location.cjs (7efed34a...) and delivery-native-170.cjs (c962f1c3...), plus builder FIXED_INPUTS_PIN and WORKER28_OVERLAYS 2->4 update; empty CreateNew output root",
+    "New outer Root signing scope bound to the new build hashes (worker28 internal signing can use the existing signer afterwards)",
+    "AST channel: accept host_ast evidence bound by generated-file sha, or allow a one-shot pinned powershell.exe argv",
+    "ASAR channel: allow the pinned python.exe one-shot, or review a general Node verifier",
+    "A platform-supported way to create a clean guest (no F: mapping) for fresh install/recovery",
+    "Fresh independent DeepSeek read-only review of fixed4 + patches"
+  ],
+  "releaseQualified": false,
+  "explicitNonClaims": [
+    "no builder modification performed",
+    "no new signed package built or signed",
+    "no production install or upgrade performed",
+    "R7/R9 changes not yet independently re-reviewed",
+    "fresh install / five-state recovery / in-app upgrade not executed",
+    "E:, signer, signed packages, C6 programs, F: and approvals untouched"
+  ]
+}

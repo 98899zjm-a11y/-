@@ -1,0 +1,76 @@
+﻿{
+    "at":  "2026-10-22T10:42:32.1096517+08:00",
+    "intervalSeconds":  6,
+    "top":  [
+                {
+                    "id":  4616,
+                    "name":  "svchost",
+                    "delta6s":  0,
+                    "totalCpu":  0.7,
+                    "path":  "C:\\Windows\\system32\\svchost.exe"
+                },
+                {
+                    "id":  4648,
+                    "name":  "svchost",
+                    "delta6s":  0,
+                    "totalCpu":  5.7,
+                    "path":  "C:\\Windows\\system32\\svchost.exe"
+                },
+                {
+                    "id":  4732,
+                    "name":  "svchost",
+                    "delta6s":  0,
+                    "totalCpu":  2.4,
+                    "path":  "C:\\Windows\\system32\\svchost.exe"
+                },
+                {
+                    "id":  4204,
+                    "name":  "svchost",
+                    "delta6s":  0,
+                    "totalCpu":  1,
+                    "path":  "C:\\Windows\\system32\\svchost.exe"
+                },
+                {
+                    "id":  4284,
+                    "name":  "svchost",
+                    "delta6s":  0,
+                    "totalCpu":  3.1,
+                    "path":  "C:\\Windows\\system32\\svchost.exe"
+                },
+                {
+                    "id":  4572,
+                    "name":  "svchost",
+                    "delta6s":  0,
+                    "totalCpu":  3,
+                    "path":  "C:\\Windows\\system32\\svchost.exe"
+                },
+                {
+                    "id":  5772,
+                    "name":  "svchost",
+                    "delta6s":  0,
+                    "totalCpu":  0.1,
+                    "path":  "C:\\Windows\\system32\\svchost.exe"
+                },
+                {
+                    "id":  6276,
+                    "name":  "svchost",
+                    "delta6s":  0,
+                    "totalCpu":  0,
+                    "path":  "C:\\Windows\\system32\\svchost.exe"
+                },
+                {
+                    "id":  6724,
+                    "name":  "svchost",
+                    "delta6s":  0,
+                    "totalCpu":  18.6,
+                    "path":  "C:\\Windows\\System32\\svchost.exe"
+                },
+                {
+                    "id":  5296,
+                    "name":  "svchost",
+                    "delta6s":  0,
+                    "totalCpu":  0.6,
+                    "path":  "C:\\Windows\\system32\\svchost.exe"
+                }
+            ]
+}

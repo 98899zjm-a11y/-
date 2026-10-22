@@ -1,0 +1,313 @@
+﻿{
+  "schemaVersion": 1,
+  "draft": true,
+  "draftNote": "a15 候选草稿：以 2026-10-22 的 DELIVERY_STATUS.json（sha256 ff0d5a83b723021f7de5d4c9a248180a5de38ae3c49a1b8ed759c689bc6d52be）为基础更新。本文件不是权威状态源，权威状态仍是根目录 DELIVERY_STATUS.json；releaseQualified 保持 false。",
+  "product": "xjy-jewelry-offline-1.7.0-first-batch-desktop",
+  "asOf": "2026-10-22",
+  "asOfNote": "a15 candidate rebuilt after C6 TREE_CHANGED failure; outer envelope independently verified; sandbox re-acceptance running, gates NOT met",
+  "status": "WORKING",
+  "secondaryStatus": "A15_CANDIDATE_VERIFIED_SANDBOX_RETEST_RUNNING",
+  "statusMeaning": "a15 完整包已构建并通过内部审计（3293 文件 / 9 内部签名 / 4 个覆盖文件进签名范围），外层签名 envelope 已用真实发布公钥独立校验通过；C6 的 TREE_CHANGED 空目录缺陷已定位并在 a15 引擎修复（代码层）。沙盒首装 / 主机升级 / 失败恢复 / 正式主机升级 / 员工端软件内升级均无通过证据；productionInstalled=false，生产机与原数据未动。",
+  "a15Candidate": {
+    "sequence": 20,
+    "archive": {
+      "file": "candidate/build/native-package.zip",
+      "bytes": 781516834,
+      "files": 3293,
+      "sha256": "ce434a876ecaa60808cc5f5e07be7d14362adbe75fb450e2d7ef51d3a2a4c835",
+      "compression": "DEFLATE",
+      "maximumBytes": 805306368
+    },
+    "outerEnvelope": {
+      "file": "source/c28-native-publication/native-manifest.json",
+      "bytes": 806881,
+      "sha256": "887e3fd6c535be6fec49a81ab3e193ef780c90456c3f2e23e347dcda4217e595",
+      "payloadFile": "source/c28-native-publication/native-manifest-payload.json",
+      "payloadBytes": 757289,
+      "payloadSha256": "02977185cd9a0078e16618158714e2124b3a825948ff6ca0ba53192d75ea4f15",
+      "signerSha256": "cb2d094d3f381d0d9964fcaf7879f2de9818fc2496857cc5b0b6896cc6112da0",
+      "publisherPublicKeySha256": "6e8b9cadb59aeb53f30d41f4471f70f644f0dfc7376ffb9d8a4c62defb98458c",
+      "verification": "finalize-verify-a15.cjs：crypto.verify 外层签名 + 断言 zip sha256 == envelope.archive.sha256 + files 3293",
+      "verifiedStatus": "SIGNED_INTERNAL_VERIFIED",
+      "statusFile": "outer-finalize-status.json",
+      "statusFileSha256": "9a74f962f2d53e3b0f68da0125b10bc35aa3f7e6465ec7103271745b9b22f3e0",
+      "statusWrittenAt": "2026-10-22T10:58:13.7942571+08:00",
+      "caveat": "外层 envelope 是已存在文件经独立校验通过，不是流水线重新签名成功；run-finalize 于 2026-10-22 10:56 以退出码 1 结束，末行 'xjy-release-20261022 outer signing stopped: CreateNew output already exists'"
+    },
+    "engine": {
+      "version": "a15",
+      "file": "受信助手/delivery-tools/engine-tree-runtime170.cjs",
+      "bytes": 199988,
+      "sha256": "0c32a038e2fae16a0ee2e27f55a3c646868ca023857e8c9df79c04dd16e7fb75",
+      "previousVersion": "a14",
+      "previousBytes": 199034,
+      "previousSha256": "b856fc516b0e97fa99951fb2bb1880c8f4bd86cf4481bd2199fba2ad5531e0fa",
+      "diff": "逐行比对（忽略行尾空白差异）仅 2 处改动共 12 行：新增 EMPTY_DIRECTORY_ALLOWLIST_170 块 + exactTree 的 walk 目录判定（包内第 189 行）"
+    },
+    "signedScopeOverlays": [
+      {
+        "path": "delivery-tools/engine-tree-runtime170.cjs",
+        "bytes": 199988,
+        "sha256": "0c32a038e2fae16a0ee2e27f55a3c646868ca023857e8c9df79c04dd16e7fb75"
+      },
+      {
+        "path": "delivery-tools/native-employee-slot170.cjs",
+        "bytes": 70201,
+        "sha256": "553aab48981c4b8de9080faa16cb1bb9caf5ff416ff04ab84aa230ab9ead934f"
+      },
+      {
+        "path": "delivery-tools/install-location.cjs",
+        "bytes": 17214,
+        "sha256": "3e4698f282d521ea9456375f1948ca5032db79783fb5e9b486b8c68fc5f24cba"
+      },
+      {
+        "path": "delivery-tools/delivery-native-170.cjs",
+        "bytes": 11527,
+        "sha256": "c962f1c314866be0a57d7aef819954f47a389998e6eb78dd30562d99b0cb52fc"
+      }
+    ],
+    "internalAudit": {
+      "file": "source/c28-native-publication/package-audit-report.json",
+      "internalSignaturesVerified": 9,
+      "newInternalSignatures": 1,
+      "oldRequestSignaturesReused": 6,
+      "typedOriginalSignaturesVerified": 2,
+      "workerFiles": 101,
+      "workerUnchangedRows": 97,
+      "approvalIoMirrorsVerified": true,
+      "zipRawCrcAndShaVerified": true,
+      "actualAsarMembers": 149,
+      "actualAsarSha256": "d017ceb9947ec3ead43de68a2da1e9aac928c56129bb5c2abafa36238026141d",
+      "bindingSha256": "6552569b5f743c0aaf1f0a0afa59949626e93867cda0cd392b035578f4afc507",
+      "entryParsing": {
+        "cmdBootstraps": 4,
+        "powerShellAstParsed": 7,
+        "powerShellAstErrors": 0,
+        "parserOnly": true,
+        "productExecuted": false
+      },
+      "signed": false,
+      "installed": false,
+      "published": false,
+      "guestExecuted": false
+    },
+    "buildStatus": {
+      "file": "build-status.json",
+      "sha256": "0ad5dd39fe4026d872f31b718fb2bc3285d0667795c050d7871b6d8a32868bfc",
+      "status": "BUILT_INTERNAL_AUDITED",
+      "stage": "complete",
+      "updated": "2026-10-22T02:56:19.6861603Z",
+      "finalAcceptancePassed": false,
+      "productionInstalled": false
+    },
+    "deliverySideVerification": {
+      "checkedAt": "2026-10-22T11:35:00+08:00",
+      "method": "本机 sha256sum 独立复核（非复用构建端结论）",
+      "zipSha256": "ce434a876ecaa60808cc5f5e07be7d14362adbe75fb450e2d7ef51d3a2a4c835",
+      "engineSha256": "0c32a038e2fae16a0ee2e27f55a3c646868ca023857e8c9df79c04dd16e7fb75",
+      "result": "MATCH"
+    }
+  },
+  "c6DefectFix": {
+    "id": "TREE_CHANGED_EMPTY_DIRECTORY",
+    "state": "LOCATED_AND_FIXED_CODE_LEVEL",
+    "notYetVerified": "缺陷修复尚未在沙盒同一场景复测证明；不得记为已验收通过",
+    "observedAt": "2026-10-22T10:44:00.3622011+08:00",
+    "evidence": [
+      {
+        "file": "guest-results/dialog-20261022-104400.json",
+        "sha256": "ed330afa846d63e72302fefd27bf8b7075931a2a0db27d16bd5d18a36d87cafc",
+        "content": "窗口「运行」(pid 5048) + 窗口「安装或升级未完成」(pid 5500)；正文：安装或升级未确认完成。请保留原程序、备份和错误记录。/ worker 退出码为 1，不等于 0 / 安装或升级已停止：TREE_CHANGED 完整树含未声明空目录"
+      },
+      {
+        "file": "guest-results/treechange-2026-10-22T02-44-14.json",
+        "sha256": "6599b28ee88f776e13f1c8a5a028581f7ab63d62b8949134d4e53bf9ee793bab",
+        "content": "declaredDirs 221 / actualDirs 230 / extraDirs 9 / emptyDirs 7"
+      }
+    ],
+    "rootCause": "升级前 captureMutable(engine-tree-runtime170.cjs:1531) 只登记当时已存在的可变历史目录；升级/备份阶段在前缀下新建的空目录不在快照内，提交后 exactTree(:178) 复查 walk(:186-191) 按'必须全部在快照中'判定，误报 TREE_CHANGED。本批 6 个未登记空目录全部位于 .xjy-initial-upgrade/ 或 .xjy-patches/ 之下。",
+    "fix": "engine-tree-runtime170.cjs 新增 EMPTY_DIRECTORY_ALLOWLIST_170：emptyMutableDirectoryPrefixes = ['.xjy-initial-upgrade/', '.xjy-patches/', '员工本地设置/', '.xjy-employee-updates/']；walk 判定改为 directories.has(relative) || emptyDirectoryAlwaysAllowed(relative) || (emptyMutableDirectoryAllowed(relative) && readdir(file).length === 0)",
+    "guardrailsKept": [
+      "只放行空目录（readdir 长度 0）",
+      "只放行可写历史前缀之内",
+      "非空未登记目录仍 TREE_CHANGED（如既有 blob_storage 父目录）",
+      "前缀之外的未知目录仍拒绝",
+      "原 GPU 日志空链白名单不变"
+    ],
+    "a14Comparison": {
+      "failedCandidateArchiveSha256": "212aabdfbd4698274cabe5468cb80634e9ba24ff1458abc5547466ec403e8c8d",
+      "failedCandidateArchiveBytes": 781516427,
+      "failedCandidateFiles": 3293,
+      "failedEngine": {
+        "version": "a14",
+        "bytes": 199034,
+        "sha256": "b856fc516b0e97fa99951fb2bb1880c8f4bd86cf4481bd2199fba2ad5531e0fa"
+      }
+    }
+  },
+  "acceptanceGates": [
+    {
+      "id": "packageBuildInternalAudit",
+      "state": "PASSED",
+      "evidence": "build-status.json (BUILT_INTERNAL_AUDITED) + package-audit-report.json (9 internal signatures, 7 PS AST / 0 errors, 3293 files, zip CRC+sha verified)"
+    },
+    {
+      "id": "outerEnvelopeVerify",
+      "state": "PASSED",
+      "evidence": "outer-finalize-status.json SIGNED_INTERNAL_VERIFIED, envelope 887e3fd6..., archive ce434a87..."
+    },
+    {
+      "id": "installLocationRegression",
+      "state": "PASSED",
+      "evidence": "ds-r7-tests-a1.json artifactSha 19c908ce... fixed4Pass 48 / total 48"
+    },
+    {
+      "id": "prodchain",
+      "state": "PASSED",
+      "evidence": "guest-diagnostics-a1/results/ds-r7-prodchain-b1.json artifactSha 78bdf37d... passed 10 / total 10"
+    },
+    {
+      "id": "originalBackupAndRestoreCopies",
+      "state": "PASSED",
+      "evidence": "D:/Codex/xjy-private-backups/pre170-20261022-a1 4701 files / 4015026383 bytes hash-readback matched; 3 DB recovery copies integrity_check=ok, foreign_key_check=0"
+    },
+    {
+      "id": "c6TreeChangedDefectFix",
+      "state": "FIXED_CODE_LEVEL_ONLY",
+      "evidence": "engine a15 0c32a038... in signed scope; sandbox re-verification PENDING"
+    },
+    {
+      "id": "a15SandboxRetest",
+      "state": "IN_PROGRESS",
+      "evidence": "sandbox re-acceptance running as of 2026-10-22T11:35+08:00; no conclusion"
+    },
+    {
+      "id": "sandboxFreshInstall",
+      "state": "NOT_PASSED",
+      "evidence": "C6 10:44 TREE_CHANGED failure; a15 fix not yet re-tested on clean guest"
+    },
+    {
+      "id": "sandboxHostUpgrade",
+      "state": "NOT_PASSED",
+      "evidence": "no passing evidence; C6 target host did not complete upgrade"
+    },
+    {
+      "id": "failureRecoveryDrill",
+      "state": "NOT_PASSED",
+      "evidence": "real interrupted-upgrade recovery not executed to acceptance"
+    },
+    {
+      "id": "productionHostUpgrade",
+      "state": "NOT_PASSED",
+      "evidence": "productionInstalled=false"
+    },
+    {
+      "id": "employeeInAppUpgrade",
+      "state": "NOT_PASSED",
+      "evidence": "real employee machine not accepted (explicitNonClaims #3)"
+    },
+    {
+      "id": "nativeAcceptanceOverall",
+      "state": "NOT_PASSED",
+      "evidence": "explicitNonClaims #1: native install/upgrade/recovery acceptance not complete"
+    }
+  ],
+  "round10": {
+    "note": "a15 candidate rebuild + outer envelope verification; supersedes nothing in round9",
+    "buildStatus": "BUILT_INTERNAL_AUDITED",
+    "finalizeStatus": "SIGNED_INTERNAL_VERIFIED (envelope pre-existing, independently verified; finalize pipeline exit code 1 due to CreateNew output guard)",
+    "minimalPlatformRequestProgress": {
+      "item1_rootTrustChainAmendment": "SATISFIED for a15 builder: WORKER28_OVERLAYS 2->4 (engine a15 + slot + install-location + delivery-native), FIXED_INPUTS_PIN b45ee45f... -> d1a3b1154fcc599cc83f0c2d4d8974b862fc4f8373b17625c82244b3fdcbff76",
+      "item2_newOuterRootSigningScope": "SATISFIED-with-caveat: root-outer-signing-scope-20261022-ROOT.json + native-manifest.json exist and verify; sign step refuses overwrite (CreateNew)",
+      "item3_astChannel": "UNCHANGED",
+      "item4_asarChannel": "UNCHANGED",
+      "item5_cleanGuest": "UNCHANGED",
+      "item6_independentReview": "UNCHANGED"
+    }
+  },
+  "round9": {
+    "patchArtifacts": {
+      "installLocation": {
+        "file": "continuation-20261022/ds-r7-fixed4-install-location-a1.cjs",
+        "bytes": 17192,
+        "sha256": "7efed34a22afaa96df2a942060869d921b4998a46abf71f35b468307da7a260b"
+      },
+      "deliveryNative": {
+        "file": "continuation-20261022/ds-r8-delivery-native-patched-a1.cjs",
+        "bytes": 11527,
+        "sha256": "c962f1c314866be0a57d7aef819954f47a389998e6eb78dd30562d99b0cb52fc",
+        "source": "shipped 2011ecc3... + 1 anchor, match=1"
+      },
+      "evidence": "continuation-20261022/r9-patch-artifacts-a1.json"
+    },
+    "routes": {
+      "oneOverlayForBothFixes": "NOT FEASIBLE: overlay entries are single files; gate requires exactly 2 overlays",
+      "signing": "worker28 signer exists and has no Root scope (issuer key R_OK by process, not exported); outer signer pinned to old build and requires a new Root scope (da5eb1fd.../16908be7...)",
+      "hostAstHostNodeReplacement": "NOT EQUIVALENT: Node ASAR verifier is artifact-scoped (failed NEW_MEMBER_METADATA on C28 asar); host_ast on final wrapper returned errorCount=208 (encoding/ParseFile vs strict UTF8 ParseInput). Needs builder revision accepting sha-bound AST evidence or pinned one-shot powershell.exe",
+      "newCleanC6": "NOT AVAILABLE: fixed guest id, no create/reset/clone actions"
+    },
+    "evidence": [
+      "r9-routes-a1.json",
+      "r9-signer-audit-a1.json",
+      "r9-route3-a1.json",
+      "r9-asar-node-verify-a1.json",
+      "r9-patch-artifacts-a1.json"
+    ],
+    "report": "continuation-20261022/ROUND9_ROUTES.md"
+  },
+  "installAuthorization": {
+    "file": "continuation-20261022/USER_FINAL_INSTALL_AUTHORIZATION.md",
+    "sha256": "ad6af9171e0c15c95253182842e01199282c08cf06f3844072817ff20d385a9c",
+    "state": "RECORDED_GATES_NOT_MET",
+    "checklist": "continuation-20261022/PRE_INSTALL_GATE_CHECKLIST.md",
+    "productionTouched": false
+  },
+  "fixEvidence": {
+    "fixed4": {
+      "bytes": 17192,
+      "sha256": "7efed34a22afaa96df2a942060869d921b4998a46abf71f35b468307da7a260b"
+    },
+    "hostMatrix": {
+      "artifact": "continuation-20261022/ds-r7-tests-a1.json",
+      "artifactSha256": "19c908cef91d78a91cc78eb40c53a9d8fd3829a93b4d1967c3ad30fea15a97ea",
+      "fixed4Pass": 48,
+      "shippedPass": 24,
+      "total": 48
+    },
+    "prodchain": {
+      "artifact": "guest-diagnostics-a1/results/ds-r7-prodchain-b1.json",
+      "artifactSha256": "78bdf37d43b18dafdc44d981edf3e0bf8b5b00e886d40a927fc14c7a93e4036c",
+      "passed": 10,
+      "total": 10
+    }
+  },
+  "minimalPlatformRequest": [
+    "Root trust-chain amendment: new reviewed-inputs-ROOT.json with install-location.cjs (7efed34a...) and delivery-native-170.cjs (c962f1c3...), plus builder FIXED_INPUTS_PIN and WORKER28_OVERLAYS 2->4 update; empty CreateNew output root",
+    "New outer Root signing scope bound to the new build hashes (worker28 internal signing can use the existing signer afterwards)",
+    "AST channel: accept host_ast evidence bound by generated-file sha, or allow a one-shot pinned powershell.exe argv",
+    "ASAR channel: allow the pinned python.exe one-shot, or review a general Node verifier",
+    "A platform-supported way to create a clean guest (no F: mapping) for fresh install/recovery",
+    "Fresh independent DeepSeek read-only review of fixed4 + patches"
+  ],
+  "releaseQualified": false,
+  "releaseQualificationBlockers": [
+    "sandboxFreshInstall NOT_PASSED",
+    "sandboxHostUpgrade NOT_PASSED",
+    "failureRecoveryDrill NOT_PASSED",
+    "productionHostUpgrade NOT_PASSED",
+    "employeeInAppUpgrade NOT_PASSED",
+    "nativeAcceptanceOverall NOT_PASSED",
+    "a15SandboxRetest IN_PROGRESS (no conclusion)"
+  ],
+  "explicitNonClaims": [
+    "native install/upgrade/recovery acceptance not complete",
+    "formal host not upgraded",
+    "employee in-app upgrade not accepted",
+    "a15 sandbox re-acceptance not complete (first install / host upgrade / failure recovery)",
+    "C6 TREE_CHANGED defect is fixed in code (a15 engine) but NOT yet verified fixed in a sandbox run",
+    "outer signature envelope verified as pre-existing artifact; finalize pipeline did not re-sign (exit code 1, CreateNew output guard)"
+  ],
+  "deliverableDirectory": "D:\\Codex\\xjy-release-20261022\\delivery-170-a15",
+  "rootReleaseDirectory": "D:\\Codex\\xjy-release-20261022",
+  "rootLastUpdated": "2026-10-22T11:40:00+08:00"
+}

@@ -1,0 +1,15 @@
+'use strict';
+const fs=require('node:fs'),crypto=require('node:crypto'),{spawn}=require('node:child_process');
+const [taskPath,resultPath,session]=process.argv.slice(2);
+const control='D:/Codex/xjy-deepseek-control-v2-20261022';
+const env={};
+for(const k of ['SystemRoot','WINDIR','PATH','PATHEXT','USERPROFILE','APPDATA','LOCALAPPDATA','COMSPEC','PROCESSOR_ARCHITECTURE'])if(process.env[k])env[k]=process.env[k];
+Object.assign(env,{ELECTRON_RUN_AS_NODE:'1',DSH_HOME:control+'/home',DSH_AGENTS_HOME:control+'/agents-home',TEMP:control+'/tmp',TMP:control+'/tmp',DSH_TELEMETRY_DISABLED:'1',DSH_PERMISSION_MODE:'workspace-write',DSH_TOOLS_MODE:'native'});
+const args=['--expose-internals','E:/deepseek/resources/app.asar/dsh/node_modules/@deepseek-ai/dsh-desktop-host/lib/cli.js','--profile','xjy-delegate','--patch',control+'/execution.patch.yml','--json',...(session?['--session-id',session]:[]),'-'];
+const child=spawn('E:/deepseek/DeepSeek Harness.exe',args,{cwd:'D:/Codex/xjy-1.7.0',env,windowsHide:true,shell:false,stdio:['pipe','pipe','pipe']});
+fs.writeFileSync(resultPath+'.running.json',JSON.stringify({pid:process.pid,childPid:child.pid,taskPath,started:new Date().toISOString()}),{flag:'wx'});
+const out=fs.createWriteStream(resultPath+'.events.jsonl',{flags:'wx'}),err=fs.createWriteStream(resultPath+'.stderr.txt',{flags:'wx'});
+child.stdout.pipe(out);child.stderr.pipe(err);
+child.on('error',e=>{err.write(String(e)+'\n');});
+child.on('close',code=>{out.end();err.end();fs.writeFileSync(resultPath,JSON.stringify({code,ended:new Date().toISOString(),taskSha256:crypto.createHash('sha256').update(fs.readFileSync(taskPath)).digest('hex')}),{flag:'wx'});console.log(JSON.stringify({code,resultPath}));process.exitCode=code===0?0:1;});
+child.stdin.end(fs.readFileSync(taskPath,'utf8'));

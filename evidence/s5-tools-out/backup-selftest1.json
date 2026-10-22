@@ -1,0 +1,57 @@
+{
+    "tool":  "backup-production.ps1",
+    "stamp":  "selftest1",
+    "apply":  false,
+    "backupDir":  "D:\\Codex\\xjy-release-20261022\\s5-tools\\_selftest\\backups\\test-selftest1",
+    "source":  {
+                   "files":  6,
+                   "bytes":  308041
+               },
+    "robocopyExit":  {
+                         "program":  -1,
+                         "data":  -1
+                     },
+    "verifyMode":  "Sample",
+    "program":  [
+                    "-- hashing program: 4 files, mode=Sample --",
+                    {
+                        "root":  "program",
+                        "sourceFiles":  4,
+                        "mode":  "Sample",
+                        "hashedFiles":  2,
+                        "sourceReadFailures":  0,
+                        "targetMissing":  0,
+                        "mismatches":  0,
+                        "mismatchSamples":  [
+
+                                            ],
+                        "missingSamples":  [
+
+                                           ]
+                    }
+                ],
+    "data":  [
+                 "-- hashing data: 2 files, mode=Sample --",
+                 {
+                     "root":  "data",
+                     "sourceFiles":  2,
+                     "mode":  "Sample",
+                     "hashedFiles":  2,
+                     "sourceReadFailures":  0,
+                     "targetMissing":  0,
+                     "mismatches":  0,
+                     "mismatchSamples":  [
+
+                                         ],
+                     "missingSamples":  [
+
+                                        ]
+                 }
+             ],
+    "copySeconds":  0,
+    "ok":  true,
+    "failures":  [
+
+                 ],
+    "finishedAt":  "2026-10-22T11:41:59.0732989+08:00"
+}

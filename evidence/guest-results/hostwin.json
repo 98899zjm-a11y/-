@@ -1,0 +1,419 @@
+﻿[
+    {
+        "hwnd":  65840,
+        "pid":  6624,
+        "cls":  "Shell_TrayWnd",
+        "title":  "",
+        "children":  [
+                         {
+                             "cls":  "Windows.UI.Composition.DesktopWindowContentBridge",
+                             "text":  "DesktopWindowXamlSource"
+                         },
+                         {
+                             "cls":  "Windows.UI.Core.CoreWindow",
+                             "text":  "DesktopWindowXamlSource"
+                         },
+                         {
+                             "cls":  "Start",
+                             "text":  "开始"
+                         },
+                         {
+                             "cls":  "MSTaskSwWClass",
+                             "text":  "运行中的应用程序"
+                         },
+                         {
+                             "cls":  "MSTaskListWClass",
+                             "text":  "运行中的应用程序"
+                         }
+                     ]
+    },
+    {
+        "hwnd":  50661280,
+        "pid":  23840,
+        "cls":  "Chrome_WidgetWin_1",
+        "title":  "ChatGPT",
+        "children":  [
+                         {
+                             "cls":  "Chrome_RenderWidgetHostHWND",
+                             "text":  "Chrome Legacy Window"
+                         }
+                     ]
+    },
+    {
+        "hwnd":  27202106,
+        "pid":  40676,
+        "cls":  "#32770",
+        "title":  "Error",
+        "children":  [
+                         {
+                             "cls":  "Button",
+                             "text":  "确定"
+                         }
+                     ]
+    },
+    {
+        "hwnd":  15405204,
+        "pid":  23840,
+        "cls":  "Chrome_WidgetWin_1",
+        "title":  "ChatGPT",
+        "children":  [
+
+                     ]
+    },
+    {
+        "hwnd":  37096404,
+        "pid":  37440,
+        "cls":  "Chrome_WidgetWin_1",
+        "title":  "完成 Codex 剩余工作 — DeepSeek Harness",
+        "children":  [
+
+                     ]
+    },
+    {
+        "hwnd":  30544790,
+        "pid":  64872,
+        "cls":  "SDL_app",
+        "title":  "Steam",
+        "children":  [
+
+                     ]
+    },
+    {
+        "hwnd":  3017544,
+        "pid":  60680,
+        "cls":  "Chrome_WidgetWin_1",
+        "title":  "Kimi",
+        "children":  [
+
+                     ]
+    },
+    {
+        "hwnd":  2886090,
+        "pid":  31800,
+        "cls":  "Qt51514QWindowIcon",
+        "title":  "微信",
+        "children":  [
+                         {
+                             "cls":  "Qt51514QWindowIcon",
+                             "text":  "Weixin"
+                         }
+                     ]
+    },
+    {
+        "hwnd":  2299068,
+        "pid":  22736,
+        "cls":  "Chrome_WidgetWin_1",
+        "title":  "Grok Bot",
+        "children":  [
+
+                     ]
+    },
+    {
+        "hwnd":  66323814,
+        "pid":  20048,
+        "cls":  "Chrome_WidgetWin_1",
+        "title":  "Daybreak Blue - 豆包",
+        "children":  [
+                         {
+                             "cls":  "Chrome_RenderWidgetHostHWND",
+                             "text":  "Chrome Legacy Window"
+                         }
+                     ]
+    },
+    {
+        "hwnd":  64950012,
+        "pid":  70708,
+        "cls":  "CabinetWClass",
+        "title":  "F (F:) - 文件资源管理器",
+        "children":  [
+                         {
+                             "cls":  "InputNonClientPointerSource",
+                             "text":  "Non Client Input Sink Window"
+                         },
+                         {
+                             "cls":  "ShellTabWindowClass",
+                             "text":  "F (F:)"
+                         },
+                         {
+                             "cls":  "NamespaceTreeControl",
+                             "text":  "命名空间树状控制项"
+                         },
+                         {
+                             "cls":  "Static",
+                             "text":  "命名空间树状控制项"
+                         },
+                         {
+                             "cls":  "SysTreeView32",
+                             "text":  "导航窗格"
+                         },
+                         {
+                             "cls":  "Shell Preview Extension Host",
+                             "text":  "Shell Preview Extension Host"
+                         },
+                         {
+                             "cls":  "SHELLDLL_DefView",
+                             "text":  "ShellView"
+                         },
+                         {
+                             "cls":  "InputNonClientPointerSource",
+                             "text":  "Non Client Input Sink Window"
+                         }
+                     ]
+    },
+    {
+        "hwnd":  66692,
+        "pid":  17564,
+        "cls":  "Chrome_WidgetWin_1",
+        "title":  "云梯",
+        "children":  [
+
+                     ]
+    },
+    {
+        "hwnd":  68621870,
+        "pid":  60072,
+        "cls":  "Chrome_WidgetWin_1",
+        "title":  "夸克网盘 - 夸克",
+        "children":  [
+
+                     ]
+    },
+    {
+        "hwnd":  460552,
+        "pid":  6624,
+        "cls":  "XamlExplorerHostIslandWindow_WASDK",
+        "title":  "",
+        "children":  [
+                         {
+                             "cls":  "InputNonClientPointerSource",
+                             "text":  "Non Client Input Sink Window"
+                         }
+                     ]
+    },
+    {
+        "hwnd":  65934900,
+        "pid":  68348,
+        "cls":  "Chrome_WidgetWin_1",
+        "title":  "DeepSeek Harness - Google Chrome",
+        "children":  [
+                         {
+                             "cls":  "Chrome_RenderWidgetHostHWND",
+                             "text":  "Chrome Legacy Window"
+                         },
+                         {
+                             "cls":  "Chrome_RenderWidgetHostHWND",
+                             "text":  "Chrome Legacy Window"
+                         }
+                     ]
+    },
+    {
+        "hwnd":  90311982,
+        "pid":  54224,
+        "cls":  "Windows.UI.Core.CoreWindow",
+        "title":  "电影和电视",
+        "children":  [
+
+                     ]
+    },
+    {
+        "hwnd":  146804560,
+        "pid":  37652,
+        "cls":  "Windows.UI.Core.CoreWindow",
+        "title":  "设置",
+        "children":  [
+
+                     ]
+    },
+    {
+        "hwnd":  2818844,
+        "pid":  24880,
+        "cls":  "ApplicationFrameWindow",
+        "title":  "设置",
+        "children":  [
+
+                     ]
+    },
+    {
+        "hwnd":  85268268,
+        "pid":  6624,
+        "cls":  "CabinetWClass",
+        "title":  "xjy-release-20261022 - 文件资源管理器",
+        "children":  [
+                         {
+                             "cls":  "InputNonClientPointerSource",
+                             "text":  "Non Client Input Sink Window"
+                         },
+                         {
+                             "cls":  "ShellTabWindowClass",
+                             "text":  "xjy-release-20261022"
+                         },
+                         {
+                             "cls":  "NamespaceTreeControl",
+                             "text":  "命名空间树状控制项"
+                         },
+                         {
+                             "cls":  "Static",
+                             "text":  "命名空间树状控制项"
+                         },
+                         {
+                             "cls":  "SysTreeView32",
+                             "text":  "导航窗格"
+                         },
+                         {
+                             "cls":  "Shell Preview Extension Host",
+                             "text":  "Shell Preview Extension Host"
+                         },
+                         {
+                             "cls":  "SHELLDLL_DefView",
+                             "text":  "ShellView"
+                         }
+                     ]
+    },
+    {
+        "hwnd":  21565710,
+        "pid":  67388,
+        "cls":  "KimiCUSecondCursorOverlay",
+        "title":  "KimiCU Overlay",
+        "children":  [
+
+                     ]
+    },
+    {
+        "hwnd":  5312684,
+        "pid":  6624,
+        "cls":  "CabinetWClass",
+        "title":  "Ai (E:) - 文件资源管理器",
+        "children":  [
+                         {
+                             "cls":  "InputNonClientPointerSource",
+                             "text":  "Non Client Input Sink Window"
+                         },
+                         {
+                             "cls":  "ShellTabWindowClass",
+                             "text":  "Ai (E:)"
+                         },
+                         {
+                             "cls":  "Shell Preview Extension Host",
+                             "text":  "Shell Preview Extension Host"
+                         },
+                         {
+                             "cls":  "NamespaceTreeControl",
+                             "text":  "命名空间树状控制项"
+                         },
+                         {
+                             "cls":  "Static",
+                             "text":  "命名空间树状控制项"
+                         },
+                         {
+                             "cls":  "SysTreeView32",
+                             "text":  "导航窗格"
+                         },
+                         {
+                             "cls":  "SHELLDLL_DefView",
+                             "text":  "ShellView"
+                         }
+                     ]
+    },
+    {
+        "hwnd":  9507790,
+        "pid":  6624,
+        "cls":  "CabinetWClass",
+        "title":  "Ai (E:) - 文件资源管理器",
+        "children":  [
+                         {
+                             "cls":  "InputNonClientPointerSource",
+                             "text":  "Non Client Input Sink Window"
+                         },
+                         {
+                             "cls":  "ShellTabWindowClass",
+                             "text":  "Ai (E:)"
+                         },
+                         {
+                             "cls":  "Shell Preview Extension Host",
+                             "text":  "Shell Preview Extension Host"
+                         },
+                         {
+                             "cls":  "NamespaceTreeControl",
+                             "text":  "命名空间树状控制项"
+                         },
+                         {
+                             "cls":  "Static",
+                             "text":  "命名空间树状控制项"
+                         },
+                         {
+                             "cls":  "SysTreeView32",
+                             "text":  "导航窗格"
+                         },
+                         {
+                             "cls":  "SHELLDLL_DefView",
+                             "text":  "ShellView"
+                         }
+                     ]
+    },
+    {
+        "hwnd":  10031690,
+        "pid":  6624,
+        "cls":  "CabinetWClass",
+        "title":  "Ai (E:) - 文件资源管理器",
+        "children":  [
+                         {
+                             "cls":  "InputNonClientPointerSource",
+                             "text":  "Non Client Input Sink Window"
+                         },
+                         {
+                             "cls":  "ShellTabWindowClass",
+                             "text":  "Ai (E:)"
+                         },
+                         {
+                             "cls":  "Shell Preview Extension Host",
+                             "text":  "Shell Preview Extension Host"
+                         },
+                         {
+                             "cls":  "NamespaceTreeControl",
+                             "text":  "命名空间树状控制项"
+                         },
+                         {
+                             "cls":  "Static",
+                             "text":  "命名空间树状控制项"
+                         },
+                         {
+                             "cls":  "SysTreeView32",
+                             "text":  "导航窗格"
+                         },
+                         {
+                             "cls":  "SHELLDLL_DefView",
+                             "text":  "ShellView"
+                         }
+                     ]
+    },
+    {
+        "hwnd":  263842,
+        "pid":  24880,
+        "cls":  "ApplicationFrameWindow",
+        "title":  "电影和电视",
+        "children":  [
+
+                     ]
+    },
+    {
+        "hwnd":  131996,
+        "pid":  2428,
+        "cls":  "Windows.UI.Core.CoreWindow",
+        "title":  "Windows 输入体验",
+        "children":  [
+
+                     ]
+    },
+    {
+        "hwnd":  65878,
+        "pid":  6624,
+        "cls":  "Progman",
+        "title":  "Program Manager",
+        "children":  [
+                         {
+                             "cls":  "SysListView32",
+                             "text":  "FolderView"
+                         }
+                     ]
+    }
+]

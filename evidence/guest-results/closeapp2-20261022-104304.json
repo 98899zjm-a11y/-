@@ -1,0 +1,84 @@
+﻿{
+    "at":  "2026-10-22T10:42:53.0432316+08:00",
+    "targets":  [
+                    {
+                        "id":  1456,
+                        "name":  "鑫金源珠宝报价",
+                        "path":  "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program\\鑫金源珠宝报价.exe"
+                    },
+                    {
+                        "id":  2832,
+                        "name":  "鑫金源珠宝报价",
+                        "path":  "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program\\鑫金源珠宝报价.exe"
+                    },
+                    {
+                        "id":  5484,
+                        "name":  "鑫金源珠宝报价",
+                        "path":  "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program\\鑫金源珠宝报价.exe"
+                    },
+                    {
+                        "id":  6232,
+                        "name":  "鑫金源珠宝报价",
+                        "path":  "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program\\鑫金源珠宝报价.exe"
+                    },
+                    {
+                        "id":  6760,
+                        "name":  "鑫金源珠宝报价",
+                        "path":  "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program\\鑫金源珠宝报价.exe"
+                    },
+                    {
+                        "id":  7200,
+                        "name":  "鑫金源珠宝报价",
+                        "path":  "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program\\鑫金源珠宝报价.exe"
+                    },
+                    {
+                        "id":  7908,
+                        "name":  "鑫金源珠宝报价",
+                        "path":  "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program\\鑫金源珠宝报价.exe"
+                    }
+                ],
+    "posted":  [
+                   6232,
+                   5484,
+                   5484,
+                   1456,
+                   1456,
+                   5484,
+                   5484,
+                   6232,
+                   5484,
+                   5484,
+                   1456
+               ],
+    "still":  [
+                  {
+                      "id":  1456,
+                      "name":  "鑫金源珠宝报价"
+                  },
+                  {
+                      "id":  2832,
+                      "name":  "鑫金源珠宝报价"
+                  },
+                  {
+                      "id":  5484,
+                      "name":  "鑫金源珠宝报价"
+                  },
+                  {
+                      "id":  6232,
+                      "name":  "鑫金源珠宝报价"
+                  },
+                  {
+                      "id":  6760,
+                      "name":  "鑫金源珠宝报价"
+                  },
+                  {
+                      "id":  7200,
+                      "name":  "鑫金源珠宝报价"
+                  },
+                  {
+                      "id":  7908,
+                      "name":  "鑫金源珠宝报价"
+                  }
+              ],
+    "exitFile":  "ABSENT"
+}

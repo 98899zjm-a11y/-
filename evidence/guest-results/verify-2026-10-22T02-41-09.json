@@ -1,0 +1,220 @@
+{
+ "at": "2026-10-22T02:41:05.308Z",
+ "install": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program",
+ "state": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\.program.xjy-engine-state",
+ "phase": "committed",
+ "role": "host",
+ "transactionId": "43eb49f3-438f-4b58-9d80-0ff89f7e3eb9",
+ "sourceVersion": "1.6.2",
+ "targetVersion": "1.7.0",
+ "sourceEngineVersion": "44.7.0",
+ "targetEngineVersion": "44.9.0",
+ "targetCatalogSha256": "4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef",
+ "publisherPublicKeySha256": "6e8b9cadb59aeb53f30d41f4471f70f644f0dfc7376ffb9d8a4c62defb98458c",
+ "targetFileCount": 2185,
+ "dataFileCount": 1,
+ "paths": {
+  "isolationRoot": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2",
+  "installationDir": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program",
+  "artifactDir": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyRootRelease170\\program\\完整程序",
+  "stateDir": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\.program.xjy-engine-state",
+  "dataDir": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\.program.xjy-engine-state\\data-proof",
+  "profileDir": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\.program.xjy-engine-state\\profile-proof"
+ },
+ "marker": "{\"version\":1,\"product\":\"xjy-jewelry-offline\",\"programVersion\":\"1.7.0\",\"role\":\"host\",\"installationDir\":\"C:\\\\Users\\\\WDAGUtilityAccount\\\\AppData\\\\Local\\\\XjyGenuine150Host-a2\\\\program\"}",
+ "startupStatus": "{\"payload\":\"{\\\"version\\\":2,\\\"purpose\\\":\\\"xjy-engine-startup-v1\\\",\\\"transactionId\\\":\\\"43eb49f3-438f-4b58-9d80-0ff89f7e3eb9\\\",\\\"phase\\\":\\\"committed\\\",\\\"rollbackForbidden\\\":true,\\\"installationDir\\\":\\\"C:\\\\\\\\Users\\\\\\\\WDAGUtilityAccount\\\\\\\\AppData\\\\\\\\Local\\\\\\\\XjyGenuine150Host-a2\\\\\\\\program\\\",\\\"installationIdentity\\\":\\\"2551499818:844424930665887:1792634084398999400\\\",\\\"stateDir\\\":\\\"C:\\\\\\\\Users\\\\\\\\WDAGUtilityAccount\\\\\\\\AppData\\\\\\\\Local\\\\\\\\XjyGenuine150Host-a2\\\\\\\\.program.xjy-engine-state\\\",\\\"stateIdentity\\\":\\\"2551499818:9007199255235066:1792560516292320900\\\",\\\"role\\\":\\\"host\\\",\\\"programVersion\\\":\\\"1.7.0\\\",\\\"engineVersion\\\":\\\"44.9.0\\\",\\\"catalogSha256\\\":\\\"4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef\\\",\\\"publisherPublicKeySha256\\\":\\\"6e8b9cadb59aeb53f30d41f4471f70f644f0dfc7376ffb9d8a4c62defb98458c\\\",\\\"osUserNamespace\\\":\\\"fe0b3f51-3704-4e3e-a876-8c6d64ce551f\\\\\\\\wdagutilityaccount\\\",\\\"mode\\\":\\\"upgrade\\\",\\\"journalSha256\\\":\\\"4a8ad79495f8ea8c014e9cf8ea59e262c44aa0a2dfe04c554daeecb5790935a6\\\",\\\"businessReleased\\\":true}\",\"mac\":\"9a92047bceda1e203fe8d5e9bf4707de9ec460b486a61ccd10615d16bd7ac12e\"}",
+ "program": {
+  "hashed": 2185,
+  "bytes": 857011583,
+  "hashErrors": 0,
+  "expectedCount": 2185,
+  "seenCount": 2185,
+  "mismatchCount": 0,
+  "mismatchSamples": [],
+  "extraCount": 0,
+  "extraSamples": [],
+  "missingExpectedCount": 0,
+  "missingSamples": [],
+  "seconds": 3.9
+ },
+ "data": {
+  "root": "F:\\鑫金源珠宝资料",
+  "rootExists": true,
+  "expected": 98,
+  "same": 67,
+  "mismatchCount": 23,
+  "mismatchSamples": [
+   {
+    "path": "后台运行/打印缓存/GrShaderCache/data_1",
+    "expectedSize": 270336,
+    "actualSize": 270336,
+    "expectedSha": "ca00df5e538d99335c99c00b5367e82cd07e6f8aa8ffb5aeeb500318d395f498",
+    "actualSha": "8efae2984ac8e6613c371b5bae327a8ca11c5ade2d8b7b4abba5546365649b7f"
+   },
+   {
+    "path": "后台运行/打印缓存/GrShaderCache/index",
+    "expectedSize": 262512,
+    "actualSize": 262512,
+    "expectedSha": "8a312375878d6b56f82cafb8efa5579fde918b7f405f5093c5cbd43a0f6a98b9",
+    "actualSha": "3a71c5dc9b0b22f55d69a3e8a451d1ad5597238eb08fae402dcef4c3fa135a98"
+   },
+   {
+    "path": "后台运行/打印缓存/ShaderCache/data_1",
+    "expectedSize": 270336,
+    "actualSize": 270336,
+    "expectedSha": "702543a9c7813344144ebd21143a66fd6fcbc1044d60402cc271fbf5d0a271e1",
+    "actualSha": "025a5871ad8daf9c10223f99611a628c5fd5c379cdfc221ceece4465f9ea8eb9"
+   },
+   {
+    "path": "后台运行/打印缓存/ShaderCache/index",
+    "expectedSize": 262512,
+    "actualSize": 262512,
+    "expectedSha": "9e2fd514d7d7eeea517ce20a4bdbe9d1405bfbc0066822ec124ce5f9e865e0d8",
+    "actualSha": "c22d560cd4ba94a720b20f04cb6498630206cb73ba6f6a219b6e6256c4b63ecb"
+   },
+   {
+    "path": "工作室数据.central-print-ledger.json.lock",
+    "expectedSize": 59,
+    "actualSize": 59,
+    "expectedSha": "0c283036712e8e7d3437e9a861abe32609072e14cfa1e85a48a25fbbda17a1cb",
+    "actualSha": "cfd271ab12b281123cb7b72450734b815d0ae1096531ac6ce9f2d63d62462d89"
+   },
+   {
+    "path": "程序设置/Cache/Cache_Data/data_1",
+    "expectedSize": 270336,
+    "actualSize": 270336,
+    "expectedSha": "97575a5d1e7d05c3174445cb08bacee8a95d85ac2935348651c9f131c9f9462a",
+    "actualSha": "76a517b679a3586920b05eb74f660c4e99f6f0d555d4247cf8392b0ab9fbe40d"
+   },
+   {
+    "path": "程序设置/Cache/Cache_Data/index",
+    "expectedSize": 262512,
+    "actualSize": 262512,
+    "expectedSha": "e25a37dbc14289c59db69453cd973276df4334387477f6c5ffff50463c5591b6",
+    "actualSha": "b553861c7cc5a02d6f2620fb9ceff075b51a677f26216e64bc517e2ea7aff895"
+   },
+   {
+    "path": "程序设置/Code Cache/electron-preload/07CD25710026E77F77714F04C6A3AC3B6B60F56039D17FCFE505E1C52AB0C90B-CD26514EFCB815D11FBF8032757295817CABBB47806163EA7FD3589EF6141D4E.cache",
+    "expectedSize": 9452,
+    "actualSize": 9452,
+    "expectedSha": "660a7f0e294627d42b649731d0a6d36b60e8cf593763011b610517fee782bac2",
+    "actualSha": "bf4ddde0960cc41d3ac82caf3e2d488968c64a1dc0d0f5ebfea841b12e5a8663"
+   },
+   {
+    "path": "程序设置/DIPS-wal",
+    "expectedSize": 61832,
+    "actualSize": 70072,
+    "expectedSha": "0ba675d86fc40d1759127bdc297c9cd4f06d6bb1c5593f71bd6387efa6d57aaf",
+    "actualSha": "4144569cadf15e27e70d3d26cdaab4dd3a129e456fdfe93c79b157ad06964059"
+   },
+   {
+    "path": "程序设置/DawnGraphiteCache/index",
+    "expectedSize": 262512,
+    "actualSize": 262512,
+    "expectedSha": "1152af6fc80586be66cf0b8e466ec00ed34c45f98d6069585cf5263daa35cfa5",
+    "actualSha": "ea8ec8132cbb609406fa2b91c9165e38a372b0a719c4bedc43459ed7a0eac8dd"
+   },
+   {
+    "path": "程序设置/DawnWebGPUCache/index",
+    "expectedSize": 262512,
+    "actualSize": 262512,
+    "expectedSha": "5d7d4ba68dbac3d8e27deaf399b7950983000fe5d1f86a6041319fce46bb10dc",
+    "actualSha": "41a499f32ec9de3172988811d74b095fbefbc24814ce78e743e91905f45bcd34"
+   },
+   {
+    "path": "程序设置/GPUCache/index",
+    "expectedSize": 262512,
+    "actualSize": 262512,
+    "expectedSha": "4d73871f2ee59365b20d648ecdfafd33ce52bce8909f1d501dab9cdda4c86803",
+    "actualSha": "b6c6eb892d9c9455a289f49c3136a9af6cc2c6de37ed2a4dceb22915dae9e6f5"
+   },
+   {
+    "path": "程序设置/GrShaderCache/data_0",
+    "expectedSize": 45056,
+    "actualSize": 45056,
+    "expectedSha": "7c85d86aef23acd9ec509e92864272a564ce722eabbd83310aa90832a042401b",
+    "actualSha": "bcc39828a63a6f98d2adf09365fac7f750fadf59c27096f3a420235d5a8d51cd"
+   },
+   {
+    "path": "程序设置/GrShaderCache/data_1",
+    "expectedSize": 270336,
+    "actualSize": 270336,
+    "expectedSha": "60daf2edd07bedf0381c00b5d5aedda02e45c179f2fe305c1ea7a7f34c82f3ee",
+    "actualSha": "2060f1b68643552b5a047e0b771949bbce129a70582206e0f651a321173d356c"
+   },
+   {
+    "path": "程序设置/GrShaderCache/data_3",
+    "expectedSize": 4202496,
+    "actualSize": 4202496,
+    "expectedSha": "5b3126c06002466c9f2b89c04aa76124ae99808c84c9cd760754ec31256168fe",
+    "actualSha": "82c127f325306da79e997c67b732e4f2c6bb7fd66dde3544f9ffb3fddbfc09e3"
+   },
+   {
+    "path": "程序设置/GrShaderCache/index",
+    "expectedSize": 262512,
+    "actualSize": 262512,
+    "expectedSha": "edb1178f4feb1fd0e472e4f2b97d2ace967ad26d0903ee1cbafb62f95a7e3f1d",
+    "actualSha": "1b09831a3c430871094810f6e7c3ad5f93e00b95a340a824b036b36316565e96"
+   },
+   {
+    "path": "程序设置/Local Storage/leveldb/CURRENT",
+    "expectedSize": 16,
+    "actualSize": 16,
+    "expectedSha": "0861415cada612ea5834d56e2cf1055d3e63979b69eb71d32ae9ae394d8306cd",
+    "actualSha": "8af72f43857550b01eab1019335772b367a17a9884a7a759fdf4fe6f272b90aa"
+   },
+   {
+    "path": "程序设置/Local Storage/leveldb/LOCK",
+    "reason": "HASH_ERROR",
+    "error": "EBUSY: resource busy or locked, read"
+   },
+   {
+    "path": "程序设置/Local Storage/leveldb/LOG",
+    "expectedSize": 254,
+    "actualSize": 252,
+    "expectedSha": "53ba3a103fa84c763c5b5a5393d3cc34be0b25083f8502d0ac203c6208101b99",
+    "actualSha": "eade3d5b13b5faddc951e7bb228efea6893d11f2173f0fffb10d242189f29486"
+   },
+   {
+    "path": "程序设置/Local Storage/leveldb/LOG.old",
+    "expectedSize": 169,
+    "actualSize": 254,
+    "expectedSha": "9e1878103453aaabcecd68c0c1252aadfc521ffb55794e9c9bc0a4de8f66cff3",
+    "actualSha": "53ba3a103fa84c763c5b5a5393d3cc34be0b25083f8502d0ac203c6208101b99"
+   },
+   {
+    "path": "程序设置/ShaderCache/data_1",
+    "expectedSize": 270336,
+    "actualSize": 270336,
+    "expectedSha": "217a5ad113fd58854fd8ffdda6506e1898b717feff52e0ec2e9676ea86da6d2a",
+    "actualSha": "bb6b2a3eee0fd07caf54166941481705f521531f3c6d3b949d8b8682234bd392"
+   },
+   {
+    "path": "程序设置/ShaderCache/index",
+    "expectedSize": 262512,
+    "actualSize": 262512,
+    "expectedSha": "eb536f1785b2445f0ec3114abdb8bd0d6526deda5f8eddf421e25f6f38717be4",
+    "actualSha": "bdcd15e64f5952fe653a51d5e22c9e5999627362e9733c7e70719339d5c97f88"
+   },
+   {
+    "path": "程序设置/daily-backup.json",
+    "expectedSize": 248,
+    "actualSize": 248,
+    "expectedSha": "58d7a76d06007d1520eb529224a7f9d8283961d9476950996f37e56bb7a0ff32",
+    "actualSha": "400530f643d8e3a3bf6f2ed3824fb62cb220ad1b1c422eec8339f62549c16d97"
+   }
+  ],
+  "missingCount": 8,
+  "missingSamples": [
+   "后台运行/打印缓存/GPUPersistentCache/DawnGraphiteCache/5IQM42UTUKB3VIRRMR5FSNOJ6XMOWXDZ/cache.db",
+   "后台运行/打印缓存/GPUPersistentCache/DawnGraphiteCache/5IQM42UTUKB3VIRRMR5FSNOJ6XMOWXDZ/cache.db-wal",
+   "后台运行/打印缓存/GPUPersistentCache/DawnGraphiteCache/5IQM42UTUKB3VIRRMR5FSNOJ6XMOWXDZ/cache.journal",
+   "程序设置/GPUPersistentCache/DawnGraphiteCache/5IQM42UTUKB3VIRRMR5FSNOJ6XMOWXDZ/cache.db",
+   "程序设置/GPUPersistentCache/DawnGraphiteCache/5IQM42UTUKB3VIRRMR5FSNOJ6XMOWXDZ/cache.db-wal",
+   "程序设置/GPUPersistentCache/DawnGraphiteCache/5IQM42UTUKB3VIRRMR5FSNOJ6XMOWXDZ/cache.journal",
+   "程序设置/Local Storage/leveldb/000006.log",
+   "程序设置/Local Storage/leveldb/MANIFEST-000004"
+  ],
+  "seconds": 0.1
+ }
+}

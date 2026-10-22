@@ -1,0 +1,102 @@
+﻿{
+    "at":  "2026-10-22T10:42:10.8645188+08:00",
+    "rows":  [
+                 {
+                     "id":  6520,
+                     "ppid":  6256,
+                     "name":  "GuestFStageB10.exe",
+                     "cpu":  164.8,
+                     "created":  "10/21/2026 04:23:04",
+                     "cmd":  "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGuestRun\\3f29f873-2948-44ab-bc23-d511f61eedd0\\tools\\GuestFStageB10.exe --prepare-hold-approved --run-root C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGuestRun\\3f29f873-2948-44ab-bc23-d511f61eedd0 --self-sha256 cbd7"
+                 },
+                 {
+                     "id":  2260,
+                     "ppid":  7848,
+                     "name":  "鑫金源珠宝报价.exe",
+                     "cpu":  1.5,
+                     "created":  "10/22/2026 03:29:22",
+                     "cmd":  "\"C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\鑫金源珠宝\\员工程序-slot-4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef\\鑫金源珠宝报价.exe\" --type=utility --utility-sub-type=network.mojom.NetworkService --lang=zh-CN --service-sandbox-type=none --user-data-dir=\"C:"
+                 },
+                 {
+                     "id":  5184,
+                     "ppid":  2968,
+                     "name":  "cmd.exe",
+                     "cpu":  0.1,
+                     "created":  "10/22/2026 09:42:38",
+                     "cmd":  "C:\\Windows\\System32\\cmd.exe /d /c C:\\XjyReleaseResults\\StartUpgrade.cmd"
+                 },
+                 {
+                     "id":  7612,
+                     "ppid":  5048,
+                     "name":  "cmd.exe",
+                     "cpu":  0.1,
+                     "created":  "10/22/2026 10:19:38",
+                     "cmd":  "C:\\Windows\\system32\\cmd.exe /c \"\"C:\\XjyReleaseResults\\Probe170.cmd\" \""
+                 },
+                 {
+                     "id":  5484,
+                     "ppid":  3516,
+                     "name":  "鑫金源珠宝报价.exe",
+                     "cpu":  1.3,
+                     "created":  "10/22/2026 10:30:06",
+                     "cmd":  "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program\\鑫金源珠宝报价.exe"
+                 },
+                 {
+                     "id":  7908,
+                     "ppid":  5484,
+                     "name":  "鑫金源珠宝报价.exe",
+                     "cpu":  0,
+                     "created":  "10/22/2026 10:30:06",
+                     "cmd":  "\"C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program\\鑫金源珠宝报价.exe\" --type=utility --utility-sub-type=network.mojom.NetworkService --lang=zh-CN --service-sandbox-type=none --user-data-dir=\"F:\\鑫金源珠宝资料\\程序设置\" --standard-schemes=jewelry --secure-s"
+                 },
+                 {
+                     "id":  1456,
+                     "ppid":  5484,
+                     "name":  "鑫金源珠宝报价.exe",
+                     "cpu":  0.2,
+                     "created":  "10/22/2026 10:30:06",
+                     "cmd":  "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program\\鑫金源珠宝报价.exe --xjy-print-worker"
+                 },
+                 {
+                     "id":  7200,
+                     "ppid":  1456,
+                     "name":  "鑫金源珠宝报价.exe",
+                     "cpu":  0.1,
+                     "created":  "10/22/2026 10:30:06",
+                     "cmd":  "\"C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program\\鑫金源珠宝报价.exe\" --type=utility --utility-sub-type=network.mojom.NetworkService --lang=zh-CN --service-sandbox-type=none --user-data-dir=\"F:\\鑫金源珠宝资料\\后台运行\\打印缓存\" --standard-schemes=xjy-print --s"
+                 },
+                 {
+                     "id":  6760,
+                     "ppid":  5484,
+                     "name":  "鑫金源珠宝报价.exe",
+                     "cpu":  0.8,
+                     "created":  "10/22/2026 10:30:06",
+                     "cmd":  "\"C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program\\鑫金源珠宝报价.exe\" --type=renderer --user-data-dir=\"F:\\鑫金源珠宝资料\\程序设置\" --standard-schemes=jewelry --secure-schemes=jewelry --cors-schemes=jewelry --fetch-schemes=jewelry --app-path=\"C:\\Users\\WDAGU"
+                 },
+                 {
+                     "id":  6232,
+                     "ppid":  5484,
+                     "name":  "鑫金源珠宝报价.exe",
+                     "cpu":  0.4,
+                     "created":  "10/22/2026 10:30:10",
+                     "cmd":  "\"C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program\\鑫金源珠宝报价.exe\" --type=gpu-process --user-data-dir=\"F:\\鑫金源珠宝资料\\程序设置\" --gpu-preferences=WAAAAAAAAADgAAAEAAAAAAAAAAAAAGAAQAAAAAAAAAAAAAAAAAAAADgAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAIAAAAAAA"
+                 },
+                 {
+                     "id":  2832,
+                     "ppid":  1456,
+                     "name":  "鑫金源珠宝报价.exe",
+                     "cpu":  0.7,
+                     "created":  "10/22/2026 10:35:07",
+                     "cmd":  "\"C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program\\鑫金源珠宝报价.exe\" --type=gpu-process --user-data-dir=\"F:\\鑫金源珠宝资料\\后台运行\\打印缓存\" --gpu-preferences=WAAAAAAAAADgAAAEAAAAAAAAAAAAAGAAQAAAAAAAAAABAAAAAAAAADgAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAKAA"
+                 },
+                 {
+                     "id":  2976,
+                     "ppid":  2968,
+                     "name":  "powershell.exe",
+                     "cpu":  3.1,
+                     "created":  "10/22/2026 10:42:09",
+                     "cmd":  "powershell -NoProfile -ExecutionPolicy Bypass -File C:\\XjyReleaseResults\\ListCmds.ps1"
+                 }
+             ],
+    "exitFile":  "ABSENT"
+}

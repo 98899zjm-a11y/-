@@ -1,0 +1,42 @@
+chore(release): 归档 1.7.0 桌面版阶段成果（staging 快照）
+
+本提交是本阶段工作成果的本地归档快照，用于上传前审阅；不含二进制分发包、
+不含生产数据、不含第三方内置代码。
+
+本阶段完成：
+
+* 修复 TREE_CHANGED：提交后 verifyInstalled 复查用 allowMutable=false，从备份前
+  的采集重建可放行目录集合，导致备份阶段新建的空目录被判为"未知多出目录"而
+  升级失败。改为两条受控放行——已批准 GPU 路径链
+  (emptyDirectoryAlwaysAllowed)、可写历史前缀下的空目录
+  (emptyMutableDirectoryAllowed)；文件级比较未放宽。
+* 修复 UNEXPECTED_SOURCE_FILE：真实 1.6.2 安装树带入三个签名目录外文件
+  (resources/default_app.asar、resources/elevate.exe、
+  Uninstall 鑫金源珠宝报价.exe)，导致生产环境无法升级。加确切路径白名单
+  (无前缀、无通配)，仅容忍、不复制进目标树。
+* 生产主机升级完成并独立复核：F:\自制软件\xjy-jewelry-offline 由
+  1.6.2 / engine 44.7.0 升至 1.7.0 / engine 44.9.0，journal phase=committed、
+  businessReleased=true，事务 b983439a-11ae-46d3-a555-822a25aac0c4；
+  安装树 3525/3525 逐文件哈希零差异，业务数据 1149 个文件字节一致，
+  19 处差异与 8 处缺失全部为 Electron/Chromium 运行缓存。
+* r2 客户端（纯数据修订）：app.asar 149 成员不变，仅
+  native-publication-update.cjs 与钉住的 native-update-handoff.cjs 变化，
+  其余 147 成员逐字节相同，渲染层未动，未执行程序代码。
+* sequence-21 发布链改造：已产出并验签 source20 与 target21 两侧
+  catalog + envelope；实测确认同序号替换被拒
+  (STALE_NATIVE_MANIFEST)、序号 21 才 available，故 r2 必须抬到 >=21 才能
+  通过软件内下发。改造点与执行顺序见 docs/SEQ21_PLAN.md。
+
+收录口径：docs/ 交付文档、scripts/ 全部 .cjs/.py/.ps1、evidence/ 下单文件
+<5MB 的 JSON/MD 文本证据，共 219 个文件 / 6,192,113 字节；排除项逐条登记在
+skipped.txt（路径 + 体积 + 原因），源目录未修改或删除任何文件。
+
+已知限制（未标记为通过）：软件内升级端到端未打通（sequence-21 发布链未跑完）、
+图标未内嵌、断电恢复未验收、员工侧验收未通过（releaseQualified=false）、
+安装器最终成功弹窗未捕获。状态口径以 docs/DELIVERY_STATUS.json 为准。
+
+不可重现性说明：seq-acceptance*.cjs 依赖从生产 app.asar 解出、未随仓库分发的
+产品模块，在本仓库内不能独立复跑，结果以 evidence/ 归档 JSON 为准。
+
+本阶段成果由 AI 助手（DeepSeek Harness）完成
+Co-authored-by: DeepSeek Harness (AI assistant) <assistant@local>

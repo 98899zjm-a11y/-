@@ -1,0 +1,383 @@
+﻿{
+    "at":  "2026-10-22T10:43:47.2047025+08:00",
+    "windows":  [
+                    {
+                        "hwnd":  65972,
+                        "pid":  5048,
+                        "visible":  false,
+                        "cls":  "SystemTray_Main",
+                        "title":  "电池指示器"
+                    },
+                    {
+                        "hwnd":  328436,
+                        "pid":  5048,
+                        "visible":  false,
+                        "cls":  "TopLevelWindowForOverflowXamlIsland",
+                        "title":  "系统托盘溢出窗口。"
+                    },
+                    {
+                        "hwnd":  6160568,
+                        "pid":  5048,
+                        "visible":  true,
+                        "cls":  "#32770",
+                        "title":  "运行"
+                    },
+                    {
+                        "hwnd":  1442654,
+                        "pid":  5500,
+                        "visible":  true,
+                        "cls":  "#32770",
+                        "title":  "安装或升级未完成"
+                    },
+                    {
+                        "hwnd":  328666,
+                        "pid":  5484,
+                        "visible":  false,
+                        "cls":  "Chrome_WidgetWin_1",
+                        "title":  "鑫金源 · 珠宝报价工作室"
+                    },
+                    {
+                        "hwnd":  525204,
+                        "pid":  7612,
+                        "visible":  true,
+                        "cls":  "ConsoleWindowClass",
+                        "title":  "选择 Administrator: C:\\Windows\\system32\\cmd.exe"
+                    },
+                    {
+                        "hwnd":  786462,
+                        "pid":  7448,
+                        "visible":  false,
+                        "cls":  "COMTASKSWINDOWCLASS",
+                        "title":  "Task Host Window"
+                    },
+                    {
+                        "hwnd":  656324,
+                        "pid":  5048,
+                        "visible":  true,
+                        "cls":  "CabinetWClass",
+                        "title":  "XjyReleaseResults - 文件资源管理器"
+                    },
+                    {
+                        "hwnd":  656196,
+                        "pid":  7848,
+                        "visible":  true,
+                        "cls":  "Chrome_WidgetWin_1",
+                        "title":  "鑫金源 · 珠宝报价工作室"
+                    },
+                    {
+                        "hwnd":  131270,
+                        "pid":  6896,
+                        "visible":  false,
+                        "cls":  "Windows.UI.Core.CoreWindow",
+                        "title":  "DesktopWindowXamlSource"
+                    },
+                    {
+                        "hwnd":  1114722,
+                        "pid":  5048,
+                        "visible":  false,
+                        "cls":  "Windows.UI.Core.CoreWindow",
+                        "title":  "DesktopWindowXamlSource"
+                    },
+                    {
+                        "hwnd":  2228960,
+                        "pid":  5500,
+                        "visible":  false,
+                        "cls":  "GDI+ Hook Window Class",
+                        "title":  "GDI+ Window (powershell.exe)"
+                    },
+                    {
+                        "hwnd":  1442608,
+                        "pid":  5500,
+                        "visible":  false,
+                        "cls":  ".NET-BroadcastEventWindow.4.0.0.0.176132.0",
+                        "title":  ".NET-BroadcastEventWindow.4.0.0.0.176132.0"
+                    },
+                    {
+                        "hwnd":  459466,
+                        "pid":  5048,
+                        "visible":  false,
+                        "cls":  "Windows.UI.Core.CoreWindow",
+                        "title":  "DesktopWindowXamlSource"
+                    },
+                    {
+                        "hwnd":  197144,
+                        "pid":  6888,
+                        "visible":  true,
+                        "cls":  "Windows.UI.Core.CoreWindow",
+                        "title":  "Windows 输入体验"
+                    },
+                    {
+                        "hwnd":  262662,
+                        "pid":  5048,
+                        "visible":  false,
+                        "cls":  "BluetoothNotificationAreaIconWindowClass",
+                        "title":  "BluetoothNotificationAreaIconWindowClass"
+                    },
+                    {
+                        "hwnd":  66018,
+                        "pid":  5048,
+                        "visible":  false,
+                        "cls":  "MS_WebcheckMonitor",
+                        "title":  "MS_WebcheckMonitor"
+                    },
+                    {
+                        "hwnd":  131548,
+                        "pid":  5048,
+                        "visible":  false,
+                        "cls":  "MiracastConnectionWindow",
+                        "title":  "MiracastConnectionWindow"
+                    },
+                    {
+                        "hwnd":  65770,
+                        "pid":  4740,
+                        "visible":  false,
+                        "cls":  "COMTASKSWINDOWCLASS",
+                        "title":  "Task Host Window"
+                    },
+                    {
+                        "hwnd":  65756,
+                        "pid":  4572,
+                        "visible":  false,
+                        "cls":  "PushNotificationsPowerManagement",
+                        "title":  "Windows Push Notifications Platform"
+                    },
+                    {
+                        "hwnd":  65594,
+                        "pid":  1960,
+                        "visible":  false,
+                        "cls":  "Dwm",
+                        "title":  "DWM Notification Window"
+                    },
+                    {
+                        "hwnd":  65806,
+                        "pid":  5048,
+                        "visible":  true,
+                        "cls":  "Progman",
+                        "title":  "Program Manager"
+                    },
+                    {
+                        "hwnd":  656272,
+                        "pid":  5048,
+                        "visible":  false,
+                        "cls":  "MSCTFIME UI",
+                        "title":  "MSCTFIME UI"
+                    },
+                    {
+                        "hwnd":  65914,
+                        "pid":  5048,
+                        "visible":  false,
+                        "cls":  "IME",
+                        "title":  "Default IME"
+                    },
+                    {
+                        "hwnd":  10289934,
+                        "pid":  5048,
+                        "visible":  false,
+                        "cls":  "MSCTFIME UI",
+                        "title":  "MSCTFIME UI"
+                    },
+                    {
+                        "hwnd":  65848,
+                        "pid":  5048,
+                        "visible":  false,
+                        "cls":  "IME",
+                        "title":  "Default IME"
+                    },
+                    {
+                        "hwnd":  65796,
+                        "pid":  5048,
+                        "visible":  false,
+                        "cls":  "MSCTFIME UI",
+                        "title":  "MSCTFIME UI"
+                    },
+                    {
+                        "hwnd":  65768,
+                        "pid":  5048,
+                        "visible":  false,
+                        "cls":  "IME",
+                        "title":  "Default IME"
+                    },
+                    {
+                        "hwnd":  65986,
+                        "pid":  5048,
+                        "visible":  false,
+                        "cls":  "IME",
+                        "title":  "Default IME"
+                    },
+                    {
+                        "hwnd":  1966820,
+                        "pid":  5048,
+                        "visible":  false,
+                        "cls":  "MSCTFIME UI",
+                        "title":  "MSCTFIME UI"
+                    },
+                    {
+                        "hwnd":  2687686,
+                        "pid":  5048,
+                        "visible":  false,
+                        "cls":  "IME",
+                        "title":  "Default IME"
+                    },
+                    {
+                        "hwnd":  918408,
+                        "pid":  5500,
+                        "visible":  false,
+                        "cls":  "MSCTFIME UI",
+                        "title":  "MSCTFIME UI"
+                    },
+                    {
+                        "hwnd":  2163534,
+                        "pid":  5500,
+                        "visible":  false,
+                        "cls":  "IME",
+                        "title":  "Default IME"
+                    },
+                    {
+                        "hwnd":  197610,
+                        "pid":  8072,
+                        "visible":  false,
+                        "cls":  "MSCTFIME UI",
+                        "title":  "MSCTFIME UI"
+                    },
+                    {
+                        "hwnd":  394222,
+                        "pid":  8072,
+                        "visible":  false,
+                        "cls":  "IME",
+                        "title":  "Default IME"
+                    },
+                    {
+                        "hwnd":  787240,
+                        "pid":  5048,
+                        "visible":  false,
+                        "cls":  "MSCTFIME UI",
+                        "title":  "MSCTFIME UI"
+                    },
+                    {
+                        "hwnd":  1835958,
+                        "pid":  5048,
+                        "visible":  false,
+                        "cls":  "IME",
+                        "title":  "Default IME"
+                    },
+                    {
+                        "hwnd":  66516,
+                        "pid":  5048,
+                        "visible":  false,
+                        "cls":  "IME",
+                        "title":  "Default IME"
+                    },
+                    {
+                        "hwnd":  787262,
+                        "pid":  7848,
+                        "visible":  false,
+                        "cls":  "MSCTFIME UI",
+                        "title":  "MSCTFIME UI"
+                    },
+                    {
+                        "hwnd":  525018,
+                        "pid":  7848,
+                        "visible":  false,
+                        "cls":  "IME",
+                        "title":  "Default IME"
+                    },
+                    {
+                        "hwnd":  1245942,
+                        "pid":  5500,
+                        "visible":  false,
+                        "cls":  "IME",
+                        "title":  "Default IME"
+                    },
+                    {
+                        "hwnd":  1704758,
+                        "pid":  3888,
+                        "visible":  false,
+                        "cls":  "IME",
+                        "title":  "Default IME"
+                    },
+                    {
+                        "hwnd":  1114898,
+                        "pid":  4412,
+                        "visible":  false,
+                        "cls":  "IME",
+                        "title":  "Default IME"
+                    },
+                    {
+                        "hwnd":  2294646,
+                        "pid":  4412,
+                        "visible":  false,
+                        "cls":  "IME",
+                        "title":  "Default IME"
+                    },
+                    {
+                        "hwnd":  459302,
+                        "pid":  6888,
+                        "visible":  false,
+                        "cls":  "IME",
+                        "title":  "Default IME"
+                    },
+                    {
+                        "hwnd":  66008,
+                        "pid":  5328,
+                        "visible":  false,
+                        "cls":  "IME",
+                        "title":  "Default IME"
+                    },
+                    {
+                        "hwnd":  65998,
+                        "pid":  5048,
+                        "visible":  false,
+                        "cls":  "IME",
+                        "title":  "Default IME"
+                    },
+                    {
+                        "hwnd":  65964,
+                        "pid":  5048,
+                        "visible":  false,
+                        "cls":  "IME",
+                        "title":  "Default IME"
+                    },
+                    {
+                        "hwnd":  65802,
+                        "pid":  5048,
+                        "visible":  false,
+                        "cls":  "IME",
+                        "title":  "Default IME"
+                    },
+                    {
+                        "hwnd":  65758,
+                        "pid":  4572,
+                        "visible":  false,
+                        "cls":  "IME",
+                        "title":  "Default IME"
+                    },
+                    {
+                        "hwnd":  131112,
+                        "pid":  4412,
+                        "visible":  false,
+                        "cls":  "IME",
+                        "title":  "Default IME"
+                    },
+                    {
+                        "hwnd":  131116,
+                        "pid":  4412,
+                        "visible":  false,
+                        "cls":  "IME",
+                        "title":  "Default IME"
+                    },
+                    {
+                        "hwnd":  65844,
+                        "pid":  5048,
+                        "visible":  false,
+                        "cls":  "MSCTFIME UI",
+                        "title":  "MSCTFIME UI"
+                    },
+                    {
+                        "hwnd":  65748,
+                        "pid":  5048,
+                        "visible":  false,
+                        "cls":  "IME",
+                        "title":  "Default IME"
+                    }
+                ]
+}

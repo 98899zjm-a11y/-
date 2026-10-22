@@ -1,0 +1,105 @@
+{
+ "at": "2026-10-22T02:44:14.055Z",
+ "extraDirs": [
+  {
+   "path": ".xjy-initial-upgrade/04c3755b-0398-42ac-9922-f7bce20f0cd7/data-backup/files/工作室数据/images",
+   "mtime": "2026-10-22T01:55:59.312Z",
+   "children": 0,
+   "declared": false
+  },
+  {
+   "path": ".xjy-patches/230b9825c9c05749d193d9fdcb30906b084186fe7fdee3a22884085399001000/c7156f34-acb1-4ab5-b8c3-2212d5199403/data-backup/files/工作室数据/images",
+   "mtime": "2026-10-22T01:55:59.565Z",
+   "children": 0,
+   "declared": false
+  },
+  {
+   "path": ".xjy-patches/230b9825c9c05749d193d9fdcb30906b084186fe7fdee3a22884085399001000/c7156f34-acb1-4ab5-b8c3-2212d5199403/data-backup/files/工作文档",
+   "mtime": "2026-10-22T01:55:59.586Z",
+   "children": 0,
+   "declared": false
+  },
+  {
+   "path": ".xjy-patches/230b9825c9c05749d193d9fdcb30906b084186fe7fdee3a22884085399001000/c7156f34-acb1-4ab5-b8c3-2212d5199403/data-backup/files/报价图片",
+   "mtime": "2026-10-22T01:55:59.649Z",
+   "children": 0,
+   "declared": false
+  },
+  {
+   "path": ".xjy-patches/230b9825c9c05749d193d9fdcb30906b084186fe7fdee3a22884085399001000/c7156f34-acb1-4ab5-b8c3-2212d5199403/data-backup/files/程序设置/blob_storage",
+   "mtime": "2026-10-22T01:56:00.407Z",
+   "children": 1,
+   "declared": false
+  },
+  {
+   "path": ".xjy-patches/230b9825c9c05749d193d9fdcb30906b084186fe7fdee3a22884085399001000/c7156f34-acb1-4ab5-b8c3-2212d5199403/data-backup/files/程序设置/blob_storage/5d901de1-e727-43f3-9cba-4f91976b2c92",
+   "mtime": "2026-10-22T01:56:00.407Z",
+   "children": 0,
+   "declared": false
+  },
+  {
+   "path": ".xjy-patches/230b9825c9c05749d193d9fdcb30906b084186fe7fdee3a22884085399001000/c7156f34-acb1-4ab5-b8c3-2212d5199403/data-backup/files/程序设置/Dictionaries",
+   "mtime": "2026-10-22T01:56:00.010Z",
+   "children": 0,
+   "declared": false
+  },
+  {
+   "path": "resources/NVIDIA Corporation",
+   "mtime": "2026-10-22T02:32:07.476Z",
+   "children": 1,
+   "declared": false
+  },
+  {
+   "path": "resources/NVIDIA Corporation/umdlogs",
+   "mtime": "2026-10-22T02:32:07.476Z",
+   "children": 0,
+   "declared": false
+  }
+ ],
+ "emptyDirs": [
+  {
+   "path": ".xjy-initial-upgrade/04c3755b-0398-42ac-9922-f7bce20f0cd7/data-backup/files/工作室数据/images",
+   "mtime": "2026-10-22T01:55:59.312Z",
+   "children": 0,
+   "declared": false
+  },
+  {
+   "path": ".xjy-patches/230b9825c9c05749d193d9fdcb30906b084186fe7fdee3a22884085399001000/c7156f34-acb1-4ab5-b8c3-2212d5199403/data-backup/files/工作室数据/images",
+   "mtime": "2026-10-22T01:55:59.565Z",
+   "children": 0,
+   "declared": false
+  },
+  {
+   "path": ".xjy-patches/230b9825c9c05749d193d9fdcb30906b084186fe7fdee3a22884085399001000/c7156f34-acb1-4ab5-b8c3-2212d5199403/data-backup/files/工作文档",
+   "mtime": "2026-10-22T01:55:59.586Z",
+   "children": 0,
+   "declared": false
+  },
+  {
+   "path": ".xjy-patches/230b9825c9c05749d193d9fdcb30906b084186fe7fdee3a22884085399001000/c7156f34-acb1-4ab5-b8c3-2212d5199403/data-backup/files/报价图片",
+   "mtime": "2026-10-22T01:55:59.649Z",
+   "children": 0,
+   "declared": false
+  },
+  {
+   "path": ".xjy-patches/230b9825c9c05749d193d9fdcb30906b084186fe7fdee3a22884085399001000/c7156f34-acb1-4ab5-b8c3-2212d5199403/data-backup/files/程序设置/blob_storage/5d901de1-e727-43f3-9cba-4f91976b2c92",
+   "mtime": "2026-10-22T01:56:00.407Z",
+   "children": 0,
+   "declared": false
+  },
+  {
+   "path": ".xjy-patches/230b9825c9c05749d193d9fdcb30906b084186fe7fdee3a22884085399001000/c7156f34-acb1-4ab5-b8c3-2212d5199403/data-backup/files/程序设置/Dictionaries",
+   "mtime": "2026-10-22T01:56:00.010Z",
+   "children": 0,
+   "declared": false
+  },
+  {
+   "path": "resources/NVIDIA Corporation/umdlogs",
+   "mtime": "2026-10-22T02:32:07.476Z",
+   "children": 0,
+   "declared": false
+  }
+ ],
+ "declaredDirs": 221,
+ "actualDirs": 230
+}

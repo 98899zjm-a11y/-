@@ -1,0 +1,92 @@
+{
+ "at": "2026-10-22T02:41:28.416Z",
+ "root": "F:\\鑫金源珠宝资料",
+ "total": 15,
+ "same": 11,
+ "diff": 0,
+ "error": 0,
+ "rows": [
+  {
+   "path": "内帐/ledger.db",
+   "state": "SAME",
+   "expectedSize": 1150976,
+   "actualSize": 1150976
+  },
+  {
+   "path": "内帐/ledger.db-shm",
+   "state": "SAME",
+   "expectedSize": 32768,
+   "actualSize": 32768
+  },
+  {
+   "path": "内帐/ledger.db-wal",
+   "state": "SAME",
+   "expectedSize": 0,
+   "actualSize": 0
+  },
+  {
+   "path": "后台运行/打印缓存/GPUPersistentCache/DawnGraphiteCache/5IQM42UTUKB3VIRRMR5FSNOJ6XMOWXDZ/cache.db",
+   "state": "MISSING"
+  },
+  {
+   "path": "后台运行/打印缓存/GPUPersistentCache/DawnGraphiteCache/5IQM42UTUKB3VIRRMR5FSNOJ6XMOWXDZ/cache.db-wal",
+   "state": "MISSING"
+  },
+  {
+   "path": "工作室数据/jewelry.sqlite",
+   "state": "SAME",
+   "expectedSize": 389120,
+   "actualSize": 389120
+  },
+  {
+   "path": "工作室数据/jewelry.sqlite-shm",
+   "state": "SAME",
+   "expectedSize": 32768,
+   "actualSize": 32768
+  },
+  {
+   "path": "工作室数据/jewelry.sqlite-wal",
+   "state": "SAME",
+   "expectedSize": 243112,
+   "actualSize": 243112
+  },
+  {
+   "path": "库管/stockcheck.db",
+   "state": "SAME",
+   "expectedSize": 172032,
+   "actualSize": 172032
+  },
+  {
+   "path": "库管/stockcheck.db-shm",
+   "state": "SAME",
+   "expectedSize": 32768,
+   "actualSize": 32768
+  },
+  {
+   "path": "库管/stockcheck.db-wal",
+   "state": "SAME",
+   "expectedSize": 0,
+   "actualSize": 0
+  },
+  {
+   "path": "库管/备份/库存数据_2026-10-21.db",
+   "state": "SAME",
+   "expectedSize": 159744,
+   "actualSize": 159744
+  },
+  {
+   "path": "程序设置/GPUPersistentCache/DawnGraphiteCache/5IQM42UTUKB3VIRRMR5FSNOJ6XMOWXDZ/cache.db",
+   "state": "MISSING"
+  },
+  {
+   "path": "程序设置/GPUPersistentCache/DawnGraphiteCache/5IQM42UTUKB3VIRRMR5FSNOJ6XMOWXDZ/cache.db-wal",
+   "state": "MISSING"
+  },
+  {
+   "path": "程序设置/declarative_performance_observer.db",
+   "state": "SAME",
+   "expectedSize": 32768,
+   "actualSize": 32768
+  }
+ ]
+}

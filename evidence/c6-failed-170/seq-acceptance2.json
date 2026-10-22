@@ -1,0 +1,45 @@
+{
+  "cases": [
+    {
+      "label": "same_seq_same_catalog",
+      "expect": "latest",
+      "out": {
+        "decision": "latest"
+      }
+    },
+    {
+      "label": "same_seq_new_catalog",
+      "expect": "STALE rejected",
+      "out": {
+        "error": "STALE_NATIVE_MANIFEST",
+        "message": "同一发布序号不能替换完整程序"
+      }
+    },
+    {
+      "label": "seq21_new_catalog",
+      "expect": "available",
+      "out": {
+        "decision": "available"
+      }
+    },
+    {
+      "label": "seq19_new_catalog",
+      "expect": "STALE rejected",
+      "out": {
+        "error": "STALE_NATIVE_MANIFEST",
+        "message": "该原生发布已被较新的发布取代"
+      }
+    }
+  ],
+  "versionGate": null,
+  "origGate": {
+    "hardcodedVersionChecks": 2,
+    "hardcodedEngine44_9": 0
+  },
+  "patchedGate": {
+    "hardcodedVersionChecks": 2,
+    "hardcodedEngine44_9": 0,
+    "hasMinProgramVersion": true,
+    "hasVersionAtLeast": false
+  }
+}

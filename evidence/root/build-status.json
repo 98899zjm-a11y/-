@@ -1,0 +1,13 @@
+{
+  "status": "BUILT_INTERNAL_AUDITED",
+  "stage": "complete",
+  "updated": "2026-10-22T09:19:43.340Z",
+  "archive": {
+    "size": 781517180,
+    "sha256": "21fad886bcb8f0264f3e2eb4a26125050a5d209a309ee6bc1aa4a342fc36ce2c",
+    "compression": "DEFLATE",
+    "maximumBytes": 805306368
+  },
+  "productionInstalled": false,
+  "finalAcceptancePassed": false
+}

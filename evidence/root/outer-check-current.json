@@ -1,0 +1,162 @@
+{
+  "schemaVersion": 1,
+  "purpose": "root-derive-new-outer-20261022",
+  "asOf": "2026-10-22T01:31:31.009Z",
+  "releaseRoot": "D:/Codex/xjy-release-20261022",
+  "releaseAuthorized": true,
+  "authorityRecord": {
+    "file": "source/authority-release.md",
+    "bytes": 1334,
+    "sha256": "24618d7ca5cc1ff160bcd68461ac82d1783366011fb2452052d2fc5ac9a8976e"
+  },
+  "readsOnlyNewArtifacts": true,
+  "privateKeyRead": false,
+  "signed": false,
+  "productExecuted": false,
+  "installed": false,
+  "published": false,
+  "zipModified": false,
+  "oldSignedArtifactsModified": false,
+  "workerDelta": [
+    {
+      "path": "delivery-tools/delivery-native-170.cjs",
+      "size": 11527,
+      "sha256": "c962f1c314866be0a57d7aef819954f47a389998e6eb78dd30562d99b0cb52fc"
+    },
+    {
+      "path": "delivery-tools/engine-tree-runtime170.cjs",
+      "size": 199034,
+      "sha256": "b856fc516b0e97fa99951fb2bb1880c8f4bd86cf4481bd2199fba2ad5531e0fa"
+    },
+    {
+      "path": "delivery-tools/install-location.cjs",
+      "size": 17214,
+      "sha256": "3e4698f282d521ea9456375f1948ca5032db79783fb5e9b486b8c68fc5f24cba"
+    },
+    {
+      "path": "delivery-tools/native-employee-slot170.cjs",
+      "size": 70201,
+      "sha256": "553aab48981c4b8de9080faa16cb1bb9caf5ff416ff04ab84aa230ab9ead934f"
+    }
+  ],
+  "workerUnchangedRows": 97,
+  "workerFiles": 101,
+  "mapping": {
+    "report.newInternalSignatures": "newSignatures",
+    "report.reusedPublicSignatures": "reusedPublicSignatures",
+    "report.typedSignaturesVerified": "typedPublicSignaturesVerified",
+    "report.signatureObjects": "totalInternalSignatureObjectsVerified (9 = 7 envelopes + 2 typed)",
+    "report.proposalManifestSha256": "proposalSha256",
+    "report.rootScopeReportSha256 or report sha when absent": "rootScopeReportSha256",
+    "authority-release.md actual sha256": "scope.authorityRecordSha256"
+  },
+  "checks": [
+    "authority-release.md exists, non-empty, root-authorized wording, not an old E authority sha",
+    "prepare-release.cjs / audit-release.cjs pinned; audit exports scanZip+validateInternals",
+    "reviewed-inputs-ROOT.json reviewed=true and carries all 4 worker delta rows",
+    "proposal manifest rows bind index/worker/publisher/target/resource/policy shas",
+    "request index 7 requests: 9 objects, 1 new + 8 reused, each payload sha/size verified",
+    "worker catalog 101 rows; exactly the 4 delta rows bound (runtime a14, slot a1, install-location fixed5, delivery-native)",
+    "c28 baseline rows runtime/slot proven changed; workerUnchangedRows=97",
+    "7 envelopes verified with publisher key; 6 reused + 1 new; 2 typed signatures verified",
+    "package-audit-report: 3293 rows, CRC/SHA verified, 149 ASAR members, 7 PowerShell AST parses",
+    "assembly/request/payload archive+binding cross-checked"
+  ],
+  "inputs": {
+    "authority": {
+      "file": "source/authority-release.md",
+      "bytes": 1334,
+      "sha256": "24618d7ca5cc1ff160bcd68461ac82d1783366011fb2452052d2fc5ac9a8976e"
+    },
+    "prepare": {
+      "bytes": 74965,
+      "sha256": "5bd33f71cef3301693b29aa507ba4b1ac5540ba363e0f3e4ab331b2907bff9e4"
+    },
+    "audit": {
+      "bytes": 37965,
+      "sha256": "50cd504a457ec1ec0d346aaaeee7c5920beace7622d0e24ef7f1254ad5f7b9c2"
+    },
+    "reviewedInputs": {
+      "bytes": 3053,
+      "sha256": "77151179facf23d9b960c0e4ed0781624a2f3c1b45c2b5d44358e6b27a2b6a6d"
+    },
+    "workerReport": {
+      "bytes": 4106,
+      "sha256": "4ebed64755dec4d2ed6a57d870454c94bd0a5b0b0632b774d67d110de304d80d"
+    },
+    "proposalManifest": {
+      "bytes": 276143,
+      "sha256": "c2474ccc83df03461a579756bf0dc2740d523faf86cd8ac6ec6494c3396e1265"
+    },
+    "requestIndex": {
+      "bytes": 18048,
+      "sha256": "789ed159ee8b2d628f62a4a606c481b23da7b8cad15767ddd2f51dbebd57367e"
+    },
+    "workerCatalog": {
+      "bytes": 16389,
+      "sha256": "31bb297fb0e56f3167626445b9626ec79bb8f798e1b2cc6eda750af8bf07ad3f",
+      "sequence": 28
+    },
+    "manifestPayload": {
+      "bytes": 757289,
+      "sha256": "c4595529d09ed22067a9ae6d33de86d60c3daf96551df7a4c539212f67b4fac3",
+      "sequence": 20
+    },
+    "signingRequest": {
+      "bytes": 3509,
+      "sha256": "63aeb654329cc8e348af47810eca2f7fedf32ca924f761e638a65b0da3241f2c"
+    },
+    "auditReport": {
+      "bytes": 2319,
+      "sha256": "3229ff06b7dd4306b7ccde79953a92f858d80ab959ce3df1142b0ca2c51f57bc"
+    },
+    "assembly": {
+      "bytes": 759159,
+      "sha256": "53cd54497a1d73f53e684a7bc4a2e01c669f3d7186dfc687f54929d2ce173d2f"
+    },
+    "archive": {
+      "bytes": 781516427,
+      "sha256": "212aabdfbd4698274cabe5468cb80634e9ba24ff1458abc5547466ec403e8c8d"
+    },
+    "publisherPublicKeySha256": "6e8b9cadb59aeb53f30d41f4471f70f644f0dfc7376ffb9d8a4c62defb98458c",
+    "envelopeDir": "candidate/approvals",
+    "envelopePins": {
+      "source-1.6.0.catalog-envelope.json": "cde82451fb53ece189f15b513e2d1fa9c50098295921fa6635ebf7376a84b4b2",
+      "source-1.6.1.catalog-envelope.json": "71f19964c429b06da6870c218ddf30cb125f4e2d371e4fb7136cd18d68339d99",
+      "source-1.6.2.catalog-envelope.json": "7bd59deb9b90b3ca0f55af433e54404f40e060ea507dc8f905b1cc7a6d83237e",
+      "resource.catalog-envelope.json": "5195eaf598946dfcdf672e4886254978b27e681f2c8733992f1cb584c03c1d79",
+      "target.catalog-envelope.json": "6abc30889f4f79cd9313cf4480d805742d695b51da0846ad129b9fbaff6f10cf",
+      "source-policy-envelope.json": "6bdfe409f352d65247d68860961e52c8805d583e45d3305ab252002e76340be2",
+      "worker.catalog-envelope.json": "d7afad347bf08b23c0ac7d0e1bf17038ddf1d1b63a1e0e0f01dc2493f8e0930b"
+    },
+    "typedPins": {
+      "slot-source.catalog-envelope.json": "53f6fa7017185acd9c25b7139b558db0daf923e0d72bece4e6a34d1e7820bc03",
+      "slot-default-source.catalog-envelope.json": "f26f880854d70a535d99f485fbfad990e27c04d0ef76354223d206afc052430f"
+    },
+    "targetCatalogSha256": "4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef",
+    "resourceCatalogSha256": "f2a76c739b5b78975d03c82ac6bacb8e65719c8d0d5192f2bf69ae62955fe0b3",
+    "sourcePolicySha256": "0beedfaa41b633d9d6874bae524a409c28c4918b87d4b2576d0a9fa3d779daf7",
+    "bindingSha256": "a5a5f46aba95cdb32113a47bcf58b4dde9f0eff1a2962c9a1f1585985c2dfaf0",
+    "publishedAt": "2026-10-22T01:26:24.159Z",
+    "expiresAt": "2027-01-20T01:26:24.159Z"
+  },
+  "outputs": {
+    "scope": {
+      "file": "root-outer-signing-scope-20261022-ROOT.json",
+      "bytes": 3451,
+      "sha256": "e393e5323f4e73a22efbbdee0a55c7fb84392cf0dc13ba76920de34383025884"
+    },
+    "signer": {
+      "file": "sign-native170-ROOT-20261022-outer-a1.cjs",
+      "bytes": 28317,
+      "sha256": "4d24b6cb5e06af575da890fdc14d149eaf93bc8d9614f22baf42161aae1890cd"
+    },
+    "report": {
+      "file": "root-derive-new-outer-report.json"
+    }
+  },
+  "nodeCommand": "\"C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe\" \"D:\\Codex\\xjy-release-20261022\\source\\sign-native170-ROOT-20261022-outer-a1.cjs\"",
+  "checkCommand": "\"C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe\" \"D:\\Codex\\xjy-release-20261022\\source\\sign-native170-ROOT-20261022-outer-a1.cjs\" check 4d24b6cb5e06af575da890fdc14d149eaf93bc8d9614f22baf42161aae1890cd",
+  "signCommand": "\"C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe\" \"D:\\Codex\\xjy-release-20261022\\source\\sign-native170-ROOT-20261022-outer-a1.cjs\" sign-approved 4d24b6cb5e06af575da890fdc14d149eaf93bc8d9614f22baf42161aae1890cd \"--authorized-root-release-20261022-exact-outer-payload\"",
+  "written": false
+}

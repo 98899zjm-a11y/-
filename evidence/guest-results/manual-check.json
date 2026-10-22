@@ -1,0 +1,17 @@
+{
+  "at": "2026-10-22T01:57:36.414Z",
+  "hostname": "fe0b3f51-3704-4e3e-a876-8c6d64ce551f",
+  "installationDir": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program",
+  "activation": {
+    "version": 1,
+    "product": "xjy-jewelry-offline",
+    "programVersion": "1.6.2",
+    "role": "host",
+    "installationDir": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program"
+  },
+  "journal": null,
+  "startup": null,
+  "engine": "44.7.0",
+  "asarSha256": "28e24d0dea9416258b67edc2b6fe6aca8683c68d02c9fc305626660dd4c55e6f",
+  "installerExit": null
+}

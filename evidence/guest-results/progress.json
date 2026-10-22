@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "purpose": "ROOT_GUEST_RELEASE_STAGE_PROGRESS",
+  "runId": "20261022T013806243Z-1cd189",
+  "phase": "DONE",
+  "status": "INSTALLER_EXIT_NONZERO",
+  "at": "2026-10-22T01:38:39.765Z",
+  "ok": false,
+  "passed": false,
+  "pending": false,
+  "failure": true,
+  "package": {
+    "assembly": "C:\\XjyReleaseCandidate\\build\\assembly.json",
+    "assemblySha256": "53cd54497a1d73f53e684a7bc4a2e01c669f3d7186dfc687f54929d2ce173d2f",
+    "packageRoot": "C:\\XjyReleaseCandidate\\build\\package",
+    "memberCount": 3293,
+    "totalBytes": 1819803269
+  },
+  "target": {
+    "path": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyRootRelease170\\program",
+    "real": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyRootRelease170\\program",
+    "files": 3293,
+    "bytes": 1819803269,
+    "upgrade": "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyRootRelease170\\program\\一键升级.cmd",
+    "upgradeSize": 2956,
+    "upgradeSha256": "21835954f0719069dcc16f2196fb545956b04b745ad05e5a6e4364b107253aa9"
+  },
+  "cmd": {
+    "pid": 7520,
+    "exited": true,
+    "exitCode": 1,
+    "timedOut": false
+  },
+  "targetState": {
+    "markerOk": false,
+    "committed": false,
+    "version": "44.7.0"
+  }
+}

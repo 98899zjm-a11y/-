@@ -1,0 +1,139 @@
+﻿{
+    "root":  "F:\\自制软件\\xjy-jewelry-offline",
+    "exists":  true,
+    "entries":  [
+                    {
+                        "name":  "locales",
+                        "isDir":  true,
+                        "lastWrite":  "2026-10-22T14:13:37.5968901+08:00",
+                        "files":  55,
+                        "bytes":  50643459
+                    },
+                    {
+                        "name":  "resources",
+                        "isDir":  true,
+                        "lastWrite":  "2026-10-22T14:26:22.3736411+08:00",
+                        "files":  1009,
+                        "bytes":  164428642
+                    },
+                    {
+                        "name":  "chrome_100_percent.pak",
+                        "isDir":  false,
+                        "lastWrite":  "2026-10-22T14:13:36.3142065+08:00",
+                        "length":  719654
+                    },
+                    {
+                        "name":  "chrome_200_percent.pak",
+                        "isDir":  false,
+                        "lastWrite":  "2026-10-22T14:13:36.3300195+08:00",
+                        "length":  1269017
+                    },
+                    {
+                        "name":  "d3dcompiler_47.dll",
+                        "isDir":  false,
+                        "lastWrite":  "2026-10-22T14:13:36.3615451+08:00",
+                        "length":  4741488
+                    },
+                    {
+                        "name":  "dxcompiler.dll",
+                        "isDir":  false,
+                        "lastWrite":  "2026-10-22T14:13:36.4048038+08:00",
+                        "length":  25744384
+                    },
+                    {
+                        "name":  "dxil.dll",
+                        "isDir":  false,
+                        "lastWrite":  "2026-10-22T14:13:36.4413288+08:00",
+                        "length":  1509760
+                    },
+                    {
+                        "name":  "ffmpeg.dll",
+                        "isDir":  false,
+                        "lastWrite":  "2026-10-22T14:13:36.4729914+08:00",
+                        "length":  3113472
+                    },
+                    {
+                        "name":  "icudtl.dat",
+                        "isDir":  false,
+                        "lastWrite":  "2026-10-22T14:13:36.4987561+08:00",
+                        "length":  10875024
+                    },
+                    {
+                        "name":  "LICENSE",
+                        "isDir":  false,
+                        "lastWrite":  "2026-10-22T14:13:36.2503110+08:00",
+                        "length":  1096
+                    },
+                    {
+                        "name":  "LICENSES.chromium.html",
+                        "isDir":  false,
+                        "lastWrite":  "2026-10-22T14:13:36.2820202+08:00",
+                        "length":  20477229
+                    },
+                    {
+                        "name":  "resources.pak",
+                        "isDir":  false,
+                        "lastWrite":  "2026-10-22T14:13:37.6287852+08:00",
+                        "length":  12436085
+                    },
+                    {
+                        "name":  "snapshot_blob.bin",
+                        "isDir":  false,
+                        "lastWrite":  "2026-10-22T14:14:16.7486346+08:00",
+                        "length":  369024
+                    },
+                    {
+                        "name":  "Uninstall 鑫金源珠宝报价.exe",
+                        "isDir":  false,
+                        "lastWrite":  "2026-10-22T14:14:17.3478964+08:00",
+                        "length":  166715
+                    },
+                    {
+                        "name":  "v8_context_snapshot.bin",
+                        "isDir":  false,
+                        "lastWrite":  "2026-10-22T14:14:16.7649084+08:00",
+                        "length":  742456
+                    },
+                    {
+                        "name":  "version",
+                        "isDir":  false,
+                        "lastWrite":  "2026-10-22T14:14:16.7796676+08:00",
+                        "length":  6
+                    },
+                    {
+                        "name":  "vk_swiftshader.dll",
+                        "isDir":  false,
+                        "lastWrite":  "2026-10-22T14:14:16.8111277+08:00",
+                        "length":  5519872
+                    },
+                    {
+                        "name":  "vk_swiftshader_icd.json",
+                        "isDir":  false,
+                        "lastWrite":  "2026-10-22T14:14:16.8244324+08:00",
+                        "length":  106
+                    },
+                    {
+                        "name":  "vulkan-1.dll",
+                        "isDir":  false,
+                        "lastWrite":  "2026-10-22T14:14:16.8421091+08:00",
+                        "length":  939520
+                    },
+                    {
+                        "name":  "xjy-install-activation.json",
+                        "isDir":  false,
+                        "lastWrite":  "2026-10-22T14:14:17.3963489+08:00",
+                        "length":  142
+                    },
+                    {
+                        "name":  "鑫金源珠宝报价.exe",
+                        "isDir":  false,
+                        "lastWrite":  "2026-10-22T14:14:17.1101207+08:00",
+                        "length":  247184896
+                    }
+                ],
+    "stateExists":  false,
+    "stateEntries":  [
+
+                     ],
+    "journalExists":  false
+}

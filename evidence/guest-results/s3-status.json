@@ -1,0 +1,51 @@
+﻿{
+    "at":  "2026-10-22T13:22:46.5766253+08:00",
+    "procs":  [
+                  {
+                      "id":  6268,
+                      "name":  "cmd",
+                      "cpu":  0.015625,
+                      "start":  "13:20:51",
+                      "title":  "",
+                      "path":  "C:\\Windows\\system32\\cmd.exe"
+                  },
+                  {
+                      "id":  2988,
+                      "name":  "powershell",
+                      "cpu":  3.078125,
+                      "start":  "13:22:45",
+                      "title":  "",
+                      "path":  "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+                  },
+                  {
+                      "id":  4088,
+                      "name":  "powershell",
+                      "cpu":  3.859375,
+                      "start":  "13:22:12",
+                      "title":  "鑫金源珠宝 1.7.0 重复升级审定",
+                      "path":  "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+                  },
+                  {
+                      "id":  5160,
+                      "name":  "powershell",
+                      "cpu":  18.875,
+                      "start":  "13:20:51",
+                      "title":  "鑫金源珠宝 1.7.0 电脑版 · 升级",
+                      "path":  "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+                  }
+              ],
+    "titles":  [
+                   {
+                       "pid":  4088,
+                       "title":  "鑫金源珠宝 1.7.0 重复升级审定"
+                   },
+                   {
+                       "pid":  5160,
+                       "title":  "鑫金源珠宝 1.7.0 电脑版 · 升级"
+                   },
+                   {
+                       "pid":  6512,
+                       "title":  "Windows 输入体验"
+                   }
+               ]
+}

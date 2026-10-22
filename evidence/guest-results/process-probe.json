@@ -1,0 +1,65 @@
+﻿[
+    {
+        "ProcessId":  7848,
+        "ParentProcessId":  4836,
+        "Name":  "鑫金源珠宝报价.exe",
+        "ExecutablePath":  "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\鑫金源珠宝\\员工程序-slot-4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef\\鑫金源珠宝报价.exe",
+        "CommandLine":  "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\鑫金源珠宝\\员工程序-slot-4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef\\鑫金源珠宝报价.exe --employee-client"
+    },
+    {
+        "ProcessId":  2260,
+        "ParentProcessId":  7848,
+        "Name":  "鑫金源珠宝报价.exe",
+        "ExecutablePath":  "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\鑫金源珠宝\\员工程序-slot-4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef\\鑫金源珠宝报价.exe",
+        "CommandLine":  "\"C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\鑫金源珠宝\\员工程序-slot-4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef\\鑫金源珠宝报价.exe\" --type=utility --utility-sub-type=network.mojom.NetworkService --lang=zh-CN --service-sandbox-type=none --user-data-dir=\"C:\\Users\\WDAGUtilityAccount\\AppData\\Roaming\\xjy-jewelry-offline\" --standard-schemes=jewelry --secure-schemes=jewelry --cors-schemes=jewelry --fetch-schemes=jewelry --field-trial-handle=1788,i,3221358775101231993,12331324535366857180,262144 --enable-features=AllowWindowCaptureExclusionInRemoteSessions,PdfUseShowSaveFilePicker --disable-features=DropInputEventsWhilePaintHolding,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --pseudonymization-salt-handle=1792,i,6478529603073020809,13283211222153580362,4 --trace-process-track-uuid=3190708989122997041 --mojo-platform-channel-handle=2156 /prefetch:11"
+    },
+    {
+        "ProcessId":  2424,
+        "ParentProcessId":  7848,
+        "Name":  "鑫金源珠宝报价.exe",
+        "ExecutablePath":  "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\鑫金源珠宝\\员工程序-slot-4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef\\鑫金源珠宝报价.exe",
+        "CommandLine":  "\"C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\鑫金源珠宝\\员工程序-slot-4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef\\鑫金源珠宝报价.exe\" --type=renderer --user-data-dir=\"C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\鑫金源珠宝员工端\\fe0b3f51-3704-4e3e-a876-8c6d64ce551f-WDAGUtilityAccount\" --standard-schemes=jewelry --secure-schemes=jewelry --cors-schemes=jewelry --fetch-schemes=jewelry --app-path=\"C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\鑫金源珠宝\\员工程序-slot-4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef\\resources\\app.asar\" --enable-sandbox --video-capture-use-gpu-memory-buffer --lang=zh-CN --device-scale-factor=1.75 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=4 --launch-time-ticks=135128759772 --field-trial-handle=1788,i,3221358775101231993,12331324535366857180,262144 --enable-features=AllowWindowCaptureExclusionInRemoteSessions,PdfUseShowSaveFilePicker --disable-features=DropInputEventsWhilePaintHolding,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --pseudonymization-salt-handle=1792,i,6478529603073020809,13283211222153580362,4 --trace-process-track-uuid=3190708990060038890 --mojo-platform-channel-handle=2864 /prefetch:1"
+    },
+    {
+        "ProcessId":  3888,
+        "ParentProcessId":  7848,
+        "Name":  "鑫金源珠宝报价.exe",
+        "ExecutablePath":  "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\鑫金源珠宝\\员工程序-slot-4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef\\鑫金源珠宝报价.exe",
+        "CommandLine":  "\"C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\鑫金源珠宝\\员工程序-slot-4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef\\鑫金源珠宝报价.exe\" --type=gpu-process --user-data-dir=\"C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\鑫金源珠宝员工端\\fe0b3f51-3704-4e3e-a876-8c6d64ce551f-WDAGUtilityAccount\" --gpu-preferences=WAAAAAAAAADgAAAEAAAAAAAAAAAAAGAAQAAAAAAAAAAAAAAAAAAAADgAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAgAAAAAAAAAAgAAAAAAAAACAAAAAAAAAAIAAAAAAAAAAgAAAAAAAAA --use-gl=disabled --field-trial-handle=1788,i,3221358775101231993,12331324535366857180,262144 --enable-features=AllowWindowCaptureExclusionInRemoteSessions,PdfUseShowSaveFilePicker --disable-features=DropInputEventsWhilePaintHolding,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --pseudonymization-salt-handle=1792,i,6478529603073020809,13283211222153580362,4 --trace-process-track-uuid=3190708992871164437 --mojo-platform-channel-handle=3860 /prefetch:2"
+    },
+    {
+        "ProcessId":  5184,
+        "ParentProcessId":  2968,
+        "Name":  "cmd.exe",
+        "ExecutablePath":  "C:\\Windows\\System32\\cmd.exe",
+        "CommandLine":  "C:\\Windows\\System32\\cmd.exe /d /c C:\\XjyReleaseResults\\StartUpgrade.cmd"
+    },
+    {
+        "ProcessId":  5500,
+        "ParentProcessId":  5184,
+        "Name":  "powershell.exe",
+        "ExecutablePath":  "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "CommandLine":  "\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\"  -NoLogo -NoProfile -STA -WindowStyle Hidden -EncodedCommand JABFAHIAcgBvAHIAQQBjAHQAaQBvAG4AUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwB0AG8AcAAnADsAUwBlAHQALQBTAHQAcgBpAGMAdABNAG8AZABlACAALQBWAGUAcgBzAGkAbwBuACAATABhAHQAZQBzAHQAOwAkAHIAPQBbAEUAbgB2AGkAcgBvAG4AbQBlAG4AdABdADoAOgBHAGUAdABFAG4AdgBpAHIAbwBuAG0AZQBuAHQAVgBhAHIAaQBhAGIAbABlACgAJwBYAEoAWQBfAEQARQBMAEkAVgBFAFIAWQBfAFIATwBPAFQAJwAsACcAUAByAG8AYwBlAHMAcwAnACkAOwBpAGYAKABbAHMAdAByAGkAbgBnAF0AOgA6AEkAcwBOAHUAbABsAE8AcgBXAGgAaQB0AGUAUwBwAGEAYwBlACgAJAByACkAKQB7AHQAaAByAG8AdwAgACcAUABhAGMAawBhAGcAZQAgAHIAbwBvAHQAIABtAGkAcwBzAGkAbgBnACcAfQA7ACQAcgA9AFsASQBPAC4AUABhAHQAaABdADoAOgBHAGUAdABGAHUAbABsAFAAYQB0AGgAKAAkAHIAKQAuAFQAcgBpAG0ARQBuAGQAKAAnAFwAJwApADsAJABwAD0ASgBvAGkAbgAtAFAAYQB0AGgAIAAkAHIAIAAnAIlbxYjEfvZOXABuAGEAdABpAHYAZQAtAGQAZQBsAGkAdgBlAHIAeQAtADEANwAwAC4AcABzADEAJwA7ACQAcwA9ACQAbgB1AGwAbAA7ACQAcgBlAGEAZABlAHIAPQAkAG4AdQBsAGwAOwAkAGgAPQAkAG4AdQBsAGwAOwB0AHIAeQB7ACQAcwA9AFsASQBPAC4ARgBpAGwAZQBdADoAOgBPAHAAZQBuACgAJABwACwAWwBJAE8ALgBGAGkAbABlAE0AbwBkAGUAXQA6ADoATwBwAGUAbgAsAFsASQBPAC4ARgBpAGwAZQBBAGMAYwBlAHMAcwBdADoAOgBSAGUAYQBkACwAWwBJAE8ALgBGAGkAbABlAFMAaABhAHIAZQBdADoAOgBSAGUAYQBkACkAOwBpAGYAKAAkAHMALgBMAGUAbgBnAHQAaAAgAC0AbAB0ACAAMQAgAC0AbwByACAAJABzAC4ATABlAG4AZwB0AGgAIAAtAGcAdAAgADQAMQA5ADQAMwAwADQAKQB7AHQAaAByAG8AdwAgACcAQgBvAG8AdABzAHQAcgBhAHAAIABzAGkAegBlACAAcgBlAGYAdQBzAGUAZAAnAH0AOwAkAGgAPQBbAFMAZQBjAHUAcgBpAHQAeQAuAEMAcgB5AHAAdABvAGcAcgBhAHAAaAB5AC4AUwBIAEEAMgA1ADYAXQA6ADoAQwByAGUAYQB0AGUAKAApADsAJABhAGMAdAB1AGEAbAA9ACgAWwBCAGkAdABDAG8AbgB2AGUAcgB0AGUAcgBdADoAOgBUAG8AUwB0AHIAaQBuAGcAKAAkAGgALgBDAG8AbQBwAHUAdABlAEgAYQBzAGgAKAAkAHMAKQApACkALgBSAGUAcABsAGEAYwBlACgAJwAtACcALAAnACcAKQAuAFQAbwBMAG8AdwBlAHIASQBuAHYAYQByAGkAYQBuAHQAKAApADsAaQBmACgAJABhAGMAdAB1AGEAbAAgAC0AYwBuAGUAIAAnAGIAYwA5AGYAOAA4ADcAZgA3AGEAZQBlADkAYgAwADEAZAAzADEAZQAxADUAYQBkADgAMgAwADAAMwA1AGIANgA0ADgAYgA2ADcAYwA2ADcANgBlADgANwA0ADEAYQA3ADQANQBhAGMANwBiADMAMQA0AGIAMwBmAGMAZgBkADUAJwApAHsAdABoAHIAbwB3ACAAJwBCAG8AbwB0AHMAdAByAGEAcAAgAFMASABBADIANQA2ACAAbQBpAHMAbQBhAHQAYwBoACcAfQA7ACQAcwAuAFAAbwBzAGkAdABpAG8AbgA9ADAAOwAkAHIAZQBhAGQAZQByAD0AWwBJAE8ALgBTAHQAcgBlAGEAbQBSAGUAYQBkAGUAcgBdADoAOgBuAGUAdwAoACQAcwAsAFsAVABlAHgAdAAuAFUAVABGADgARQBuAGMAbwBkAGkAbgBnAF0AOgA6AG4AZQB3ACgAJABmAGEAbABzAGUALAAkAHQAcgB1AGUAKQAsACQAZgBhAGwAcwBlACwANAAwADkANgAsACQAdAByAHUAZQApADsAJAB0AGUAeAB0AD0AJAByAGUAYQBkAGUAcgAuAFIAZQBhAGQAVABvAEUAbgBkACgAKQA7ACQAYgBsAG8AYwBrAD0AWwBTAGMAcgBpAHAAdABCAGwAbwBjAGsAXQA6ADoAQwByAGUAYQB0AGUAKAAkAHQAZQB4AHQAKQA7ACYAIAAkAGIAbABvAGMAawAgAC0AUABhAGMAawBhAGcAZQBSAG8AbwB0ACAAJAByACAALQBBAGMAdABpAG8AbgAgACcAVQBwAGcAcgBhAGQAZQAnAH0AZgBpAG4AYQBsAGwAeQB7AGkAZgAoACQAcgBlAGEAZABlAHIAKQB7ACQAcgBlAGEAZABlAHIALgBEAGkAcwBwAG8AcwBlACgAKQB9ADsAaQBmACgAJABoACkAewAkAGgALgBEAGkAcwBwAG8AcwBlACgAKQB9ADsAaQBmACgAJABzACkAewAkAHMALgBEAGkAcwBwAG8AcwBlACgAKQB9AH0A"
+    },
+    {
+        "ProcessId":  3516,
+        "ParentProcessId":  5500,
+        "Name":  "鑫金源珠宝报价.exe",
+        "ExecutablePath":  "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyRootRelease170\\program\\受信助手\\鑫金源珠宝报价.exe",
+        "CommandLine":  "\"C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyRootRelease170\\program\\受信助手\\鑫金源珠宝报价.exe\" \"C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyRootRelease170\\program\\受信助手\\delivery-tools\\engine-native-entry170.cjs\" --binding-sha256 a5a5f46aba95cdb32113a47bcf58b4dde9f0eff1a2962c9a1f1585985c2dfaf0 --upgrade"
+    },
+    {
+        "ProcessId":  1860,
+        "ParentProcessId":  3516,
+        "Name":  "powershell.exe",
+        "ExecutablePath":  "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "CommandLine":  "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -NoLogo -NoProfile -NonInteractive -EncodedCommand WwBDAG8AbgBzAG8AbABlAF0AOgA6AE8AdQB0AHAAdQB0AEUAbgBjAG8AZABpAG4AZwA9AFsAVABlAHgAdAAuAFUAVABGADgARQBuAGMAbwBkAGkAbgBnAF0AOgA6AG4AZQB3ACgAJABmAGEAbABzAGUAKQA7ACAAJABFAHIAcgBvAHIAQQBjAHQAaQBvAG4AUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwB0AG8AcAAnADsAIAAkAFAAcgBvAGcAcgBlAHMAcwBQAHIAZQBmAGUAcgBlAG4AYwBlAD0AJwBTAGkAbABlAG4AdABsAHkAQwBvAG4AdABpAG4AdQBlACcAOwAgAHcAaABpAGwAZQAoACQAbgB1AGwAbAAgAC0AbgBlACAAKAAkAHIAZQBxAHUAZQBzAHQAPQBbAEMAbwBuAHMAbwBsAGUAXQA6ADoASQBuAC4AUgBlAGEAZABMAGkAbgBlACgAKQApACkAewBpAGYAKAAkAHIAZQBxAHUAZQBzAHQAIAAtAGMAZQBxACAAJwBlAHgAcABsAGkAYwBpAHQAYwBsAG8AcwBlACcAKQB7AGIAcgBlAGEAawB9ADsAaQBmACgAJAByAGUAcQB1AGUAcwB0ACAALQBjAG4AZQAgACcAbABpAHMAdAAnACkAewB0AGgAcgBvAHcAIAAnAEkAbgB2AGEAbABpAGQAIABmAGkAeABlAGQAIABpAG4AdgBlAG4AdABvAHIAeQAgAHIAZQBxAHUAZQBzAHQAJwB9ADsAJAByAG8AdwBzAD0AQAAoAEcAZQB0AC0AQwBpAG0ASQBuAHMAdABhAG4AYwBlACAAVwBpAG4AMwAyAF8AUAByAG8AYwBlAHMAcwAgAHwAIABTAGUAbABlAGMAdAAtAE8AYgBqAGUAYwB0ACAAUAByAG8AYwBlAHMAcwBJAGQALABQAGEAcgBlAG4AdABQAHIAbwBjAGUAcwBzAEkAZAAsAEUAeABlAGMAdQB0AGEAYgBsAGUAUABhAHQAaAAsAEMAcgBlAGEAdABpAG8AbgBEAGEAdABlACwAQwBvAG0AbQBhAG4AZABMAGkAbgBlACkAOwAkAGoAcwBvAG4APQBDAG8AbgB2AGUAcgB0AFQAbwAtAEoAcwBvAG4AIAAtAEkAbgBwAHUAdABPAGIAagBlAGMAdAAgACQAcgBvAHcAcwAgAC0AQwBvAG0AcAByAGUAcwBzACAALQBEAGUAcAB0AGgAIAA0ADsAWwBDAG8AbgBzAG8AbABlAF0AOgA6AE8AdQB0AC4AVwByAGkAdABlAEwAaQBuAGUAKAAkAGoAcwBvAG4AKQA7AFsAQwBvAG4AcwBvAGwAZQBdADoAOgBPAHUAdAAuAEYAbAB1AHMAaAAoACkAfQA="
+    },
+    {
+        "ProcessId":  296,
+        "ParentProcessId":  2968,
+        "Name":  "powershell.exe",
+        "ExecutablePath":  "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "CommandLine":  "powershell.exe -NoProfile -EncodedCommand RwBlAHQALQBDAGkAbQBJAG4AcwB0AGEAbgBjAGUAIABXAGkAbgAzADIAXwBQAHIAbwBjAGUAcwBzACAAfAAgAFcAaABlAHIAZQAtAE8AYgBqAGUAYwB0ACAAewAgACQAXwAuAE4AYQBtAGUAIAAtAG0AYQB0AGMAaAAgACcA4HOdW3wAcABvAHcAZQByAHMAaABlAGwAbAB8AGMAbQBkACcAIAB9ACAAfAAgAFMAZQBsAGUAYwB0AC0ATwBiAGoAZQBjAHQAIABQAHIAbwBjAGUAcwBzAEkAZAAsAFAAYQByAGUAbgB0AFAAcgBvAGMAZQBzAHMASQBkACwATgBhAG0AZQAsAEUAeABlAGMAdQB0AGEAYgBsAGUAUABhAHQAaAAsAEMAbwBtAG0AYQBuAGQATABpAG4AZQAgAHwAIABDAG8AbgB2AGUAcgB0AFQAbwAtAEoAcwBvAG4AIAAtAEQAZQBwAHQAaAAgADMAIAB8ACAAUwBlAHQALQBDAG8AbgB0AGUAbgB0ACAALQBMAGkAdABlAHIAYQBsAFAAYQB0AGgAIABDADoAXABYAGoAeQBSAGUAbABlAGEAcwBlAFIAZQBzAHUAbAB0AHMAXABwAHIAbwBjAGUAcwBzAC0AcAByAG8AYgBlAC4AagBzAG8AbgAgAC0ARQBuAGMAbwBkAGkAbgBnACAAVQBUAEYAOAA="
+    }
+]

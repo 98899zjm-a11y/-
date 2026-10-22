@@ -1,0 +1,68 @@
+﻿{
+  "manifestVersion": 1,
+  "directoryPath": "D:\\Codex\\xjy-release-20261022\\delivery-170-a15",
+  "generatedAt": "2026-10-22T11:39:37+08:00",
+  "generatedBy": "deliverable-writer（a15 S6/S7 交付材料）",
+  "hashAlgorithm": "SHA256",
+  "hashTool": "Windows PowerShell 5.1.26100.9711 Get-FileHash -Algorithm SHA256（本机实算，未引用构建端结论）",
+  "encoding": "UTF-8 with BOM",
+  "copySourceRoot": "D:\\Codex\\xjy-release-20261022\\candidate\\build\\package",
+  "note": "清单不包含临时脚本 _hash.ps1 / _hashdump.json（生成过程文件，已删除）；原 package 目录只读未改动。",
+  "totalFiles": 6,
+  "totalBytes": 164919413,
+  "totalBytesNote": "不含本清单自身（自引用）",
+  "files": [
+    {
+      "path": "鑫金源珠宝1.7.0员工升级补丁.zip",
+      "bytes": 164878024,
+      "sha256": "b1a7b12029208994d0431101660368d22c8d887384485aff432765c380730dc9",
+      "source": "D:\\Codex\\xjy-release-20261022\\candidate\\build\\package\\鑫金源珠宝1.7.0员工升级补丁.zip",
+      "sourceKind": "copied-from-package (复制，原文件未改动)",
+      "role": "员工升级补丁包（过渡期完整受信补丁；员工机双击包内「一键完整升级.cmd」路径的自包含材料）",
+      "internalEntries": 1020,
+      "internalUncompressedBytes": 164615768
+    },
+    {
+      "path": "员工一键升级.cmd",
+      "bytes": 2972,
+      "sha256": "23356325729653a7a4bf55e43b444fed00c88935e3ecc6f66397f284e2092b22",
+      "source": "D:\\Codex\\xjy-release-20261022\\candidate\\build\\package\\员工一键升级.cmd",
+      "sourceKind": "copied-from-package (复制，原文件未改动)",
+      "role": "员工一键升级入口（引导脚本 -Action EmployeeSlot）；必须与 安装组件/ 同级放在完整包根目录"
+    },
+    {
+      "path": "一键升级.cmd",
+      "bytes": 2956,
+      "sha256": "7a6e182cea080f704b1dd53f4a6672949af9aeedf708229c6ddd28cfeede436b",
+      "source": "D:\\Codex\\xjy-release-20261022\\candidate\\build\\package\\一键升级.cmd",
+      "sourceKind": "copied-from-package (复制，原文件未改动)",
+      "role": "通用一键升级入口（引导脚本 -Action Upgrade）；必须与 安装组件/ 同级放在完整包根目录"
+    },
+    {
+      "path": "交付说明-1.7.0-a15.md",
+      "bytes": 19596,
+      "sha256": "1723a2b01027b2e3d0b2ecd2c823404740f2f9e23069b0841be330921b20d8fc",
+      "source": "本目录编写（deliverable-writer，2026-10-22）",
+      "sourceKind": "authored-here",
+      "role": "交付说明（面向老板/维护方；含本批改动、员工 5 步、主机前置条件、失败处理、验收状态表）"
+    },
+    {
+      "path": "DELIVERY_STATUS.a15.draft.json",
+      "bytes": 15865,
+      "sha256": "cff74af7e9f4f5f73967603367eba5fdfa48012a30d25397c81ba55e9e446cad",
+      "source": "以根目录 DELIVERY_STATUS.json（sha256 ff0d5a83b723021f7de5d4c9a248180a5de38ae3c49a1b8ed759c689bc6d52be）为基础生成的 a15 草稿",
+      "sourceKind": "derived-draft",
+      "role": "a15 候选状态草稿（非权威状态源；releaseQualified 保持 false）"
+    },
+    {
+      "path": "交付清单.json",
+      "bytes": null,
+      "sha256": null,
+      "selfReference": true,
+      "source": "本目录生成",
+      "sourceKind": "authored-here",
+      "role": "本清单文件自身",
+      "note": "自引用：清单无法在自身内容内自洽记录自身的字节数与 sha256。需要校验本清单时，请单独执行 Get-FileHash -Algorithm SHA256 .\\交付清单.json"
+    }
+  ]
+}

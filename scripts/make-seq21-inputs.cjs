@@ -1,0 +1,21 @@
+const fs=require('node:fs'),crypto=require('node:crypto'),path=require('node:path');
+const PAY='candidate/proposal/requests/target.catalog.json';
+const ENV='candidate/approvals/target.catalog-envelope.json';
+const OUT='seq21-inputs';
+const sha=b=>crypto.createHash('sha256').update(b).digest('hex');
+const pay=fs.readFileSync(PAY), envBytes=fs.readFileSync(ENV);
+const cat=JSON.parse(pay.toString('utf8')); const env=JSON.parse(envBytes.toString('utf8'));
+const pub=crypto.createPublicKey(fs.readFileSync('candidate/proposal/worker-draft/publisher-public.pem'));
+const priv=crypto.createPrivateKey(fs.readFileSync('E:/codex/2026-10-13/work/xjy-web-stage1/config/release-signing/issuer-private.pem'));
+const envOk=crypto.verify(null,Buffer.from(env.catalog),pub,Buffer.from(env.signature,'base64'));
+fs.writeFileSync(path.join(OUT,'source20.catalog.json'),pay);
+fs.writeFileSync(path.join(OUT,'source20.envelope.json'),envBytes);
+const next={...cat,sequence:21,publishedAt:new Date().toISOString(),expiresAt:new Date(Date.now()+90*86400000).toISOString()};
+const nextStr=JSON.stringify(next,null,2);
+const sig=crypto.sign(null,Buffer.from(nextStr),priv).toString('base64');
+const nextPayload=Buffer.from(nextStr), nextEnv=Buffer.from(JSON.stringify({catalog:nextStr,signature:sig},null,2));
+const sigOk=crypto.verify(null,nextPayload,pub,Buffer.from(sig,'base64'));
+fs.writeFileSync(path.join(OUT,'target21.catalog.json'),nextPayload);
+fs.writeFileSync(path.join(OUT,'target21.envelope.json'),nextEnv);
+console.log(JSON.stringify({source20:{payloadSha256:sha(pay),size:pay.length,rows:cat.files.length,sequence:cat.sequence,envelopeSha256:sha(envBytes),envelopeSize:envBytes.length,sigOk:envOk},target21:{payloadSha256:sha(nextPayload),size:nextPayload.length,rows:next.files.length,sequence:next.sequence,sigOk,envelopeSha256:sha(nextEnv),envelopeSize:nextEnv.length}},null,2));
+

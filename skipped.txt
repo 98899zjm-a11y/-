@@ -1,0 +1,37 @@
+# 未纳入本次公开提交的内容清单 (skipped.txt)
+#
+# 生成规则：仅收录体积 < 5MB 的 JSON / MD 文本证据与脚本(.cjs/.py/.ps1)；
+# 二进制、压缩包、构建产物镜像、第三方内置代码、以及单文件 >5MB 的证据一律跳过。
+# 源目录 D:\Codex\xjy-release-20261022\ 未被修改或删除。
+#
+# 字节数              路径                                                        原因
+  9848080833	candidate/	build artifact tree (Chromium package mirror, ~11k files) — not source of record [11106 files]
+  2602080216	evidence-c6-failed-170/a15-build/	build artifact tree (bundled Chromium package) — not source of record [3295 files]
+  2602078855	evidence-c6-failed-170/build-failed/	build artifact tree (bundled Chromium package) — not source of record [3295 files]
+   946641404	publish-seq21/	throwaway probe scratch — excluded [10 files]
+   549067265	guest-results/seedclean/	vendored third-party app tree (reportlab/pdf_vendor, app.asar.unpacked) — not our work [1083 files]
+   164878024	delivery-170-a15/鑫金源珠宝1.7.0员工升级补丁.zip	binary archive — excluded (.zip)
+   164878024	delivery-170-a17-employee/鑫金源珠宝1.7.0员工升级补丁.zip	binary archive — excluded (.zip)
+   163893745	publish-170/	binary release catalog + 163MB package.zip — excluded [3 files]
+   108178615	guest-results/probe-20261022-102021.json	single file > 5MB (108178615 bytes) — excluded by size cap
+    93580104	public/runtime/	vendored node.exe runtime (93MB) — excluded [1 files]
+     1360384	tools/	external rcedit binary — excluded [1 files]
+      846514	guest-results/rounds/	bulk probe rounds — duplicates journal/round evidence [3 files]
+      626074	review-fixed4-result.json.events.jsonl	streaming event log (.jsonl) — excluded (bulk log)
+      490790	outer-helper-result.json.events.jsonl	streaming event log (.jsonl) — excluded (bulk log)
+      365081	native-latency-review-result.json.events.jsonl	streaming event log (.jsonl) — excluded (bulk log)
+      261468	guest-helper-result.json.events.jsonl	streaming event log (.jsonl) — excluded (bulk log)
+      227042	review-integration-result.json.events.jsonl	streaming event log (.jsonl) — excluded (bulk log)
+      184044	native-latency-source-result.json.events.jsonl	streaming event log (.jsonl) — excluded (bulk log)
+      165762	review-fixed5-result.json.events.jsonl	streaming event log (.jsonl) — excluded (bulk log)
+       40921	evidence-c6-failed-170/scripts/	copied script snapshot — duplicates scripts/ [10 files]
+        2972	delivery-170-a15/员工一键升级.cmd	launcher/helper not in the .cjs/.py/.ps1 include set; needs the excluded .zip to be useful
+        2972	delivery-170-a17-employee/员工一键升级.cmd	launcher/helper not in the .cjs/.py/.ps1 include set; needs the excluded .zip to be useful
+        2956	delivery-170-a15/一键升级.cmd	launcher/helper not in the .cjs/.py/.ps1 include set; needs the excluded .zip to be useful
+         634	tmp/	scratch test dir — excluded [6 files]
+         578	tmp_native.cjs	scratch probe (tmp_ prefix) — excluded
+         569	tmp_native2.cjs	scratch probe (tmp_ prefix) — excluded
+         310	tmp_contract.cjs	scratch probe (tmp_ prefix) — excluded
+           0	evidence-s4-recovery/	empty directory — nothing to copy [0 files]
+
+# 合计跳过 28 项

@@ -1,0 +1,10 @@
+{
+  "status": "SIGNED_INTERNAL_VERIFIED",
+  "archive": {
+    "size": 781517180,
+    "sha256": "21fad886bcb8f0264f3e2eb4a26125050a5d209a309ee6bc1aa4a342fc36ce2c"
+  },
+  "files": 3293,
+  "productionInstalled": false,
+  "nativeAcceptancePassed": false
+}

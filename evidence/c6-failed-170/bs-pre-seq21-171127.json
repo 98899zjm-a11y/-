@@ -1,0 +1,15 @@
+{
+  "finalAcceptancePassed": false,
+  "archive": {
+    "size": 781517162,
+    "sha256": "7633836023f6a552ae98258e561bd9ffab553f531c310c5e649198df6fd9029b"
+  },
+  "files": 3293,
+  "status": "BUILT_INTERNAL_AUDITED",
+  "productionInstalled": false,
+  "engine": {
+    "size": 200809,
+    "sha256": "a294ec51027e2dff4aaff5d23cfa0e39d15531c4c51f6d5ae8d773d920b53ecf"
+  },
+  "note": "r2 client (version-agnostic in-app update) candidate"
+}

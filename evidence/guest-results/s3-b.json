@@ -1,0 +1,41 @@
+﻿{
+    "at":  "2026-10-22T14:03:43.8851622+08:00",
+    "procs":  [
+                  {
+                      "id":  2424,
+                      "name":  "cmd",
+                      "cpu":  0.09375,
+                      "start":  "13:40:18",
+                      "title":  ""
+                  },
+                  {
+                      "id":  2320,
+                      "name":  "powershell",
+                      "cpu":  2.90625,
+                      "start":  "14:03:42",
+                      "title":  ""
+                  },
+                  {
+                      "id":  2584,
+                      "name":  "powershell",
+                      "cpu":  32.484375,
+                      "start":  "13:40:18",
+                      "title":  "鑫金源珠宝 1.7.0 电脑版 · 升级"
+                  },
+                  {
+                      "id":  3584,
+                      "name":  "powershell",
+                      "cpu":  3.625,
+                      "start":  "13:41:34",
+                      "title":  "鑫金源珠宝 1.7.0 重复升级审定"
+                  }
+              ],
+    "localRoots":  [
+
+                   ],
+    "fDirs":  [
+                  "F:\\System Volume Information",
+                  "F:\\自制软件"
+              ],
+    "fFreeGB":  7.5
+}

@@ -1,0 +1,27 @@
+﻿[
+    {
+        "window":  "鑫金源珠宝 1.7.0 重复升级审定",
+        "clicked":  true,
+        "clickedText":  "开始核验并安装",
+        "childCount":  8,
+        "children":  [
+                         "WindowsForms10.STATIC.app.0.14d8588_r10_ad1 :: 已自动定位候选程序；最终仍会核验真实角色和程序指纹。\n请先保存单据并正常退出原软件；确认后才会写入本发布的审批记录。",
+                         "WindowsForms10.STATIC.app.0.14d8588_r10_ad1 :: 自动识别的现有软件路径",
+                         "WindowsForms10.EDIT.app.0.14d8588_r10_ad1 :: F:\\自制软件\\xjy-jewelry-offline\\鑫金源珠宝报价.exe",
+                         "WindowsForms10.BUTTON.app.0.14d8588_r10_ad1 :: 已定位",
+                         "WindowsForms10.STATIC.app.0.14d8588_r10_ad1 :: 安装会核验原程序和补丁，保留资料及旧程序备份。\n已有同一补丁的审定记录时，会在最终确认中说明重新审定。",
+                         "WindowsForms10.BUTTON.app.0.14d8588_r10_ad1 :: 取消",
+                         "WindowsForms10.BUTTON.app.0.14d8588_r10_ad1 :: 开始核验并安装"
+                     ]
+    },
+    {
+        "window":  "鑫金源珠宝 1.7.0 电脑版 · 升级",
+        "clicked":  false,
+        "clickedText":  null,
+        "childCount":  3,
+        "children":  [
+                         "WindowsForms10.STATIC.app.0.3aff419_r8_ad1 :: 正在安装或升级程序",
+                         "WindowsForms10.STATIC.app.0.3aff419_r8_ad1 :: 正在安装及校验，已用 1 分 53 秒。请不要重复运行；完成后会明确提示结果。"
+                     ]
+    }
+]

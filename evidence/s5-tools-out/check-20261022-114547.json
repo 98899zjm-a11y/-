@@ -1,0 +1,211 @@
+{
+    "tool":  "check-production.ps1",
+    "schemaVersion":  1,
+    "readOnly":  true,
+    "stamp":  "20261022-114547",
+    "host":  {
+                 "computerName":  "张晋铭",
+                 "userName":  "Administrator",
+                 "userDomain":  "张晋铭",
+                 "psVersion":  "5.1.26100.9711",
+                 "is64BitProcess":  true,
+                 "sampledAt":  "2026-10-22T11:45:47.0309449+08:00",
+                 "osVersion":  "Microsoft Windows NT 10.0.26200.0",
+                 "expectedOsUserNamespace":  "张晋铭\\administrator"
+             },
+    "installDir":  "F:\\自制软件\\xjy-jewelry-offline",
+    "dataDir":  "F:\\鑫金源珠宝资料",
+    "processes":  [
+
+                  ],
+    "processCount":  0,
+    "activation":  {
+                       "path":  "F:\\自制软件\\xjy-jewelry-offline\\xjy-install-activation.json",
+                       "exists":  true,
+                       "rawLength":  134,
+                       "parsed":  {
+                                      "version":  1,
+                                      "product":  "xjy-jewelry-offline",
+                                      "programVersion":  "1.6.2",
+                                      "role":  "host",
+                                      "installationDir":  "F:\\自制软件\\xjy-jewelry-offline"
+                                  },
+                       "error":  null
+                   },
+    "version":  {
+                    "path":  "F:\\自制软件\\xjy-jewelry-offline\\version",
+                    "exists":  true,
+                    "bytes":  6,
+                    "value":  "44.7.0"
+                },
+    "productionTree":  {
+                           "path":  "F:\\自制软件\\xjy-jewelry-offline",
+                           "exists":  true,
+                           "files":  3525,
+                           "bytes":  1620307739,
+                           "dirs":  412,
+                           "errors":  0
+                       },
+    "dataTree":  {
+                     "path":  "F:\\鑫金源珠宝资料",
+                     "exists":  true,
+                     "files":  1176,
+                     "bytes":  2394718644,
+                     "dirs":  183,
+                     "errors":  0
+                 },
+    "baselineDrift":  {
+                          "prodFilesMatch":  true,
+                          "prodBytesMatch":  true,
+                          "dataFilesMatch":  true,
+                          "dataBytesMatch":  true,
+                          "baselineItem":  {
+                                               "prodFiles":  3525,
+                                               "prodBytes":  1620307739,
+                                               "dataFiles":  1176,
+                                               "dataBytes":  2394718644
+                                           }
+                      },
+    "disks":  [
+                  {
+                      "drive":  "C",
+                      "totalGB":  199,
+                      "freeGB":  74.9,
+                      "isReady":  true
+                  },
+                  {
+                      "drive":  "D",
+                      "totalGB":  731.2,
+                      "freeGB":  427.8,
+                      "isReady":  true
+                  },
+                  {
+                      "drive":  "F",
+                      "totalGB":  863,
+                      "freeGB":  803.8,
+                      "isReady":  true
+                  }
+              ],
+    "engineStateProbe":  [
+                             {
+                                 "path":  "F:\\自制软件\\.xjy-jewelry-offline.xjy-engine-state",
+                                 "exists":  false
+                             },
+                             {
+                                 "path":  "F:\\自制软件\\xjy-jewelry-offline\\.xjy-engine-state",
+                                 "exists":  false
+                             },
+                             {
+                                 "path":  "F:\\自制软件\\.program.xjy-engine-state",
+                                 "exists":  false
+                             },
+                             {
+                                 "path":  "F:\\自制软件\\xjy-jewelry-offline\\.program.xjy-engine-state",
+                                 "exists":  false
+                             }
+                         ],
+    "engineStateInInstall":  {
+                                 "path":  "F:\\自制软件\\xjy-jewelry-offline\\engine-startup-status.json",
+                                 "exists":  false
+                             },
+    "legacyInitialUpgrade":  {
+                                 "dir":  "F:\\自制软件\\xjy-jewelry-offline\\.xjy-initial-upgrade",
+                                 "exists":  true,
+                                 "journalExists":  true,
+                                 "phase":  "committed",
+                                 "targetVersion":  "1.6.2",
+                                 "purpose":  "xjy-repeat-program-patch",
+                                 "transactionId":  "9e717609-7598-4a8d-8b4c-f0dbdd7b6172"
+                             },
+    "backups":  [
+
+                ],
+    "knownBackup":  {
+                        "path":  "D:\\Codex\\xjy-private-backups\\pre170-20261022-a1",
+                        "exists":  true,
+                        "hasProgram":  true,
+                        "hasData":  true,
+                        "hasManifest":  true
+                    },
+    "package":  {
+                    "root":  "D:\\Codex\\xjy-release-20261022\\candidate\\build\\package",
+                    "exists":  true,
+                    "fileCount":  null,
+                    "engineVersionFile":  "44.9.0",
+                    "workerVersionFile":  "44.7.0"
+                },
+    "packagePins":  [
+                        {
+                            "id":  "upgradeCmd",
+                            "rel":  "一键升级.cmd",
+                            "expected":  "7a6e182cea080f704b1dd53f4a6672949af9aeedf708229c6ddd28cfeede436b",
+                            "path":  "D:\\Codex\\xjy-release-20261022\\candidate\\build\\package\\一键升级.cmd",
+                            "exists":  true,
+                            "size":  2956,
+                            "actual":  "7a6e182cea080f704b1dd53f4a6672949af9aeedf708229c6ddd28cfeede436b",
+                            "match":  true
+                        },
+                        {
+                            "id":  "deliveryScript",
+                            "rel":  "安装组件\\native-delivery-170.ps1",
+                            "expected":  "15352a02337e4bae4db93f66b3255f23b997363bd17f80736db8d18cbc46480b",
+                            "path":  "D:\\Codex\\xjy-release-20261022\\candidate\\build\\package\\安装组件\\native-delivery-170.ps1",
+                            "exists":  true,
+                            "size":  893577,
+                            "actual":  "15352a02337e4bae4db93f66b3255f23b997363bd17f80736db8d18cbc46480b",
+                            "match":  true
+                        },
+                        {
+                            "id":  "binding",
+                            "rel":  "engine-native170-binding.json",
+                            "expected":  "6552569b5f743c0aaf1f0a0afa59949626e93867cda0cd392b035578f4afc507",
+                            "path":  "D:\\Codex\\xjy-release-20261022\\candidate\\build\\package\\engine-native170-binding.json",
+                            "exists":  true,
+                            "size":  2016620,
+                            "actual":  "6552569b5f743c0aaf1f0a0afa59949626e93867cda0cd392b035578f4afc507",
+                            "match":  true
+                        },
+                        {
+                            "id":  "publisherPem",
+                            "rel":  "受信助手\\publisher-public.pem",
+                            "expected":  "bc6c3d2b42871e42d3eb91371034b410d507a228eeccb1d714acca60e8141b30",
+                            "path":  "D:\\Codex\\xjy-release-20261022\\candidate\\build\\package\\受信助手\\publisher-public.pem",
+                            "exists":  true,
+                            "size":  113,
+                            "actual":  "bc6c3d2b42871e42d3eb91371034b410d507a228eeccb1d714acca60e8141b30",
+                            "match":  true
+                        },
+                        {
+                            "id":  "patchZip",
+                            "rel":  "鑫金源珠宝1.7.0员工升级补丁.zip",
+                            "expected":  "b1a7b12029208994d0431101660368d22c8d887384485aff432765c380730dc9",
+                            "path":  "D:\\Codex\\xjy-release-20261022\\candidate\\build\\package\\鑫金源珠宝1.7.0员工升级补丁.zip",
+                            "exists":  true,
+                            "size":  164878024,
+                            "actual":  "b1a7b12029208994d0431101660368d22c8d887384485aff432765c380730dc9",
+                            "match":  true
+                        }
+                    ],
+    "packagePinsAllMatch":  true,
+    "deliveryStatus":  {
+                           "status":  "WORKING",
+                           "secondaryStatus":  "SIGNED_NATIVE_HOST_UPGRADE_RUNNING",
+                           "releaseQualified":  false,
+                           "installAuthState":  "RECORDED_GATES_NOT_MET",
+                           "productionTouched":  false,
+                           "nonClaims":  [
+                                             "native install/upgrade/recovery acceptance not complete",
+                                             "formal host not upgraded",
+                                             "employee in-app upgrade not accepted"
+                                         ]
+                       },
+    "notes":  [
+                  "No production xjy process running (expected before S5).",
+                  "No .xjy-engine-state directory present: this host is NOT upgraded yet (correct pre-S5 state).",
+                  "DELIVERY_STATUS releaseQualified is NOT true: the candidate is an internal candidate, not a formally release-qualified build."
+              ],
+    "failures":  [
+
+                 ],
+    "ok":  true
+}

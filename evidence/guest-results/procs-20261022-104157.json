@@ -1,0 +1,62 @@
+﻿{
+    "at":  "2026-10-22T10:41:56.5590978+08:00",
+    "procs":  [
+                  {
+                      "id":  6520,
+                      "name":  "GuestFStageB10",
+                      "cpu":  164.8,
+                      "start":  "04:23:04",
+                      "path":  "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGuestRun\\3f29f873-2948-44ab-bc23-d511f61eedd0\\tools\\GuestFStageB10.exe"
+                  },
+                  {
+                      "id":  1456,
+                      "name":  "鑫金源珠宝报价",
+                      "cpu":  0.2,
+                      "start":  "10:30:06",
+                      "path":  "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program\\鑫金源珠宝报价.exe"
+                  },
+                  {
+                      "id":  2832,
+                      "name":  "鑫金源珠宝报价",
+                      "cpu":  0.7,
+                      "start":  "10:35:07",
+                      "path":  "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program\\鑫金源珠宝报价.exe"
+                  },
+                  {
+                      "id":  5484,
+                      "name":  "鑫金源珠宝报价",
+                      "cpu":  1.3,
+                      "start":  "10:30:06",
+                      "path":  "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program\\鑫金源珠宝报价.exe"
+                  },
+                  {
+                      "id":  6232,
+                      "name":  "鑫金源珠宝报价",
+                      "cpu":  0.4,
+                      "start":  "10:30:10",
+                      "path":  "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program\\鑫金源珠宝报价.exe"
+                  },
+                  {
+                      "id":  6760,
+                      "name":  "鑫金源珠宝报价",
+                      "cpu":  0.8,
+                      "start":  "10:30:06",
+                      "path":  "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program\\鑫金源珠宝报价.exe"
+                  },
+                  {
+                      "id":  7200,
+                      "name":  "鑫金源珠宝报价",
+                      "cpu":  0.1,
+                      "start":  "10:30:06",
+                      "path":  "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program\\鑫金源珠宝报价.exe"
+                  },
+                  {
+                      "id":  7908,
+                      "name":  "鑫金源珠宝报价",
+                      "cpu":  0,
+                      "start":  "10:30:06",
+                      "path":  "C:\\Users\\WDAGUtilityAccount\\AppData\\Local\\XjyGenuine150Host-a2\\program\\鑫金源珠宝报价.exe"
+                  }
+              ],
+    "exitFile":  "ABSENT"
+}

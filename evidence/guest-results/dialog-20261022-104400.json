@@ -1,0 +1,75 @@
+﻿{
+    "at":  "2026-10-22T10:44:00.3622011+08:00",
+    "dialogs":  [
+                    {
+                        "hwnd":  6160568,
+                        "pid":  5048,
+                        "title":  "运行",
+                        "children":  [
+                                         {
+                                             "cls":  "Static",
+                                             "text":  ""
+                                         },
+                                         {
+                                             "cls":  "Static",
+                                             "text":  "Windows 将根据你所输入的名称，为你打开相应的程序、文件夹、文档或 Internet 资源。"
+                                         },
+                                         {
+                                             "cls":  "Static",
+                                             "text":  "打开(\u0026O):"
+                                         },
+                                         {
+                                             "cls":  "ComboBox",
+                                             "text":  ""
+                                         },
+                                         {
+                                             "cls":  "Edit",
+                                             "text":  ""
+                                         },
+                                         {
+                                             "cls":  "Button",
+                                             "text":  "在单独的内存空间中运行(\u0026M)"
+                                         },
+                                         {
+                                             "cls":  "Static",
+                                             "text":  ""
+                                         },
+                                         {
+                                             "cls":  "Static",
+                                             "text":  "使用管理权限创建此任务。"
+                                         },
+                                         {
+                                             "cls":  "Button",
+                                             "text":  "确定"
+                                         },
+                                         {
+                                             "cls":  "Button",
+                                             "text":  "取消"
+                                         },
+                                         {
+                                             "cls":  "Button",
+                                             "text":  "浏览(\u0026B)..."
+                                         }
+                                     ]
+                    },
+                    {
+                        "hwnd":  1442654,
+                        "pid":  5500,
+                        "title":  "安装或升级未完成",
+                        "children":  [
+                                         {
+                                             "cls":  "Button",
+                                             "text":  "确定"
+                                         },
+                                         {
+                                             "cls":  "Static",
+                                             "text":  ""
+                                         },
+                                         {
+                                             "cls":  "Static",
+                                             "text":  "安装或升级未确认完成。请保留原程序、备份和错误记录。\nworker 退出码为 1，不等于 0\n安装或升级已停止：TREE_CHANGED 完整树含未声明空目录"
+                                         }
+                                     ]
+                    }
+                ]
+}
