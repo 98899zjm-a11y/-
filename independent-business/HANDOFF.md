@@ -18,3 +18,6 @@
 - DeepSeek最终只读复查已收到：docs/DEEPSEEK_FINAL_SIGNOFF.md；仅对本机虚构开发版判定无阻断P0/P1，不作为生产安全保证。
 - .gitattributes保留原始字节，避免Git换行归一化使vendor原SHA或中文启动器发生漂移。
 - 交付包是独立开发源码包，依赖本机既有Python/Electron；不是通用安装程序，不合并正式销售软件。
+
+## 源码同步入口
+已按用户授权同步到 https://github.com/98899zjm-a11y/-.git 的 codex/standalone-business-20261023 分支，目录 independent-business；首次同步提交0446e01。采用独立目录新增方式，未改销售正式源码入口，没有合并到main。最新远程核对结果见artifacts/publication.json，生成的源码ZIP不含runtime/口令/数据库。
