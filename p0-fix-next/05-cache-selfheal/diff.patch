@@ -1,0 +1,299 @@
+--- before/employee-update-cache.cjs
++++ after/employee-update-cache.cjs
+@@ -2,7 +2,7 @@
+ // Native-only storage. No API/renderer ever receives paths, envelopes or handles.
+ const fs=process.versions.electron?require('original-fs').promises:require('node:fs/promises'),path=require('node:path'),crypto=require('node:crypto');
+ const CHUNK=4194304,MAX_ARCHIVE=805306368,SHA=/^[a-f0-9]{64}$/,UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/;
+-function fail(code,message){const error=new Error(message);error.code=code;throw error;}
++function fail(code,message,detail){const error=new Error(message);error.code=code;if(detail!==undefined)error.detail=detail;throw error;}
+ function plain(v){return v&&typeof v==='object'&&!Array.isArray(v);}
+ function exact(v,keys){return plain(v)&&Object.keys(v).every(k=>keys.includes(k));}
+ function freeze(v){if(plain(v)||Array.isArray(v)){Object.freeze(v);for(const c of Object.values(v))freeze(c);}return v;}
+@@ -18,18 +18,42 @@
+ function statIdentity(s){return [s.dev,s.ino,s.birthtimeNs??s.birthtimeMs].map(String).join(':');}
+ function statState(s){return [statIdentity(s),s.size,s.mtimeNs??s.mtimeMs,s.ctimeNs??s.ctimeMs,s.nlink].map(String).join(':');}
+ async function assertPath(io,file,{directory=false,missing=false,root}={}){
+- safeAbsolute(file);if(root)within(root,file);let target;
++ safeAbsolute(file);if(root)within(root,file);let target,parent;
+  for(let p=file;;p=path.dirname(p)){
+   let s;try{s=await io.lstat(p,{bigint:true});}catch(e){if(e.code==='ENOENT'&&p===file&&missing){}else throw e;}
+-  if(s){if(s.isSymbolicLink()||p!==file&&!s.isDirectory())fail('UNSAFE_PATH','Update path contains a link or non-directory');if(p===file)target=s;if(!samePath(await io.realpath(p),p))fail('UNSAFE_PATH','Update path alias rejected');}
++  if(s){if(s.isSymbolicLink()||p!==file&&!s.isDirectory())fail('UNSAFE_PATH','Update path contains a link or non-directory');if(p===file)target=s;else if(!parent&&p===path.dirname(file))parent=s;if(!samePath(await io.realpath(p),p))fail('UNSAFE_PATH','Update path alias rejected');}
+   if(p===path.dirname(p))break;
+  }
+- if(target){if(directory?!target.isDirectory():!target.isFile()||target.nlink!==1n)fail('UNSAFE_PATH','Update object is not an ordinary single-link file');}
++ if(target){
++  if(directory){if(!target.isDirectory())fail('UNSAFE_PATH','Update object is not an ordinary single-link file','not-a-directory ino='+String(target.ino));}
++  else{
++   if(!target.isFile())fail('UNSAFE_PATH','Update object is not an ordinary single-link file','not-a-file ino='+String(target.ino));
++   if(target.nlink<1n)fail('UNSAFE_PATH','Update object is not an ordinary single-link file','nlink='+String(target.nlink)+' dev='+String(target.dev)+' ino='+String(target.ino));
++   if(parent&&target.dev!==parent.dev)fail('UNSAFE_PATH','Update object is not an ordinary single-link file','cross-volume dev='+String(target.dev)+' parent-dev='+String(parent.dev));
++   if(target.nlink>1n)await assertExclusiveRegularFile(io,target,file);
++  }
++ }
+  return target;
+ }
++// 单个文件的"可独占打开"判定。旧代码把 nlink!==1n 当硬拒绝，同步盘/备份工具（OneDrive、
++// 坚果云、Veeam 等）给合法缓存文件加硬链接后，员工机就卡在 Update object is not an
++// ordinary single-link file 上只能人工删缓存。放宽后仍不降安全性：
++//  1) lstat 必须还是普通文件、不是符号链接/重解析点（assertPath 已判，这里复核）；
++//  2) 必须与父目录同卷（dev 相同），排除目录联接/挂载点把文件换到别的卷上；
++//  3) 必须以读写方式独占打开并 fsync 成功：Windows 上 fs.open(path,'r+') 需要 GENERIC_WRITE，
++//     被别的进程占用、只读属性、删除挂起(del-pending)的文件都会打不开；打不开即判
++//     被占用/被劫持，仍报 UNSAFE_PATH 原错误码，只是多带一个 detail 供日志取证。
++// 可信任集合没有变大：打不开的文件照旧进不了后面的 hash 与序号校验。
++async function assertExclusiveRegularFile(io,stat,file){
++ const detail=()=>'nlink='+String(stat.nlink)+' dev='+String(stat.dev)+' ino='+String(stat.ino);
++ if(stat.isSymbolicLink()||!stat.isFile())fail('UNSAFE_PATH','Update object is not an ordinary single-link file','not-regular '+detail());
++ let handle;try{handle=await io.open(file,'r+',0o600);}catch(e){fail('UNSAFE_PATH','Update object is not an ordinary single-link file','exclusive-open '+(e&&e.code||'FAILED')+' '+detail());}
++ try{const opened=await handle.stat({bigint:true});if(!opened.isFile()||opened.isSymbolicLink()||statIdentity(opened)!==statIdentity(stat))fail('UNSAFE_PATH','Update object is not an ordinary single-link file','swapped '+detail()+' -> '+statIdentity(opened));if(typeof handle.sync==='function')await handle.sync();}catch(e){await handle.close().catch(()=>{});throw e;}
++ await handle.close().catch(()=>{});return stat;
++}
+ async function openChecked(io,file,flags='r',limits={}){
+  const before=await assertPath(io,file,limits),handle=await io.open(file,flags,0o600);
+- try{const opened=await handle.stat({bigint:true}),after=await assertPath(io,file,limits);if(!opened.isFile()||opened.nlink!==1n||statIdentity(opened)!==statIdentity(after)||before&&statIdentity(before)!==statIdentity(opened))fail('FILE_CHANGED','Update file changed while opening');return {handle,identity:statIdentity(opened),snapshot:statState(opened),file};}catch(e){await handle.close();throw e;}
++ try{const opened=await handle.stat({bigint:true}),after=await assertPath(io,file,limits);if(!opened.isFile()||opened.nlink<1n||statIdentity(opened)!==statIdentity(after)||before&&statIdentity(before)!==statIdentity(opened))fail('FILE_CHANGED','Update file changed while opening');return {handle,identity:statIdentity(opened),snapshot:statState(opened),file};}catch(e){await handle.close();throw e;}
+ }
+ async function assertHandle(io,opened,{snapshot=true,root}={}){
+  const stat=await assertPath(io,opened.file,{root}),fd=await opened.handle.stat({bigint:true});if(statIdentity(stat)!==opened.identity||statIdentity(fd)!==opened.identity||statState(stat)!==statState(fd)||snapshot&&statState(fd)!==opened.snapshot)fail('FILE_CHANGED','Update file descriptor identity or content state changed');return fd;
+@@ -70,12 +94,59 @@
+  const profile=safeAbsolute(options.profileDir),root=path.join(profile,'employee-update-cache'),io=options.fileSystem||fs,policy=createTrustedUpdatePolicy(options);if(typeof options.resolveCatalogEnvelope!=='function')throw new TypeError('Native signed envelope resolver required');
+  const stages=new Map();let tail=Promise.resolve(),closed=false,ready=false;
+  const enqueue=fn=>{const task=tail.then(async()=>{if(closed)fail('CACHE_CLOSED','Update cache closed');await init();return fn();});tail=task.catch(()=>{});return task;};
+- async function init(){if(ready)return;await assertPath(io,profile,{directory:true});try{await io.mkdir(root,{mode:0o700});}catch(e){if(e.code!=='EEXIST')throw e;}await assertPath(io,root,{directory:true,root:profile});await integrityKey(io,profile,{create:true});ready=true;}
++ // ---------------------------------------------------------------- cache self-heal
++ // 现场故障：员工机缓存目录里留下异常残留（<root> 本身变成文件、stage 里 archive.zip
++ // 变成目录、混进别的文件），旧代码一进来就 UNSAFE_PATH/BAD_METADATA，只能人工删目录。
++ // 自愈原则：只隔离、不删除——可疑对象整体搬到 <profile>/employee-update-cache.repair-<ts>/
++ // 里（<root> 本身坏了就改名成 <root>.broken-<ts>），留在原卷供取证，然后继续用干净的目录。
++ // 为什么搬到 root 之外而不是就地改名：integrityKey() 在 key 缺失时要求 root 必须为空才能建
++ // 新 key（否则 BAD_METADATA "Native integrity key missing from retained cache"），就地留
++ // 一个隔离目录会让 key 永远建不出来，等于没自愈。
++ // 安全边界：过不了原有断言（isFile/isSymbolicLink/realpath/路径前缀）的东西一律不信任、
++ // 不复用；本函数不碰 .native-integrity-key、accepted-sequence.json、native-sequence.json，
++ // 所以 hash、序号、防回滚这些安全结论完全不变。日志要等 key 建好之后才写进 root，
++ // 否则自己那行 self-heal.log 会把"root 必须为空"卡死。
++ const healLog=path.join(root,'self-heal.log'),KEEP_ENTRY=new Set(['.native-integrity-key','accepted-sequence.json','native-sequence.json','self-heal.log']);
++ let healLines=[],healSafeLog=false,healBox=null;
++ function healStamp(){return new Date().toISOString().replace(/[^0-9]/g,'');}
++ function healEvent(action,original,target,note){healLines.push(new Date().toISOString()+' '+action+' '+original+' -> '+target+(note?' ('+note+')':''));}
++ async function healExists(file){try{await io.lstat(file);return true;}catch(e){if(e.code==='ENOENT')return false;throw e;}}
++ async function healMove(original,kind,note){
++  if(!healBox){const base=path.join(profile,'employee-update-cache.repair-'+healStamp());let box=base,n=1;while(await healExists(box))box=base+'-'+n++;await io.mkdir(box,{mode:0o700});healBox=box;}
++  const base=path.join(healBox,path.basename(original));let target=base,n=1;while(await healExists(target))target=base+'-'+n++;
++  await io.rename(original,target);healEvent(kind,original,target,note);return target;
++ }
++ async function healFlush(){
++  if(!healLines.length)return;const text=healLines.join('\n');healLines=[];
++  if(!healSafeLog)return;
++  try{const handle=await io.open(healLog,'a',0o600);try{await writeExactly(handle,0,Buffer.from(text+'\n'));await handle.sync();}finally{await handle.close();}}catch{}
++ }
++ async function selfHeal(reason){
++  let s=null;try{s=await io.lstat(root,{bigint:true});}catch(e){if(e.code!=='ENOENT')throw e;}
++  if(!s)return;
++  if(s.isSymbolicLink()||!s.isDirectory()){
++   let target=root+'.broken-'+healStamp();if(await healExists(target))target=target+'-'+Date.now();
++   await io.rename(root,target);healEvent('broken',root,target,reason||'cache root is not a directory');
++   await io.mkdir(root,{mode:0o700});return;
++  }
++  try{healSafeLog=(await io.lstat(path.join(root,'.native-integrity-key'),{bigint:true})).isFile();}catch(e){if(e.code!=='ENOENT')throw e;healSafeLog=false;}
++  for(const name of await io.readdir(root)){
++   if(KEEP_ENTRY.has(name))continue;
++   const entry=path.join(root,name);let st;try{st=await io.lstat(entry,{bigint:true});}catch(e){if(e.code==='ENOENT')continue;throw e;}
++   if(!UUID.test(name)||st.isSymbolicLink()||!st.isDirectory()){await healMove(entry,'entry','unexpected cache entry');continue;}
++   let bad=null,items=[];try{items=await io.readdir(entry);}catch{bad='unreadable stage';}
++   if(!bad)for(const item of items){if(item!=='archive.zip'&&item!=='sealed.json'){bad='unexpected file '+item;break;}let f;try{f=await io.lstat(path.join(entry,item),{bigint:true});}catch{bad='unreadable '+item;break;}if(f.isSymbolicLink()||!f.isFile()){bad=item+' is not a regular file';break;}}
++   if(bad)await healMove(entry,'stage',bad);
++  }
++  await healFlush();
++ }
++ async function mkdirFresh(dir,mode,reason){try{await io.mkdir(dir,{mode});}catch(e){if(e.code!=='EEXIST')throw e;await selfHeal(reason);await io.mkdir(dir,{mode});}}
++ async function init(){if(ready)return;await assertPath(io,profile,{directory:true});try{await io.mkdir(root,{mode:0o700});}catch(e){if(e.code!=='EEXIST')throw e;await selfHeal('cache root exists');}await assertPath(io,root,{directory:true,root:profile});await integrityKey(io,profile,{create:true});healSafeLog=true;await healFlush();ready=true;}
+  function lookup(id){if(!UUID.test(id||'')||!stages.has(id))fail('UNKNOWN_STAGE','Unknown native update stage');const s=stages.get(id);if(s.poisoned)fail('BAD_STAGE','Update stage write failed');return s;}
+  async function check(s){await assertPath(io,s.dir,{directory:true,root});return assertHandle(io,s.opened,{root});}
+  async function accepted(){const file=path.join(root,'accepted-sequence.json');try{const marker=await authenticatedRead(io,file,profile,4096);if(!exact(marker,['version','sequence'])||marker.version!==1||!Number.isSafeInteger(marker.sequence)||marker.sequence<0)fail('BAD_METADATA','Invalid accepted update sequence');return marker.sequence;}catch(e){if(e.code==='ENOENT')return 0;throw e;}}
+  const api={
+-  begin:c=>enqueue(async()=>{const envelope=await options.resolveCatalogEnvelope(c),catalog=verifySignedCatalog(envelope,policy);if(JSON.stringify(c)!==JSON.stringify(catalog)||catalog.sequence<await accepted())fail('BAD_MANIFEST','Catalog proof mismatch or stale sequence');const id=crypto.randomUUID(),dir=path.join(root,id);await io.mkdir(dir,{mode:0o700});await assertPath(io,dir,{directory:true,root});const opened=await openChecked(io,path.join(dir,'archive.zip'),'wx+',{missing:true,root});stages.set(id,{id,dir,opened,catalog,envelope:freeze({...envelope}),length:0,sealed:false,poisoned:false});return id;}),
++  begin:c=>enqueue(async()=>{const envelope=await options.resolveCatalogEnvelope(c),catalog=verifySignedCatalog(envelope,policy);if(JSON.stringify(c)!==JSON.stringify(catalog)||catalog.sequence<await accepted())fail('BAD_MANIFEST','Catalog proof mismatch or stale sequence');const id=crypto.randomUUID(),dir=path.join(root,id);await mkdirFresh(dir,0o700,'duplicate stage');await assertPath(io,dir,{directory:true,root});const opened=await openChecked(io,path.join(dir,'archive.zip'),'wx+',{missing:true,root});stages.set(id,{id,dir,opened,catalog,envelope:freeze({...envelope}),length:0,sealed:false,poisoned:false});return id;}),
+   write:(id,offset,bytes)=>enqueue(async()=>{const s=lookup(id);if(s.sealed||!Buffer.isBuffer(bytes)||!bytes.length||bytes.length>CHUNK||!Number.isSafeInteger(offset)||offset!==s.length||offset+bytes.length>s.catalog.archive.size)fail('BAD_OFFSET','Update chunks must be sequential and bounded');await check(s);try{await writeExactly(s.opened.handle,offset,bytes);await s.opened.handle.sync();s.length+=bytes.length;const stat=await assertHandle(io,s.opened,{snapshot:false,root});if(stat.size!==BigInt(s.length))fail('WRITE_FAILED','Partial update write');s.opened.snapshot=statState(stat);}catch(e){s.poisoned=true;throw e;}}),
+   read:(id,offset,length)=>enqueue(async()=>{const s=lookup(id);if(!Number.isSafeInteger(offset)||!Number.isSafeInteger(length)||offset<0||length<0||length>CHUNK||offset+length>s.length)fail('BAD_OFFSET','Invalid cache read');await check(s);const bytes=await readExactly(s.opened.handle,offset,length);await check(s);return bytes;}),
+   size:id=>enqueue(async()=>{const s=lookup(id);await check(s);return s.length;}),
+@@ -83,6 +154,8 @@
+   getInstallStage:id=>enqueue(async()=>{const s=lookup(id);if(!s.sealed)fail('NOT_SEALED','Update stage not sealed');verifySignedCatalog(s.envelope,policy);if(s.catalog.sequence<await accepted())fail('STALE_CATALOG','Staged release has been superseded');await check(s);const marker=await authenticatedRead(io,path.join(s.dir,'sealed.json'),profile,4194304);if(marker.stageId!==id||marker.archiveIdentity!==s.opened.identity||JSON.stringify(marker.envelope)!==JSON.stringify(s.envelope)||JSON.stringify(marker.proof)!==JSON.stringify(s.proof))fail('BAD_PROOF','Update sealed marker changed');return freeze({stageId:id,stageDir:s.dir,archivePath:s.opened.file,envelope:s.envelope,catalog:s.catalog,proof:s.proof,archiveIdentity:s.opened.identity,profileDir:profile});}),
+   remove:id=>enqueue(async()=>{if(!UUID.test(id||'')||!stages.has(id))fail('UNKNOWN_STAGE','Unknown native update stage');const s=stages.get(id);await assertPath(io,s.dir,{directory:true,root});await s.opened.handle.close().catch(()=>{});const entries=await io.readdir(s.dir);if(entries.some(name=>!['archive.zip','sealed.json'].includes(name)))fail('BAD_STAGE','Unexpected file in own update stage');for(const name of entries){const file=path.join(s.dir,name);await assertPath(io,file,{root});await io.unlink(file);}await assertPath(io,s.dir,{directory:true,root});await io.rmdir(s.dir);stages.delete(id);}),
+   getAcceptedSequence:()=>enqueue(accepted),
++  // 手动自愈入口：上层遇到 UNSAFE_PATH/BAD_METADATA 时先清残留再重试一次，避免人工删目录。
++  selfHeal:()=>enqueue(()=>selfHeal('manual')),
+   setAcceptedSequence:value=>enqueue(async()=>{if(!Number.isSafeInteger(value)||value<0||value<await accepted())fail('STALE_CATALOG','Accepted update sequence cannot go backwards');await authenticatedWrite(io,path.join(root,'accepted-sequence.json'),{version:1,sequence:value},profile,root);}),
+   close:()=>{const task=tail.then(async()=>{closed=true;for(const s of stages.values())await s.opened.handle.close().catch(()=>{});});tail=task.catch(()=>{});return task;}
+  };return api;
+--- before/employee-update-cache.app.cjs
++++ after/employee-update-cache.app.cjs
+@@ -2,7 +2,7 @@
+ // Native-only storage. No API/renderer ever receives paths, envelopes or handles.
+ const fs=process.versions.electron?require('original-fs').promises:require('node:fs/promises'),path=require('node:path'),crypto=require('node:crypto');
+ const CHUNK=4194304,MAX_ARCHIVE=805306368,SHA=/^[a-f0-9]{64}$/,UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/;
+-function fail(code,message){const error=new Error(message);error.code=code;throw error;}
++function fail(code,message,detail){const error=new Error(message);error.code=code;if(detail!==undefined)error.detail=detail;throw error;}
+ function plain(v){return v&&typeof v==='object'&&!Array.isArray(v);}
+ function exact(v,keys){return plain(v)&&Object.keys(v).every(k=>keys.includes(k));}
+ function freeze(v){if(plain(v)||Array.isArray(v)){Object.freeze(v);for(const c of Object.values(v))freeze(c);}return v;}
+@@ -18,18 +18,42 @@
+ function statIdentity(s){return [s.dev,s.ino,s.birthtimeNs??s.birthtimeMs].map(String).join(':');}
+ function statState(s){return [statIdentity(s),s.size,s.mtimeNs??s.mtimeMs,s.ctimeNs??s.ctimeMs,s.nlink].map(String).join(':');}
+ async function assertPath(io,file,{directory=false,missing=false,root}={}){
+- safeAbsolute(file);if(root)within(root,file);let target;
++ safeAbsolute(file);if(root)within(root,file);let target,parent;
+  for(let p=file;;p=path.dirname(p)){
+   let s;try{s=await io.lstat(p,{bigint:true});}catch(e){if(e.code==='ENOENT'&&p===file&&missing){}else throw e;}
+-  if(s){if(s.isSymbolicLink()||p!==file&&!s.isDirectory())fail('UNSAFE_PATH','Update path contains a link or non-directory');if(p===file)target=s;if(!samePath(await io.realpath(p),p))fail('UNSAFE_PATH','Update path alias rejected');}
++  if(s){if(s.isSymbolicLink()||p!==file&&!s.isDirectory())fail('UNSAFE_PATH','Update path contains a link or non-directory');if(p===file)target=s;else if(!parent&&p===path.dirname(file))parent=s;if(!samePath(await io.realpath(p),p))fail('UNSAFE_PATH','Update path alias rejected');}
+   if(p===path.dirname(p))break;
+  }
+- if(target){if(directory?!target.isDirectory():!target.isFile()||target.nlink!==1n)fail('UNSAFE_PATH','Update object is not an ordinary single-link file');}
++ if(target){
++  if(directory){if(!target.isDirectory())fail('UNSAFE_PATH','Update object is not an ordinary single-link file','not-a-directory ino='+String(target.ino));}
++  else{
++   if(!target.isFile())fail('UNSAFE_PATH','Update object is not an ordinary single-link file','not-a-file ino='+String(target.ino));
++   if(target.nlink<1n)fail('UNSAFE_PATH','Update object is not an ordinary single-link file','nlink='+String(target.nlink)+' dev='+String(target.dev)+' ino='+String(target.ino));
++   if(parent&&target.dev!==parent.dev)fail('UNSAFE_PATH','Update object is not an ordinary single-link file','cross-volume dev='+String(target.dev)+' parent-dev='+String(parent.dev));
++   if(target.nlink>1n)await assertExclusiveRegularFile(io,target,file);
++  }
++ }
+  return target;
+ }
++// 单个文件的"可独占打开"判定。旧代码把 nlink!==1n 当硬拒绝，同步盘/备份工具（OneDrive、
++// 坚果云、Veeam 等）给合法缓存文件加硬链接后，员工机就卡在 Update object is not an
++// ordinary single-link file 上只能人工删缓存。放宽后仍不降安全性：
++//  1) lstat 必须还是普通文件、不是符号链接/重解析点（assertPath 已判，这里复核）；
++//  2) 必须与父目录同卷（dev 相同），排除目录联接/挂载点把文件换到别的卷上；
++//  3) 必须以读写方式独占打开并 fsync 成功：Windows 上 fs.open(path,'r+') 需要 GENERIC_WRITE，
++//     被别的进程占用、只读属性、删除挂起(del-pending)的文件都会打不开；打不开即判
++//     被占用/被劫持，仍报 UNSAFE_PATH 原错误码，只是多带一个 detail 供日志取证。
++// 可信任集合没有变大：打不开的文件照旧进不了后面的 hash 与序号校验。
++async function assertExclusiveRegularFile(io,stat,file){
++ const detail=()=>'nlink='+String(stat.nlink)+' dev='+String(stat.dev)+' ino='+String(stat.ino);
++ if(stat.isSymbolicLink()||!stat.isFile())fail('UNSAFE_PATH','Update object is not an ordinary single-link file','not-regular '+detail());
++ let handle;try{handle=await io.open(file,'r+',0o600);}catch(e){fail('UNSAFE_PATH','Update object is not an ordinary single-link file','exclusive-open '+(e&&e.code||'FAILED')+' '+detail());}
++ try{const opened=await handle.stat({bigint:true});if(!opened.isFile()||opened.isSymbolicLink()||statIdentity(opened)!==statIdentity(stat))fail('UNSAFE_PATH','Update object is not an ordinary single-link file','swapped '+detail()+' -> '+statIdentity(opened));if(typeof handle.sync==='function')await handle.sync();}catch(e){await handle.close().catch(()=>{});throw e;}
++ await handle.close().catch(()=>{});return stat;
++}
+ async function openChecked(io,file,flags='r',limits={}){
+  const before=await assertPath(io,file,limits),handle=await io.open(file,flags,0o600);
+- try{const opened=await handle.stat({bigint:true}),after=await assertPath(io,file,limits);if(!opened.isFile()||opened.nlink!==1n||statIdentity(opened)!==statIdentity(after)||before&&statIdentity(before)!==statIdentity(opened))fail('FILE_CHANGED','Update file changed while opening');return {handle,identity:statIdentity(opened),snapshot:statState(opened),file};}catch(e){await handle.close();throw e;}
++ try{const opened=await handle.stat({bigint:true}),after=await assertPath(io,file,limits);if(!opened.isFile()||opened.nlink<1n||statIdentity(opened)!==statIdentity(after)||before&&statIdentity(before)!==statIdentity(opened))fail('FILE_CHANGED','Update file changed while opening');return {handle,identity:statIdentity(opened),snapshot:statState(opened),file};}catch(e){await handle.close();throw e;}
+ }
+ async function assertHandle(io,opened,{snapshot=true,root}={}){
+  const stat=await assertPath(io,opened.file,{root}),fd=await opened.handle.stat({bigint:true});if(statIdentity(stat)!==opened.identity||statIdentity(fd)!==opened.identity||statState(stat)!==statState(fd)||snapshot&&statState(fd)!==opened.snapshot)fail('FILE_CHANGED','Update file descriptor identity or content state changed');return fd;
+@@ -70,12 +94,59 @@
+  const profile=safeAbsolute(options.profileDir),root=path.join(profile,'employee-update-cache'),io=options.fileSystem||fs,policy=createTrustedUpdatePolicy(options);if(typeof options.resolveCatalogEnvelope!=='function')throw new TypeError('Native signed envelope resolver required');
+  const stages=new Map();let tail=Promise.resolve(),closed=false,ready=false;
+  const enqueue=fn=>{const task=tail.then(async()=>{if(closed)fail('CACHE_CLOSED','Update cache closed');await init();return fn();});tail=task.catch(()=>{});return task;};
+- async function init(){if(ready)return;await assertPath(io,profile,{directory:true});try{await io.mkdir(root,{mode:0o700});}catch(e){if(e.code!=='EEXIST')throw e;}await assertPath(io,root,{directory:true,root:profile});await integrityKey(io,profile,{create:true});ready=true;}
++ // ---------------------------------------------------------------- cache self-heal
++ // 现场故障：员工机缓存目录里留下异常残留（<root> 本身变成文件、stage 里 archive.zip
++ // 变成目录、混进别的文件），旧代码一进来就 UNSAFE_PATH/BAD_METADATA，只能人工删目录。
++ // 自愈原则：只隔离、不删除——可疑对象整体搬到 <profile>/employee-update-cache.repair-<ts>/
++ // 里（<root> 本身坏了就改名成 <root>.broken-<ts>），留在原卷供取证，然后继续用干净的目录。
++ // 为什么搬到 root 之外而不是就地改名：integrityKey() 在 key 缺失时要求 root 必须为空才能建
++ // 新 key（否则 BAD_METADATA "Native integrity key missing from retained cache"），就地留
++ // 一个隔离目录会让 key 永远建不出来，等于没自愈。
++ // 安全边界：过不了原有断言（isFile/isSymbolicLink/realpath/路径前缀）的东西一律不信任、
++ // 不复用；本函数不碰 .native-integrity-key、accepted-sequence.json、native-sequence.json，
++ // 所以 hash、序号、防回滚这些安全结论完全不变。日志要等 key 建好之后才写进 root，
++ // 否则自己那行 self-heal.log 会把"root 必须为空"卡死。
++ const healLog=path.join(root,'self-heal.log'),KEEP_ENTRY=new Set(['.native-integrity-key','accepted-sequence.json','native-sequence.json','self-heal.log']);
++ let healLines=[],healSafeLog=false,healBox=null;
++ function healStamp(){return new Date().toISOString().replace(/[^0-9]/g,'');}
++ function healEvent(action,original,target,note){healLines.push(new Date().toISOString()+' '+action+' '+original+' -> '+target+(note?' ('+note+')':''));}
++ async function healExists(file){try{await io.lstat(file);return true;}catch(e){if(e.code==='ENOENT')return false;throw e;}}
++ async function healMove(original,kind,note){
++  if(!healBox){const base=path.join(profile,'employee-update-cache.repair-'+healStamp());let box=base,n=1;while(await healExists(box))box=base+'-'+n++;await io.mkdir(box,{mode:0o700});healBox=box;}
++  const base=path.join(healBox,path.basename(original));let target=base,n=1;while(await healExists(target))target=base+'-'+n++;
++  await io.rename(original,target);healEvent(kind,original,target,note);return target;
++ }
++ async function healFlush(){
++  if(!healLines.length)return;const text=healLines.join('\n');healLines=[];
++  if(!healSafeLog)return;
++  try{const handle=await io.open(healLog,'a',0o600);try{await writeExactly(handle,0,Buffer.from(text+'\n'));await handle.sync();}finally{await handle.close();}}catch{}
++ }
++ async function selfHeal(reason){
++  let s=null;try{s=await io.lstat(root,{bigint:true});}catch(e){if(e.code!=='ENOENT')throw e;}
++  if(!s)return;
++  if(s.isSymbolicLink()||!s.isDirectory()){
++   let target=root+'.broken-'+healStamp();if(await healExists(target))target=target+'-'+Date.now();
++   await io.rename(root,target);healEvent('broken',root,target,reason||'cache root is not a directory');
++   await io.mkdir(root,{mode:0o700});return;
++  }
++  try{healSafeLog=(await io.lstat(path.join(root,'.native-integrity-key'),{bigint:true})).isFile();}catch(e){if(e.code!=='ENOENT')throw e;healSafeLog=false;}
++  for(const name of await io.readdir(root)){
++   if(KEEP_ENTRY.has(name))continue;
++   const entry=path.join(root,name);let st;try{st=await io.lstat(entry,{bigint:true});}catch(e){if(e.code==='ENOENT')continue;throw e;}
++   if(!UUID.test(name)||st.isSymbolicLink()||!st.isDirectory()){await healMove(entry,'entry','unexpected cache entry');continue;}
++   let bad=null,items=[];try{items=await io.readdir(entry);}catch{bad='unreadable stage';}
++   if(!bad)for(const item of items){if(item!=='archive.zip'&&item!=='sealed.json'){bad='unexpected file '+item;break;}let f;try{f=await io.lstat(path.join(entry,item),{bigint:true});}catch{bad='unreadable '+item;break;}if(f.isSymbolicLink()||!f.isFile()){bad=item+' is not a regular file';break;}}
++   if(bad)await healMove(entry,'stage',bad);
++  }
++  await healFlush();
++ }
++ async function mkdirFresh(dir,mode,reason){try{await io.mkdir(dir,{mode});}catch(e){if(e.code!=='EEXIST')throw e;await selfHeal(reason);await io.mkdir(dir,{mode});}}
++ async function init(){if(ready)return;await assertPath(io,profile,{directory:true});try{await io.mkdir(root,{mode:0o700});}catch(e){if(e.code!=='EEXIST')throw e;await selfHeal('cache root exists');}await assertPath(io,root,{directory:true,root:profile});await integrityKey(io,profile,{create:true});healSafeLog=true;await healFlush();ready=true;}
+  function lookup(id){if(!UUID.test(id||'')||!stages.has(id))fail('UNKNOWN_STAGE','Unknown native update stage');const s=stages.get(id);if(s.poisoned)fail('BAD_STAGE','Update stage write failed');return s;}
+  async function check(s){await assertPath(io,s.dir,{directory:true,root});return assertHandle(io,s.opened,{root});}
+  async function accepted(){const file=path.join(root,'accepted-sequence.json');try{const marker=await authenticatedRead(io,file,profile,4096);if(!exact(marker,['version','sequence'])||marker.version!==1||!Number.isSafeInteger(marker.sequence)||marker.sequence<0)fail('BAD_METADATA','Invalid accepted update sequence');return marker.sequence;}catch(e){if(e.code==='ENOENT')return 0;throw e;}}
+  const api={
+-  begin:c=>enqueue(async()=>{const envelope=await options.resolveCatalogEnvelope(c),catalog=verifySignedCatalog(envelope,policy);if(JSON.stringify(c)!==JSON.stringify(catalog)||catalog.sequence<await accepted())fail('BAD_MANIFEST','Catalog proof mismatch or stale sequence');const id=crypto.randomUUID(),dir=path.join(root,id);await io.mkdir(dir,{mode:0o700});await assertPath(io,dir,{directory:true,root});const opened=await openChecked(io,path.join(dir,'archive.zip'),'wx+',{missing:true,root});stages.set(id,{id,dir,opened,catalog,envelope:freeze({...envelope}),length:0,sealed:false,poisoned:false});return id;}),
++  begin:c=>enqueue(async()=>{const envelope=await options.resolveCatalogEnvelope(c),catalog=verifySignedCatalog(envelope,policy);if(JSON.stringify(c)!==JSON.stringify(catalog)||catalog.sequence<await accepted())fail('BAD_MANIFEST','Catalog proof mismatch or stale sequence');const id=crypto.randomUUID(),dir=path.join(root,id);await mkdirFresh(dir,0o700,'duplicate stage');await assertPath(io,dir,{directory:true,root});const opened=await openChecked(io,path.join(dir,'archive.zip'),'wx+',{missing:true,root});stages.set(id,{id,dir,opened,catalog,envelope:freeze({...envelope}),length:0,sealed:false,poisoned:false});return id;}),
+   write:(id,offset,bytes)=>enqueue(async()=>{const s=lookup(id);if(s.sealed||!Buffer.isBuffer(bytes)||!bytes.length||bytes.length>CHUNK||!Number.isSafeInteger(offset)||offset!==s.length||offset+bytes.length>s.catalog.archive.size)fail('BAD_OFFSET','Update chunks must be sequential and bounded');await check(s);try{await writeExactly(s.opened.handle,offset,bytes);await s.opened.handle.sync();s.length+=bytes.length;const stat=await assertHandle(io,s.opened,{snapshot:false,root});if(stat.size!==BigInt(s.length))fail('WRITE_FAILED','Partial update write');s.opened.snapshot=statState(stat);}catch(e){s.poisoned=true;throw e;}}),
+   read:(id,offset,length)=>enqueue(async()=>{const s=lookup(id);if(!Number.isSafeInteger(offset)||!Number.isSafeInteger(length)||offset<0||length<0||length>CHUNK||offset+length>s.length)fail('BAD_OFFSET','Invalid cache read');await check(s);const bytes=await readExactly(s.opened.handle,offset,length);await check(s);return bytes;}),
+   size:id=>enqueue(async()=>{const s=lookup(id);await check(s);return s.length;}),
+@@ -83,6 +154,8 @@
+   getInstallStage:id=>enqueue(async()=>{const s=lookup(id);if(!s.sealed)fail('NOT_SEALED','Update stage not sealed');verifySignedCatalog(s.envelope,policy);if(s.catalog.sequence<await accepted())fail('STALE_CATALOG','Staged release has been superseded');await check(s);const marker=await authenticatedRead(io,path.join(s.dir,'sealed.json'),profile,4194304);if(marker.stageId!==id||marker.archiveIdentity!==s.opened.identity||JSON.stringify(marker.envelope)!==JSON.stringify(s.envelope)||JSON.stringify(marker.proof)!==JSON.stringify(s.proof))fail('BAD_PROOF','Update sealed marker changed');return freeze({stageId:id,stageDir:s.dir,archivePath:s.opened.file,envelope:s.envelope,catalog:s.catalog,proof:s.proof,archiveIdentity:s.opened.identity,profileDir:profile});}),
+   remove:id=>enqueue(async()=>{if(!UUID.test(id||'')||!stages.has(id))fail('UNKNOWN_STAGE','Unknown native update stage');const s=stages.get(id);await assertPath(io,s.dir,{directory:true,root});await s.opened.handle.close().catch(()=>{});const entries=await io.readdir(s.dir);if(entries.some(name=>!['archive.zip','sealed.json'].includes(name)))fail('BAD_STAGE','Unexpected file in own update stage');for(const name of entries){const file=path.join(s.dir,name);await assertPath(io,file,{root});await io.unlink(file);}await assertPath(io,s.dir,{directory:true,root});await io.rmdir(s.dir);stages.delete(id);}),
+   getAcceptedSequence:()=>enqueue(accepted),
++  // 手动自愈入口：上层遇到 UNSAFE_PATH/BAD_METADATA 时先清残留再重试一次，避免人工删目录。
++  selfHeal:()=>enqueue(()=>selfHeal('manual')),
+   setAcceptedSequence:value=>enqueue(async()=>{if(!Number.isSafeInteger(value)||value<0||value<await accepted())fail('STALE_CATALOG','Accepted update sequence cannot go backwards');await authenticatedWrite(io,path.join(root,'accepted-sequence.json'),{version:1,sequence:value},profile,root);}),
+   close:()=>{const task=tail.then(async()=>{closed=true;for(const s of stages.values())await s.opened.handle.close().catch(()=>{});});tail=task.catch(()=>{});return task;}
+  };return api;
+--- before/native-employee-update.cjs
++++ after/native-employee-update.cjs
+@@ -19,9 +19,11 @@
+  const io=options.fileSystem||fs,currentVersion=options.currentVersion,envelopes=new Map();let closed=false,busy=false,scope=null,lastFault=null,controller=null,storage=null,installer=null,adapter=null,initializing=null,pins,initialError=null,activeHelperHash=null,exitCommitted=false;
+  const employee=()=>typeof options.employeeClient==='function'?options.employeeClient()===true:options.employeeClient===true;
+  let visible={phase:'idle',currentVersion,message:'点击检查升级，软件会自动检查可用版本。'};
+- const messages={UPDATE_NOT_PUBLISHED:'主机尚未发布员工更新包，请继续使用当前程序。',UPDATE_HELPER_UNAVAILABLE:'本机更新助手尚未安装，当前程序继续可用。',BAD_HELPER_PINS:'本机更新配置尚未核验，当前程序继续可用。',EMPLOYEE_DEVICE_REQUIRED:'仅员工电脑可以在这里升级，主机请由管理员更新。',ACCOUNT_CHANGED:'升级期间登录账号或会话已变化，请重新检查升级。',LOGIN_REQUIRED:'请先使用有效的员工账号登录。',BAD_CHUNK:'更新下载内容或发布绑定不一致，已停止升级。',BAD_HELPER:'本机更新助手校验失败，原程序保持不变。',UPDATE_CLOSED:'本机更新入口已关闭。',CANCEL_FAILED:'本次升级助手尚未停止，请保持当前员工程序打开并联系管理员。'};
+- function fault(code){const e=new Error(messages[code]||'本机更新暂不可用，原程序保持不变。');e.code=code;lastFault=e;throw e;}
+- function unavailable(code){visible={phase:'unavailable',currentVersion,code,message:messages[code]||'本机更新暂不可用，原程序保持不变。'};return {ok:false,code,error:visible.message,state:{...visible}};}
++ const messages={UPDATE_NOT_PUBLISHED:'主机尚未发布员工更新包，请继续使用当前程序。',UPDATE_HELPER_UNAVAILABLE:'本机更新助手尚未安装，当前程序继续可用。',BAD_HELPER_PINS:'本机更新配置尚未核验，当前程序继续可用。',EMPLOYEE_DEVICE_REQUIRED:'仅员工电脑可以在这里升级，主机请由管理员更新。',ACCOUNT_CHANGED:'升级期间登录账号或会话已变化，请重新检查升级。',LOGIN_REQUIRED:'请先使用有效的员工账号登录。',BAD_CHUNK:'更新下载内容或发布绑定不一致，已停止升级。',BAD_HELPER:'本机更新助手校验失败，原程序保持不变。',UPDATE_CLOSED:'本机更新入口已关闭。',UNSAFE_PATH:'本机升级缓存异常，已自动重置，请再点一次“检查更新”。',BAD_METADATA:'本机升级缓存异常，已自动重置，请再点一次“检查更新”。',BAD_STAGE:'本机升级缓存异常，已自动重置，请再点一次“检查更新”。',FILE_CHANGED:'升级文件在读取期间发生变化，已停止本次升级，请再点一次。',CANCEL_FAILED:'本次升级助手尚未停止，请保持当前员工程序打开并联系管理员。'};
++ // 这些码代表"本机缓存/文件状态坏了"，清掉残留再点一次就能好，上层据此自动重试一次。
++ const RECOVERABLE=new Set(['UNSAFE_PATH','BAD_METADATA','BAD_STAGE','FILE_CHANGED']);
++ function fault(code,detail){const e=new Error(messages[code]||'本机更新暂不可用，原程序保持不变。');e.code=code;if(detail)e.detail=detail;lastFault=e;throw e;}
++ function unavailable(code,detail){visible={phase:'unavailable',currentVersion,code,message:messages[code]||'本机更新暂不可用，原程序保持不变。'};if(detail)visible.detail=detail;return {ok:false,code,detail,error:visible.message,state:{...visible}};}
+  async function cancelOwned(){if(activeHelperHash&&!exitCommitted&&adapter){try{const receipt=await adapter.cancelHelper({requestHash:activeHelperHash});if(receipt?.cancelled!==true)fault('CANCEL_FAILED');activeHelperHash=null;}catch(error){initialError='CANCEL_FAILED';throw error;}}}
+  try{if(!options.helperPins)initialError='UPDATE_NOT_PUBLISHED';else pins=validateHelperPins(options.helperPins,{currentVersion,executablePath:options.executablePath});}catch{initialError='BAD_HELPER_PINS';}
+  async function actor(){const value=await options.resolveActor();if(!value||value.active!==true||value.authenticated!==true||typeof value.id!=='string'||!value.id||typeof value.username!=='string'||!value.username||value.username.length>256)fault('LOGIN_REQUIRED');return {id:value.id,username:value.username,active:true,authenticated:true,...(typeof value.sessionRef==='string'?{sessionRef:value.sessionRef}:{})};}
+@@ -43,8 +45,8 @@
+   controller=createEmployeeUpdate({currentVersion,platform:'win32',arch:'x64',trustedPublicKey:pins.publisherPublicKey,allowedFiles:pins.allowedFiles,now:options.now,storage,resolveActor:async()=>{try{return await guard();}catch{return null;}},isEmployeeClient:()=>!closed&&employee(),fetchCatalog,fetchChunk,installer:scheduleInstall,...(typeof options.audit==='function'?{audit:async event=>{await guard();const result=await options.audit(event);await guard();return result;}}:{})});
+  })();try{await initializing;}catch(error){initialError=error.code||'UPDATE_HELPER_UNAVAILABLE';throw error;}}
+  async function capability(){if(closed)return {supported:true,canInstall:false,currentVersion,code:'UPDATE_CLOSED',message:messages.UPDATE_CLOSED};if(!employee())return {supported:true,canInstall:false,currentVersion,code:'EMPLOYEE_DEVICE_REQUIRED',message:messages.EMPLOYEE_DEVICE_REQUIRED};try{await initialize();return await controller.getCapability();}catch(error){const code=error.code||initialError||'UPDATE_HELPER_UNAVAILABLE';return {supported:true,canInstall:false,currentVersion,code,message:messages[code]||'本机更新暂不可用，当前程序继续可用。'};}}
+- async function run(input){if(!exact(input,['intent'])||!['check','download','install'].includes(input.intent))return {ok:false,code:'INVALID_INTENT',error:'更新操作不正确。',state:{...visible}};if(busy)return {ok:false,code:'BUSY',error:'升级操作正在进行，请稍候。',state:{...visible}};if(closed)return unavailable('UPDATE_CLOSED');if(!employee())return unavailable('EMPLOYEE_DEVICE_REQUIRED');busy=true;lastFault=null;
+-  try{await initialize();scope=await actor();const result=await controller.run(input);if(!result.ok)await cancelOwned();if(!result.ok&&lastFault){const code=lastFault.code||'UPDATE_FAILED';if(code==='UPDATE_NOT_PUBLISHED')return unavailable(code);visible={...result.state,phase:'error',code,message:messages[code]||'本机更新未完成，原程序保持不变。'};return {...result,code,error:visible.message,state:{...visible}};}visible={...result.state};return result;}catch(error){try{await cancelOwned();}catch{return unavailable('CANCEL_FAILED');}return unavailable(error.code||initialError||'UPDATE_FAILED');}finally{scope=null;busy=false;}
++ async function run(input){if(!exact(input,['intent'])||!['check','download','install'].includes(input.intent))return {ok:false,code:'INVALID_INTENT',error:'更新操作不正确。',state:{...visible}};if(busy)return {ok:false,code:'BUSY',error:'升级操作正在进行，请稍候。',state:{...visible}};if(closed)return unavailable('UPDATE_CLOSED');if(!employee())return unavailable('EMPLOYEE_DEVICE_REQUIRED');busy=true;lastFault=null;let healed=false;
++  try{await initialize();scope=await actor();let result=await controller.run(input);if(!result.ok&&lastFault&&!healed&&RECOVERABLE.has(lastFault.code)){await cancelOwned();healed=true;let healError=null;if(typeof storage.selfHeal!=='function')healError=lastFault;else{try{await storage.selfHeal();}catch(error){healError=error;}}lastFault=healError;if(!lastFault){await initialize();scope=await actor();result=await controller.run(input);}}if(!result.ok)await cancelOwned();if(!result.ok&&lastFault){const code=lastFault.code||'UPDATE_FAILED';if(code==='UPDATE_NOT_PUBLISHED')return unavailable(code);visible={...result.state,phase:'error',code,message:messages[code]||'本机更新未完成，原程序保持不变。'};if(lastFault&&lastFault.detail)visible.detail=lastFault.detail;return {...result,code,error:visible.message,state:{...visible}};}visible={...result.state};return result;}catch(error){try{await cancelOwned();}catch{return unavailable('CANCEL_FAILED');}return unavailable(error.code||initialError||'UPDATE_FAILED',error.detail);}finally{scope=null;busy=false;}
+  }
+  function state(){return {...(controller&&busy?controller.getState():visible)};}
+  async function close(){closed=true;envelopes.clear();try{await cancelOwned();}finally{if(storage)await storage.close();}}
+--- before/native-publication-update.cjs
++++ after/native-publication-update.cjs
+@@ -54,6 +54,9 @@
+   await roots();const adapter=require('./updater-helper.cjs').createWindowsUpdateProcessAdapter({executablePath:exe}),parent=await adapter.inspect(process.pid);if(!parent||!u.samePath(parent.executablePath,exe))fail('BAD_PROCESS','当前员工程序身份变化');set('installing','正在交给原生助手，请等待程序正常退出…',{targetVersion:'1.7.0'});
+   const ready=await windows.launchNativeHandoff({bundleRoot:stage.bundle,stageRoot:stage.dir,bootstrapSha256:stage.bootstrapSha256,parent,executablePath:exe,manifestSha256:stage.manifestSha256});if(ready.ready!==true)fail('NATIVE_HANDOFF_FAILED','原生助手未就绪');await guard();const final=await adapter.inspect(process.pid);if(!final||final.creationMarker!==parent.creationMarker||!u.samePath(final.executablePath,exe))fail('BAD_PROCESS','交接期间员工进程变化');const exitReceipt=await options.requestExit({pid:parent.pid,creationMarker:parent.creationMarker,normalExit:true});if(exitReceipt?.accepted!==true)fail('NORMAL_EXIT_NOT_CONFIRMED','员工程序尚未确认正常退出；不会强制关闭');set('handoff','完整更新已交给受信原生助手，正在正常退出员工程序。',{targetVersion:'1.7.0'});
+  }
+- const service={getCapability:async()=>{try{await guard();return{supported:true,canInstall:true,currentVersion:'1.7.0',message:'从主机下载完整更新并安全交给原生助手。'};}catch(e){return{supported:true,canInstall:false,currentVersion:'1.7.0',code:e.code,message:e.message};}},getState:()=>({...state}),run:async input=>{if(!exact(input,['intent'])||!['check','download','install'].includes(input.intent))return{ok:false,code:'INVALID_INTENT',error:'升级操作不正确',state:{...state}};if(busy)return{ok:false,code:'BUSY',error:'升级正在进行',state:{...state}};busy=true;try{scope=await guard();if(input.intent==='check')await check();else if(input.intent==='download')await download();else await installUpdate();return{ok:true,state:{...state}};}catch(e){set('error',e.message,{code:e.code||'NATIVE_UPDATE_FAILED'});return{ok:false,code:e.code||'NATIVE_UPDATE_FAILED',error:e.message,state:{...state}};}finally{scope=null;busy=false;}},close:async()=>{closed=true;}};return Object.freeze({...service,capability:service.getCapability,state:service.getState});
++ // 界面只认人话 + code；原始英文 message 留在 detail 里供日志取证，不吞掉原始 code。
++ const humanMessages={UNSAFE_PATH:'本机升级缓存异常，请再点一次“检查更新”；仍失败请联系管理员。',BAD_METADATA:'本机升级缓存记录异常，请再点一次“检查更新”；仍失败请联系管理员。',BAD_STAGE:'本机升级缓存分块异常，请再点一次“检查更新”。',FILE_CHANGED:'升级文件在读取期间发生变化，已停止本次升级，请再点一次。'};
++ const human=error=>({code:error.code||'NATIVE_UPDATE_FAILED',message:humanMessages[error.code]||error.message,detail:error.message});
++ const service={getCapability:async()=>{try{await guard();return{supported:true,canInstall:true,currentVersion:'1.7.0',message:'从主机下载完整更新并安全交给原生助手。'};}catch(e){const h=human(e);return{supported:true,canInstall:false,currentVersion:'1.7.0',code:h.code,message:h.message,detail:h.detail};}},getState:()=>({...state}),run:async input=>{if(!exact(input,['intent'])||!['check','download','install'].includes(input.intent))return{ok:false,code:'INVALID_INTENT',error:'升级操作不正确',state:{...state}};if(busy)return{ok:false,code:'BUSY',error:'升级正在进行',state:{...state}};busy=true;try{scope=await guard();if(input.intent==='check')await check();else if(input.intent==='download')await download();else await installUpdate();return{ok:true,state:{...state}};}catch(e){const h=human(e);set('error',h.message,{code:h.code,detail:h.detail});return{ok:false,code:h.code,error:h.message,detail:h.detail,state:{...state}};}finally{scope=null;busy=false;}},close:async()=>{closed=true;}};return Object.freeze({...service,capability:service.getCapability,state:service.getState});
+ }
+ module.exports={createNativePublicationUpdate,validateManifestPayload,verifyNativeManifest,publicationDecision,verifyBundleBinding,installedPublication,MAX_ARCHIVE,MAX_EXPANDED};

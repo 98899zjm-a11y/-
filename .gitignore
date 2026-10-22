@@ -1,0 +1,43 @@
+# 二进制分发包 / 大体积产物（本项目发布物合计约 1.8 GB，一律不入库）
+*.zip
+*.vhdx
+*.vhd
+*.7z
+*.iso
+*.msi
+*.exe
+*.dll
+*.asar
+
+# 依赖与可重建产物
+node_modules/
+dist/
+build/
+out/
+*.log
+
+# 编辑器 / 工具残留
+*.orig
+*.orig-*
+*.orig.*
+*.bak
+*.bak-*
+*.bak.*
+*.rej
+*.pyc
+__pycache__/
+
+# 凭据 / 密钥（任何情况下都不入库）
+*.pem
+*.pfx
+*.key
+*.p12
+.env
+.env.*
+secrets/
+tokens/
+
+# 系统文件
+Thumbs.db
+desktop.ini
+.DS_Store

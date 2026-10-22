@@ -1,0 +1,8 @@
+
+===== P0-5 cache self-heal =====
+PASS  05.1 nlink=2 的普通文件：改前 UNSAFE_PATH，改后通过且 openChecked 可开  -> before: UNSAFE_PATH (message unchanged); after: assertPath + openChecked accept nlink=2
+PASS  05.2 stage 里 archive.zip 是目录：改名隔离后 begin 成功  -> quarantined 0f1e2d3c-4b5a-4c6d-8e7f-0a1b2c3d4e5f -> employee-update-cache.repair-20261022103935279, begin ok
+PASS  05.3 只读文件仍报 UNSAFE_PATH 且 detail 记录 exclusive-open（不放宽可信任集合）  -> read-only nlink=2 file -> UNSAFE_PATH with detail "exclusive-open ..."
+PASS  05.4 root 变成普通文件：改名 <root>.broken-<ts> 并把动作写进 self-heal.log  -> root -> employee-update-cache.broken-20261022103935311; log: 1 line(s)
+PASS  05.5 回归：改前/改后 begin→write→seal→install→remove 的 proof 与产出一致  -> proof {"archiveSha256":"6cfeeb3aa25d3f411dae5eec17d7... identical, escape still UNSAFE_PATH
+----- 5/5 passed, 0 failed -----

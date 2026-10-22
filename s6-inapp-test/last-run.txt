@@ -1,0 +1,97 @@
+
+=== 发布点 文件 / 签名 / 清单 ===
+    dir  : F:\鑫金源珠宝资料\程序设置\员工升级
+    pem  : D:\Codex\xjy-release-20261022\candidate\proposal\worker-draft\publisher-public.pem
+    node : E:\node\node.exe
+    time : 2026-10-22 18:07:23 +08:00
+
+[PASS] K-1    publisher public key fingerprint (client pins this value)
+          ed25519, pemSha256 bc6c3d2b42871e42d3eb91371034b410d507a228eeccb1d714acca60e8141b30
+          D:\Codex\xjy-release-20261022\candidate\proposal\worker-draft\publisher-public.pem
+[INFO] F-1    catalog.json
+          size   : 205,209 bytes (0.2 MB)
+          sha256 : 3878062426c6ee85e7fbca0e9813ff91c80193d9a99d3db3ce307dacb1b999e8
+          mtime  : 2026-10-22 16:41:32
+[INFO] F-2    package.zip
+          size   : 164,878,024 bytes (157.2 MB)
+          sha256 : b1a7b12029208994d0431101660368d22c8d887384485aff432765c380730dc9
+          mtime  : 2026-10-22 15:34:40
+[INFO] F-3    native-manifest.json
+          size   : 806,881 bytes (0.8 MB)
+          sha256 : 0ebf732cac77e24fd32f28924dd8c88d4c152d7a3fe5d5932a4ba1e8adc34a7d
+          mtime  : 2026-10-22 15:37:35
+[INFO] F-4    native-package.zip
+          size   : 781,517,156 bytes (745.3 MB)
+          sha256 : 06ceef98b0dc05dcac5f554c1bccf91e18c31a626bc662cf5acd45e17c69d848
+          mtime  : 2026-10-22 15:36:19
+[PASS] F-OK   all four release files present
+          4/4 present, total 947,407,270 bytes (903.5 MB)
+[INFO] C-1    catalog fields
+          version       : 1.7.0
+          sequence      : 4
+          channel       : stable
+          sourceVersions: 1.6.0,1.6.1,1.6.2
+          publishedAt   : 2026-10-22T08:41:32.784Z
+          expiresAt     : 2027-01-20T08:41:32.785Z
+          files         : 1020
+          targetVersion : (absent in catalog; it lives in native-manifest / inner target catalog)
+          engineVersion : (absent in catalog; it lives in native-manifest)
+[PASS] C-2    catalog 签名 (Ed25519)
+          verified; payload sha256 f4b2972e7357b1ab73e7c8cd1a4b3e3160c98b10da2c3da35eba481573591d83, key ed25519
+[PASS] C-3    package.zip matches catalog.archive
+          size+sha256 identical to signed catalog archive (164,878,024 bytes (157.2 MB))
+[PASS] C-4    catalog not expired
+          expires 2027-01-20T08:41:32.785Z (still valid)
+[INFO] N-1    native-manifest fields
+          targetVersion : 1.7.0
+          engineVersion : 44.9.0
+          sequence      : 20
+          purpose       : xjy-native-employee-update-v1
+          app/role      : xjy-jewelry-offline / employee
+          publishedAt   : 2026-10-22T07:36:21.987Z
+          expiresAt     : 2027-01-20T07:36:21.987Z
+          files         : 3293
+          bindingSha256 : cb3bb4ce2702adba4d1dfd918c812299ba07eb7e7b306cc7f1d393eb7a09d2fd
+          targetCatSha  : 4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef
+[PASS] N-2    native-manifest 签名 (Ed25519)
+          verified; payload sha256 a40079f1336220ed30a60ab032298768245be52c575c7a354ec1cf86cfb2e944
+[PASS] N-3    client identity pins (purpose/app/role/target=1.7.0/engine=44.9.0)
+          all pins match what the shipped 1.7.0 employee client accepts
+[PASS] N-4    native-package.zip matches manifest.archive
+          size+sha256 identical to signed manifest archive (781,517,156 bytes (745.3 MB))
+[PASS] N-5    native-manifest not expired
+          expires 2027-01-20T07:36:21.987Z (still valid)
+[PASS] N-6    fixed maintenance worker pin (sha db3ad206...)
+          worker entry present with the exact size+sha256 the client demands
+[PASS] B-1    binding.json sha256 == manifest.bindingSha256
+          match: cb3bb4ce2702adba4d1dfd918c812299ba07eb7e7b306cc7f1d393eb7a09d2fd
+[PASS] B-2    inner target catalog 签名 (Ed25519)
+          verified; inner target catalog sha256 4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef
+[PASS] B-3    inner target catalog sha256 == manifest.fullTargetCatalogSha256
+          match: 4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef
+[INFO] B-4    inner target catalog (what the employee installs)
+          version : 1.7.0
+          sequence: 20
+          files   : 1079
+          archive : 550748678 / 6065ae62dc4d61fb4b3eebd3aa71abff98b14e17001714c80986320861cea01f
+[PASS] X-1    catalog.version == manifest.targetVersion == 1.7.0
+          1.7.0 / 1.7.0
+[INFO] X-2    two independent sequence counters (not a defect by itself)
+          catalog.sequence        : 4   <- patch-catalog channel generation
+          native-manifest.sequence: 20   <- native full-program channel generation
+          inner target catalog seq: 20
+          employee already accepts up to a stored accepted-sequence.json + a native install receipt;
+          the native channel only offers work when the published target catalog differs AND its sequence
+          is not lower than the installed one.
+[PASS] X-3    inner target catalog sequence == native-manifest sequence
+          both 20
+[WARN] S-1    服务副本 (where the LAN feed is actually served from)
+          no 员工升级 folder found under %APPDATA%, %LOCALAPPDATA% or %ProgramData%
+          the four files in the release point are the hand-off copies; the LAN feed serves the host
+          profile copy, so the host must publish once before the employee can see this release.
+          if the folder lives elsewhere, re-run with:  -ServedDir "<path to the 员工升级 folder>"
+
+--- 结论 ---
+    PASS 15   WARN 1   FAIL 0
+    通过: release point is self-consistent (files, signatures, binding chain, pins).
+    json: D:\Codex\xjy-release-20261022\s6-inapp-test\host-check-result.json

@@ -1,0 +1,631 @@
+{
+    "schemaVersion":  1,
+    "collector":  "员工机-采集.ps1",
+    "generatedAt":  "2026-10-22T18:05:31.4061614+08:00",
+    "note":  "read-only diagnostic for the xjy in-app upgrade acceptance; nothing was modified",
+    "identity":  {
+                     "computerName":  "张晋铭",
+                     "userName":  "Administrator",
+                     "userDomain":  "张晋铭",
+                     "userSid":  "S-1-5-21-3280743368-706568478-3016959556-500",
+                     "machineSid":  "S-1-5-21-3280743368-706568478-3016959556",
+                     "machineSidMethod":  "userSid minus RID (local account heuristic)",
+                     "machineGuid":  "e0599914-69c8-4f68-96be-c5d00e2eb16f",
+                     "os":  "Microsoft Windows 11 专业版 10.0.26200",
+                     "osBuild":  "26200 / 64 位",
+                     "powershell":  "5.1.26100.9711",
+                     "isAdmin":  true,
+                     "timeZone":  "China Standard Time",
+                     "culture":  "zh-CN",
+                     "collectedAt":  "2026-10-22T18:05:17.4587233+08:00"
+                 },
+    "install":  {
+                    "root":  "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\xjy-fake-install",
+                    "detectedBy":  "given with -InstallRoot",
+                    "marker":  {
+                                   "version":  1,
+                                   "product":  "xjy-jewelry-offline",
+                                   "programVersion":  "1.7.0",
+                                   "role":  "employee"
+                               },
+                    "markerRaw":  "{\"version\":1,\"product\":\"xjy-jewelry-offline\",\"programVersion\":\"1.7.0\",\"role\":\"employee\"}",
+                    "versionFiles":  [
+                                         {
+                                             "path":  "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\xjy-fake-install\\version",
+                                             "content":  "44.9.0",
+                                             "size":  6
+                                         },
+                                         {
+                                             "path":  "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\xjy-fake-install\\VERSION",
+                                             "content":  "44.9.0",
+                                             "size":  6
+                                         }
+                                     ],
+                    "executables":  [
+                                        {
+                                            "path":  "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\xjy-fake-install\\鑫金源珠宝报价.exe",
+                                            "fileVersion":  "10.0.26100.9278 (WinBuild.160101.0800)",
+                                            "productVersion":  "10.0.26100.9278",
+                                            "productName":  "Microsoft® Windows® Operating System",
+                                            "company":  "Microsoft Corporation",
+                                            "size":  360448,
+                                            "lastWrite":  "2026-10-03 12:33:38"
+                                        },
+                                        {
+                                            "path":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\xjy-fake-install\\鑫金源珠宝报价.exe",
+                                            "fileVersion":  "10.0.26100.9278 (WinBuild.160101.0800)",
+                                            "productVersion":  "10.0.26100.9278",
+                                            "productName":  "Microsoft® Windows® Operating System",
+                                            "company":  "Microsoft Corporation",
+                                            "size":  360448,
+                                            "lastWrite":  "2026-10-03 12:33:38"
+                                        }
+                                    ],
+                    "keyDirs":  [
+                                    {
+                                        "name":  "logs",
+                                        "path":  "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\xjy-fake-install\\logs",
+                                        "kind":  "dir"
+                                    },
+                                    {
+                                        "name":  "employee-update-cache",
+                                        "path":  "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\xjy-fake-install\\employee-update-cache",
+                                        "kind":  "dir"
+                                    }
+                                ],
+                    "receiptCandidates":  [
+
+                                          ]
+                },
+    "processes":  [
+                      {
+                          "pid":  6344,
+                          "parentPid":  6624,
+                          "name":  "鑫金源珠宝报价.exe",
+                          "executablePath":  "F:\\自制软件\\xjy-jewelry-offline\\鑫金源珠宝报价.exe",
+                          "commandLine":  "\"F:\\自制软件\\xjy-jewelry-offline\\鑫金源珠宝报价.exe\" ",
+                          "created":  "2026-10-22 17:35:36"
+                      },
+                      {
+                          "pid":  40928,
+                          "parentPid":  6344,
+                          "name":  "鑫金源珠宝报价.exe",
+                          "executablePath":  "F:\\自制软件\\xjy-jewelry-offline\\鑫金源珠宝报价.exe",
+                          "commandLine":  "\"F:\\自制软件\\xjy-jewelry-offline\\鑫金源珠宝报价.exe\" --type=gpu-process --user-data-dir=\"F:\\鑫金源珠宝资料\\程序设置\" --gpu-preferences=WAAAAAAAAADgAAAEAAAAAAAAAAAAAGAAQAAAAAAAAAADAAAAAAAAADgAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAKAAAAAAAAAAoAAAAAAAAAAgAAAAAAAAAEAAAAAIAAAABAAAAAAAAAAgAAAAAAAAACAAAAAAAAAA= --field-trial-handle=1796,i,4507993095098534368,14280985496420475991,262144 --enable-features=AllowWindowCaptureExclusionInRemoteSessions,PdfUseShowSaveFilePicker --disable-features=DropInputEventsWhilePaintHolding,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --pseudonymization-salt-handle=1824,i,11385500040688009180,5131675682486251396,4 --trace-process-track-uuid=3190708988185955192 --mojo-platform-channel-handle=1788 /prefetch:2",
+                          "created":  "2026-10-22 17:35:36"
+                      },
+                      {
+                          "pid":  26424,
+                          "parentPid":  6344,
+                          "name":  "鑫金源珠宝报价.exe",
+                          "executablePath":  "F:\\自制软件\\xjy-jewelry-offline\\鑫金源珠宝报价.exe",
+                          "commandLine":  "\"F:\\自制软件\\xjy-jewelry-offline\\鑫金源珠宝报价.exe\" --type=utility --utility-sub-type=network.mojom.NetworkService --lang=zh-CN --service-sandbox-type=none --user-data-dir=\"F:\\鑫金源珠宝资料\\程序设置\" --standard-schemes=jewelry --secure-schemes=jewelry --cors-schemes=jewelry --fetch-schemes=jewelry --field-trial-handle=1796,i,4507993095098534368,14280985496420475991,262144 --enable-features=AllowWindowCaptureExclusionInRemoteSessions,PdfUseShowSaveFilePicker --disable-features=DropInputEventsWhilePaintHolding,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --pseudonymization-salt-handle=1824,i,11385500040688009180,5131675682486251396,4 --trace-process-track-uuid=3190708989122997041 --mojo-platform-channel-handle=1924 /prefetch:11",
+                          "created":  "2026-10-22 17:35:36"
+                      },
+                      {
+                          "pid":  36392,
+                          "parentPid":  6344,
+                          "name":  "鑫金源珠宝报价.exe",
+                          "executablePath":  "F:\\自制软件\\xjy-jewelry-offline\\鑫金源珠宝报价.exe",
+                          "commandLine":  "F:\\自制软件\\xjy-jewelry-offline\\鑫金源珠宝报价.exe --xjy-print-worker",
+                          "created":  "2026-10-22 17:35:36"
+                      },
+                      {
+                          "pid":  61352,
+                          "parentPid":  36392,
+                          "name":  "鑫金源珠宝报价.exe",
+                          "executablePath":  "F:\\自制软件\\xjy-jewelry-offline\\鑫金源珠宝报价.exe",
+                          "commandLine":  "\"F:\\自制软件\\xjy-jewelry-offline\\鑫金源珠宝报价.exe\" --type=gpu-process --user-data-dir=\"F:\\鑫金源珠宝资料\\后台运行\\打印缓存\" --gpu-preferences=WAAAAAAAAADgAAAEAAAAAAAAAAAAAGAAQAAAAAAAAAADAAAAAAAAADgAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAKAAAAAAAAAAoAAAAAAAAAAgAAAAAAAAAEAAAAAIAAAABAAAAAAAAAAgAAAAAAAAACAAAAAAAAAA= --field-trial-handle=1736,i,13774627512153110115,8712820073816036723,262144 --enable-features=AllowWindowCaptureExclusionInRemoteSessions,PdfUseShowSaveFilePicker --disable-features=DropInputEventsWhilePaintHolding,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --pseudonymization-salt-handle=1764,i,9207775997416819499,13587085125506618898,4 --trace-process-track-uuid=3190708988185955192 --mojo-platform-channel-handle=1752 /prefetch:2",
+                          "created":  "2026-10-22 17:35:36"
+                      },
+                      {
+                          "pid":  23544,
+                          "parentPid":  36392,
+                          "name":  "鑫金源珠宝报价.exe",
+                          "executablePath":  "F:\\自制软件\\xjy-jewelry-offline\\鑫金源珠宝报价.exe",
+                          "commandLine":  "\"F:\\自制软件\\xjy-jewelry-offline\\鑫金源珠宝报价.exe\" --type=utility --utility-sub-type=network.mojom.NetworkService --lang=zh-CN --service-sandbox-type=none --user-data-dir=\"F:\\鑫金源珠宝资料\\后台运行\\打印缓存\" --standard-schemes=xjy-print --secure-schemes=xjy-print --fetch-schemes=xjy-print --field-trial-handle=1736,i,13774627512153110115,8712820073816036723,262144 --enable-features=AllowWindowCaptureExclusionInRemoteSessions,PdfUseShowSaveFilePicker --disable-features=DropInputEventsWhilePaintHolding,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --pseudonymization-salt-handle=1764,i,9207775997416819499,13587085125506618898,4 --trace-process-track-uuid=3190708989122997041 --mojo-platform-channel-handle=1968 /prefetch:11",
+                          "created":  "2026-10-22 17:35:36"
+                      },
+                      {
+                          "pid":  65368,
+                          "parentPid":  6344,
+                          "name":  "鑫金源珠宝报价.exe",
+                          "executablePath":  "F:\\自制软件\\xjy-jewelry-offline\\鑫金源珠宝报价.exe",
+                          "commandLine":  "\"F:\\自制软件\\xjy-jewelry-offline\\鑫金源珠宝报价.exe\" --type=renderer --user-data-dir=\"F:\\鑫金源珠宝资料\\程序设置\" --standard-schemes=jewelry --secure-schemes=jewelry --cors-schemes=jewelry --fetch-schemes=jewelry --app-path=\"F:\\自制软件\\xjy-jewelry-offline\\resources\\app.asar\" --enable-sandbox --video-capture-use-gpu-memory-buffer --lang=zh-CN --device-scale-factor=1.75 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=4 --launch-time-ticks=292232028249 --field-trial-handle=1796,i,4507993095098534368,14280985496420475991,262144 --enable-features=AllowWindowCaptureExclusionInRemoteSessions,PdfUseShowSaveFilePicker --disable-features=DropInputEventsWhilePaintHolding,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --pseudonymization-salt-handle=1824,i,11385500040688009180,5131675682486251396,4 --trace-process-track-uuid=3190708990060038890 --mojo-platform-channel-handle=3128 /prefetch:1",
+                          "created":  "2026-10-22 17:35:36"
+                      }
+                  ],
+    "sequence":  {
+                     "acceptedJsonDirect":  [
+                                                {
+                                                    "path":  "C:\\Users\\Administrator\\AppData\\Roaming\\xjy-jewelry-offline\\employee-update-cache\\accepted-sequence.json",
+                                                    "exists":  false,
+                                                    "content":  null
+                                                },
+                                                {
+                                                    "path":  "C:\\Users\\Administrator\\AppData\\Local\\xjy-jewelry-offline\\employee-update-cache\\accepted-sequence.json",
+                                                    "exists":  false,
+                                                    "content":  null
+                                                }
+                                            ],
+                     "folders":  [
+                                     {
+                                         "path":  "C:\\Users\\Administrator\\AppData\\Roaming\\xjy-jewelry-offline",
+                                         "kind":  "xjy-jewelry-offline"
+                                     }
+                                 ],
+                     "candidates":  [
+                                        {
+                                            "path":  "C:\\Users\\Administrator\\AppData\\Roaming\\Comfy Desktop\\window-state.json",
+                                            "size":  240,
+                                            "lastWrite":  "2026-10-07 22:31:11",
+                                            "parsed":  {
+                                                           "version":  null,
+                                                           "sequence":  null,
+                                                           "programVersion":  null,
+                                                           "product":  null,
+                                                           "role":  null,
+                                                           "catalogSha256":  null,
+                                                           "fullTargetCatalogSha256":  null,
+                                                           "targetVersion":  null,
+                                                           "engineVersion":  null,
+                                                           "installationDir":  null,
+                                                           "publishedAt":  null
+                                                       },
+                                            "rawPrefix":  "{\n  \"inst-1790498164897\": {\n    \"x\": 491,\n    \"y\": 198,\n    \"width\": 1281,\n    \"height\": 901,\n    \"maximized\": true\n  },\n  \"inst-1790510343234\": {\n    \"x\": 457,\n    \"y\": 143,\n    \"width\": 1281,\n    \"height\": 901,\n    \"maximized\": true\n  }\n}"
+                                        },
+                                        {
+                                            "path":  "C:\\Users\\Administrator\\AppData\\Roaming\\GitHub Desktop\\window-state.json",
+                                            "size":  141,
+                                            "lastWrite":  "2026-10-21 10:06:45",
+                                            "parsed":  {
+                                                           "version":  null,
+                                                           "sequence":  null,
+                                                           "programVersion":  null,
+                                                           "product":  null,
+                                                           "role":  null,
+                                                           "catalogSha256":  null,
+                                                           "fullTargetCatalogSha256":  null,
+                                                           "targetVersion":  null,
+                                                           "engineVersion":  null,
+                                                           "installationDir":  null,
+                                                           "publishedAt":  null
+                                                       },
+                                            "rawPrefix":  "{\"width\":977,\"height\":683,\"x\":625,\"y\":263,\"isMaximized\":false,\"isFullScreen\":false,\"displayBounds\":{\"x\":0,\"y\":0,\"width\":2195,\"height\":1235}}\n"
+                                        },
+                                        {
+                                            "path":  "C:\\Users\\Administrator\\AppData\\Roaming\\Grok Bot\\window-state.json",
+                                            "size":  133,
+                                            "lastWrite":  "2026-10-22 17:45:53",
+                                            "parsed":  {
+                                                           "version":  1,
+                                                           "sequence":  null,
+                                                           "programVersion":  null,
+                                                           "product":  null,
+                                                           "role":  null,
+                                                           "catalogSha256":  null,
+                                                           "fullTargetCatalogSha256":  null,
+                                                           "targetVersion":  null,
+                                                           "engineVersion":  null,
+                                                           "installationDir":  null,
+                                                           "publishedAt":  null
+                                                       },
+                                            "rawPrefix":  "{\n  \"version\": 1,\n  \"normalBounds\": {\n    \"x\": -18279,\n    \"y\": -18286,\n    \"width\": 0,\n    \"height\": 0\n  },\n  \"isMaximized\": false\n}"
+                                        },
+                                        {
+                                            "path":  "C:\\Users\\Administrator\\AppData\\Roaming\\kimi-code-app\\ui-state.json",
+                                            "size":  70,
+                                            "lastWrite":  "2026-10-14 08:52:37",
+                                            "parsed":  {
+                                                           "version":  null,
+                                                           "sequence":  null,
+                                                           "programVersion":  null,
+                                                           "product":  null,
+                                                           "role":  null,
+                                                           "catalogSha256":  null,
+                                                           "fullTargetCatalogSha256":  null,
+                                                           "targetVersion":  null,
+                                                           "engineVersion":  null,
+                                                           "installationDir":  null,
+                                                           "publishedAt":  null
+                                                       },
+                                            "rawPrefix":  "{\"firstLaunchReported\":true,\"dockIconChoice\":\"light\",\"onboarded\":true}"
+                                        },
+                                        {
+                                            "path":  "C:\\Users\\Administrator\\AppData\\Roaming\\kimi-code-app\\window-state.json",
+                                            "size":  43,
+                                            "lastWrite":  "2026-10-14 09:14:50",
+                                            "parsed":  {
+                                                           "version":  null,
+                                                           "sequence":  null,
+                                                           "programVersion":  null,
+                                                           "product":  null,
+                                                           "role":  null,
+                                                           "catalogSha256":  null,
+                                                           "fullTargetCatalogSha256":  null,
+                                                           "targetVersion":  null,
+                                                           "engineVersion":  null,
+                                                           "installationDir":  null,
+                                                           "publishedAt":  null
+                                                       },
+                                            "rawPrefix":  "{\"width\":1506,\"height\":962,\"x\":377,\"y\":143}"
+                                        },
+                                        {
+                                            "path":  "C:\\Users\\Administrator\\AppData\\Roaming\\kimi-desktop\\main-window-state.json",
+                                            "size":  142,
+                                            "lastWrite":  "2026-10-21 14:45:53",
+                                            "parsed":  {
+                                                           "version":  null,
+                                                           "sequence":  null,
+                                                           "programVersion":  null,
+                                                           "product":  null,
+                                                           "role":  null,
+                                                           "catalogSha256":  null,
+                                                           "fullTargetCatalogSha256":  null,
+                                                           "targetVersion":  null,
+                                                           "engineVersion":  null,
+                                                           "installationDir":  null,
+                                                           "publishedAt":  null
+                                                       },
+                                            "rawPrefix":  "{\"width\":1402,\"height\":980,\"x\":543,\"y\":170,\"displayBounds\":{\"x\":0,\"y\":0,\"width\":2195,\"height\":1235},\"isMaximized\":false,\"isFullScreen\":false}\n"
+                                        },
+                                        {
+                                            "path":  "C:\\Users\\Administrator\\AppData\\Roaming\\Notion\\state.json",
+                                            "size":  4704,
+                                            "lastWrite":  "2026-10-18 07:49:11",
+                                            "parsed":  {
+                                                           "version":  null,
+                                                           "sequence":  null,
+                                                           "programVersion":  null,
+                                                           "product":  null,
+                                                           "role":  null,
+                                                           "catalogSha256":  null,
+                                                           "fullTargetCatalogSha256":  null,
+                                                           "targetVersion":  null,
+                                                           "engineVersion":  null,
+                                                           "installationDir":  null,
+                                                           "publishedAt":  null
+                                                       },
+                                            "rawPrefix":  "{\n\t\"appState\": {\n\t\t\"zoomFactor\": 1,\n\t\t\"theme\": {\n\t\t\t\"mode\": \"light\",\n\t\t\t\"usingSystemTheme\": true,\n\t\t\t\"colors\": {\n\t\t\t\t\"white\": \"white\",\n\t\t\t\t\"blue\": \"rgba(39, 131, 222, 1)\"\n\t\t\t},\n\t\t\t\"borderRadius\": 4,\n\t\t\t\"textColor\": \"rgba(44, 44, 43, 1)\",\n\t\t\t\"popoverBackgroundColor\": \"white\",\n\t\t\t\"popoverBoxShadow\": \"0px 20px 24px 0px rgba(25, 25, 25, 0.05), 0px 5px 8px 0px rgba(25, 25, 25, 0.029), 0px 0px 0px 1px rgba(42, 28, 0, 0.07)\",\n\t\t\t\"inputBoxShadow\": \"rgba(28, 19, 1, 0.11) 0 0 0 1px\",\n\t\t\t\"inputBackgroundColor\": \"rgba(66, 35, 3, 0.031)\",\n\t\t\t\"dividerColor\": \"rgba(28, 19, 1, 0.11)\",\n\t\t\t\"shadowOpacity\": 0\n\t\t"
+                                        },
+                                        {
+                                            "path":  "C:\\Users\\Administrator\\AppData\\Roaming\\kimi-desktop\\kimi-agent\\canvas-ui-state.json",
+                                            "size":  184,
+                                            "lastWrite":  "2026-10-21 15:55:40",
+                                            "parsed":  {
+                                                           "version":  null,
+                                                           "sequence":  null,
+                                                           "programVersion":  null,
+                                                           "product":  null,
+                                                           "role":  null,
+                                                           "catalogSha256":  null,
+                                                           "fullTargetCatalogSha256":  null,
+                                                           "targetVersion":  null,
+                                                           "engineVersion":  null,
+                                                           "installationDir":  null,
+                                                           "publishedAt":  null
+                                                       },
+                                            "rawPrefix":  "{\"datj0p6mcu0mgfvfchf0\":{\"version\":1,\"orderedCanvasIds\":[\"canvas_0c74a85d-54da-4962-a696-f9cd54ad544d\",\"canvas_cb420bcd-4da0-4931-9a13-109fe60b9c49\"],\"hasShownEditTooltipGuide\":false}}"
+                                        },
+                                        {
+                                            "path":  "C:\\Users\\Administrator\\AppData\\Roaming\\Codex\\web\\Codex\\statsig-state.json",
+                                            "size":  60,
+                                            "lastWrite":  "2026-09-26 21:23:21",
+                                            "parsed":  {
+                                                           "version":  null,
+                                                           "sequence":  null,
+                                                           "programVersion":  null,
+                                                           "product":  null,
+                                                           "role":  null,
+                                                           "catalogSha256":  null,
+                                                           "fullTargetCatalogSha256":  null,
+                                                           "targetVersion":  null,
+                                                           "engineVersion":  null,
+                                                           "installationDir":  null,
+                                                           "publishedAt":  null
+                                                       },
+                                            "rawPrefix":  "{\"statsig-stable-id\":\"00cd24a3-c600-4806-8a5b-270645a18baf\"}"
+                                        },
+                                        {
+                                            "path":  "C:\\Users\\Administrator\\AppData\\Local\\Kimi Computer Use\\update-state.json",
+                                            "size":  565,
+                                            "lastWrite":  "2026-10-22 15:12:20",
+                                            "parsed":  {
+                                                           "version":  null,
+                                                           "sequence":  null,
+                                                           "programVersion":  null,
+                                                           "product":  null,
+                                                           "role":  null,
+                                                           "catalogSha256":  null,
+                                                           "fullTargetCatalogSha256":  null,
+                                                           "targetVersion":  null,
+                                                           "engineVersion":  null,
+                                                           "installationDir":  null,
+                                                           "publishedAt":  null
+                                                       },
+                                            "rawPrefix":  "{\"checked_at_ms\":1792653139537,\"manifest\":{\"version\":\"0.3.10\",\"runtime\":{\"url\":\"https://cdn.kimi.com/kimi-computer-use-windows/0.3.10/kimi-cu-win-runtime.zip\",\"sha256\":\"46e2900b93353af6f44391451126575967192340daa3b952b34e92f6a88a9bd4\",\"executable_url\":\"https://cdn.kimi.com/kimi-computer-use-windows/0.3.10/kimi-cu.exe\",\"executable_sha256\":\"ab33418e9bf042775116a9334cb3ea5be923cc8ebcead1c060d86f9742f96936\",\"signer_sha1\":\"6DA99CCA99A69947C11F97395A55FD2DC683420D\",\"install_directory\":\"KimiCU\",\"install_directory_v2\":\"Kimi Computer Use\"}},\"notified_version\":\"0.3.7\"}"
+                                        },
+                                        {
+                                            "path":  "C:\\Users\\Administrator\\AppData\\Local\\kimi-desktop-updater\\apply-state.json",
+                                            "size":  21,
+                                            "lastWrite":  "2026-10-21 14:46:12",
+                                            "parsed":  {
+                                                           "version":  null,
+                                                           "sequence":  null,
+                                                           "programVersion":  null,
+                                                           "product":  null,
+                                                           "role":  null,
+                                                           "catalogSha256":  null,
+                                                           "fullTargetCatalogSha256":  null,
+                                                           "targetVersion":  null,
+                                                           "engineVersion":  null,
+                                                           "installationDir":  null,
+                                                           "publishedAt":  null
+                                                       },
+                                            "rawPrefix":  "{\n  \"failures\": {}\n}\n"
+                                        },
+                                        {
+                                            "path":  "C:\\Users\\Administrator\\AppData\\Local\\KimiCU\\update-state.json",
+                                            "size":  565,
+                                            "lastWrite":  "2026-10-22 15:12:20",
+                                            "parsed":  {
+                                                           "version":  null,
+                                                           "sequence":  null,
+                                                           "programVersion":  null,
+                                                           "product":  null,
+                                                           "role":  null,
+                                                           "catalogSha256":  null,
+                                                           "fullTargetCatalogSha256":  null,
+                                                           "targetVersion":  null,
+                                                           "engineVersion":  null,
+                                                           "installationDir":  null,
+                                                           "publishedAt":  null
+                                                       },
+                                            "rawPrefix":  "{\"checked_at_ms\":1792653139537,\"manifest\":{\"version\":\"0.3.10\",\"runtime\":{\"url\":\"https://cdn.kimi.com/kimi-computer-use-windows/0.3.10/kimi-cu-win-runtime.zip\",\"sha256\":\"46e2900b93353af6f44391451126575967192340daa3b952b34e92f6a88a9bd4\",\"executable_url\":\"https://cdn.kimi.com/kimi-computer-use-windows/0.3.10/kimi-cu.exe\",\"executable_sha256\":\"ab33418e9bf042775116a9334cb3ea5be923cc8ebcead1c060d86f9742f96936\",\"signer_sha1\":\"6DA99CCA99A69947C11F97395A55FD2DC683420D\",\"install_directory\":\"KimiCU\",\"install_directory_v2\":\"Kimi Computer Use\"}},\"notified_version\":\"0.3.7\"}"
+                                        },
+                                        {
+                                            "path":  "C:\\Users\\Administrator\\AppData\\Local\\OpenClawTray\\last-chat-state.json",
+                                            "size":  330,
+                                            "lastWrite":  "2026-10-12 11:01:40",
+                                            "parsed":  {
+                                                           "version":  null,
+                                                           "sequence":  null,
+                                                           "programVersion":  null,
+                                                           "product":  null,
+                                                           "role":  null,
+                                                           "catalogSha256":  null,
+                                                           "fullTargetCatalogSha256":  null,
+                                                           "targetVersion":  null,
+                                                           "engineVersion":  null,
+                                                           "installationDir":  null,
+                                                           "publishedAt":  null
+                                                       },
+                                            "rawPrefix":  "{\"DefaultThreadId\":\"agent:main:main\",\"ThreadTitle\":\"\\u4E3B\\u4F1A\\u8BDD\",\"Model\":\"deepseek-flash\",\"ModelProvider\":\"deepseek\",\"AvailableModels\":[\"deepseek-v4-pro\",\"deepseek-flash\",\"gpt-5.6-sol\",\"gpt-5.5\",\"gpt-5.5-pro\",\"gpt-5.4-pro\",\"gpt-5.4-nano\",\"gpt-5.6-luna\",\"gpt-5.6-terra\",\"gpt-6-astra\",\"gpt-6-luna\",\"gpt-6-sol\",\"gpt-6.1-sol\"]}"
+                                        },
+                                        {
+                                            "path":  "C:\\Users\\Administrator\\AppData\\Local\\OpenClawTray\\setup-state.json",
+                                            "size":  476,
+                                            "lastWrite":  "2026-10-11 10:37:01",
+                                            "parsed":  {
+                                                           "version":  null,
+                                                           "sequence":  null,
+                                                           "programVersion":  null,
+                                                           "product":  null,
+                                                           "role":  null,
+                                                           "catalogSha256":  null,
+                                                           "fullTargetCatalogSha256":  null,
+                                                           "targetVersion":  null,
+                                                           "engineVersion":  null,
+                                                           "installationDir":  null,
+                                                           "publishedAt":  null
+                                                       },
+                                            "rawPrefix":  "{\r\n  \"SchemaVersion\": 2,\r\n  \"RunId\": \"ea5c119116cb4062b1c4699353549aa4\",\r\n  \"InstallId\": \"gateway:ac468cbe025b4fb0\",\r\n  \"Phase\": 13,\r\n  \"Status\": 7,\r\n  \"DistroName\": \"OpenClawGateway\",\r\n  \"GatewayUrl\": \"ws://127.0.0.1:18789\",\r\n  \"IsLocalOnly\": true,\r\n  \"TailscaleEnabled\": false,\r\n  \"FailureCode\": null,\r\n  \"UserMessage\": null,\r\n  \"CreatedAtUtc\": \"2026-10-11T02:37:01.9711081+00:00\",\r\n  \"UpdatedAtUtc\": \"2026-10-11T02:37:01.9711082+00:00\",\r\n  \"Issues\": [],\r\n  \"History\": []\r\n}"
+                                        },
+                                        {
+                                            "path":  "C:\\Users\\Administrator\\AppData\\Local\\pnpm-state\\pnpm-state.json",
+                                            "size":  56,
+                                            "lastWrite":  "2026-10-21 14:32:11",
+                                            "parsed":  {
+                                                           "version":  null,
+                                                           "sequence":  null,
+                                                           "programVersion":  null,
+                                                           "product":  null,
+                                                           "role":  null,
+                                                           "catalogSha256":  null,
+                                                           "fullTargetCatalogSha256":  null,
+                                                           "targetVersion":  null,
+                                                           "engineVersion":  null,
+                                                           "installationDir":  null,
+                                                           "publishedAt":  null
+                                                       },
+                                            "rawPrefix":  "{\n\t\"lastUpdateCheck\": \"Wed, 21 Oct 2026 06:32:11 GMT\"\n}\n"
+                                        },
+                                        {
+                                            "path":  "C:\\Users\\Administrator\\AppData\\Local\\uv\\uv-receipt.json",
+                                            "size":  351,
+                                            "lastWrite":  "2026-10-09 11:18:34",
+                                            "parsed":  {
+                                                           "version":  "0.12.24",
+                                                           "sequence":  null,
+                                                           "programVersion":  null,
+                                                           "product":  null,
+                                                           "role":  null,
+                                                           "catalogSha256":  null,
+                                                           "fullTargetCatalogSha256":  null,
+                                                           "targetVersion":  null,
+                                                           "engineVersion":  null,
+                                                           "installationDir":  null,
+                                                           "publishedAt":  null
+                                                       },
+                                            "rawPrefix":  "{\"binaries\":[\"uv.exe\",\"uvx.exe\",\"uvw.exe\"],\"binary_aliases\":{},\"cdylibs\":[],\"cstaticlibs\":[],\"install_layout\":\"flat\",\"install_prefix\":\"C:\\\\Users\\\\Administrator\\\\.local\\\\bin\",\"modify_path\":true,\"provider\":{\"source\":\"cargo-dist\",\"version\":\"0.32.0\"},\"source\":{\"app_name\":\"uv\",\"name\":\"uv\",\"owner\":\"astral-sh\",\"release_type\":\"github\"},\"version\":\"0.12.24\"}\n"
+                                        },
+                                        {
+                                            "path":  "C:\\Users\\Administrator\\AppData\\Local\\NVIDIA Corporation\\NVIDIA App\\NvBackend\\ngxdlssoverridestate.json",
+                                            "size":  1674,
+                                            "lastWrite":  "2026-10-18 12:50:19",
+                                            "parsed":  {
+                                                           "version":  null,
+                                                           "sequence":  null,
+                                                           "programVersion":  null,
+                                                           "product":  null,
+                                                           "role":  null,
+                                                           "catalogSha256":  null,
+                                                           "fullTargetCatalogSha256":  null,
+                                                           "targetVersion":  null,
+                                                           "engineVersion":  null,
+                                                           "installationDir":  null,
+                                                           "publishedAt":  null
+                                                       },
+                                            "rawPrefix":  "{\"12056071\":{\"localId\":12056071,\"version\":0,\"stateMaskSR\":0,\"stateMaskRR\":0,\"stateMaskFG\":0,\"gameScanMask\":1},\"21969271\":{\"localId\":21969271,\"version\":0,\"stateMaskSR\":0,\"stateMaskRR\":0,\"stateMaskFG\":0,\"gameScanMask\":1},\"137362483\":{\"localId\":137362483,\"version\":0,\"stateMaskSR\":0,\"stateMaskRR\":0,\"stateMaskFG\":0,\"gameScanMask\":1},\"685546701\":{\"localId\":685546701,\"version\":0,\"stateMaskSR\":0,\"stateMaskRR\":0,\"stateMaskFG\":0,\"gameScanMask\":1},\"744416233\":{\"localId\":744416233,\"version\":0,\"stateMaskSR\":0,\"stateMaskRR\":0,\"stateMaskFG\":0,\"gameScanMask\":1},\"783554958\":{\"localId\":783554958,\"version\":0,\"st"
+                                        },
+                                        {
+                                            "path":  "C:\\Users\\Administrator\\AppData\\Local\\NVIDIA Corporation\\NVIDIA App\\NvBackend\\QuietModeSupportState.json",
+                                            "size":  548,
+                                            "lastWrite":  "2026-10-19 08:26:11",
+                                            "parsed":  {
+                                                           "version":  null,
+                                                           "sequence":  null,
+                                                           "programVersion":  null,
+                                                           "product":  null,
+                                                           "role":  null,
+                                                           "catalogSha256":  null,
+                                                           "fullTargetCatalogSha256":  null,
+                                                           "targetVersion":  null,
+                                                           "engineVersion":  null,
+                                                           "installationDir":  null,
+                                                           "publishedAt":  null
+                                                       },
+                                            "rawPrefix":  "{\"criteria\":{\"overallState\":false,\"featureTile\":\"QuietMode\",\"header\":\"Whisper Mode\",\"message\":\"游戏时，让接通电源的笔记本电脑更安静地运行。\",\"states\":[{\"name\":\"gfe\",\"message\":\"GeForce Experience 3.8或更高版本\",\"state\":true},{\"name\":\"gpu\",\"message\":\"GeForce GTX 笔记本 GPU，1060 或更高\",\"state\":false},{\"name\":\"os\",\"message\":\"Windows 10 或 Windows 11\",\"state\":true},{\"name\":\"driver\",\"message\":\"GeForce司机即将推出\",\"state\":true},{\"name\":\"sli\",\"message\":\"不支持SLI\",\"state\":true,\"isRecommendation\":true}]}}"
+                                        },
+                                        {
+                                            "path":  "C:\\ProgramData\\NVIDIA Corporation\\NvTelemetry\\CurrentState.json",
+                                            "size":  29,
+                                            "lastWrite":  "2026-09-25 19:13:48",
+                                            "parsed":  {
+                                                           "version":  null,
+                                                           "sequence":  null,
+                                                           "programVersion":  null,
+                                                           "product":  null,
+                                                           "role":  null,
+                                                           "catalogSha256":  null,
+                                                           "fullTargetCatalogSha256":  null,
+                                                           "targetVersion":  null,
+                                                           "engineVersion":  null,
+                                                           "installationDir":  null,
+                                                           "publishedAt":  null
+                                                       },
+                                            "rawPrefix":  "{\"distributedTracingState\":1}"
+                                        },
+                                        {
+                                            "path":  "C:\\ProgramData\\NVIDIA Corporation\\NVIDIA App\\NvDriverDiagnostics\\state.json",
+                                            "size":  96,
+                                            "lastWrite":  "2026-10-22 08:26:16",
+                                            "parsed":  {
+                                                           "version":  null,
+                                                           "sequence":  null,
+                                                           "programVersion":  null,
+                                                           "product":  null,
+                                                           "role":  null,
+                                                           "catalogSha256":  null,
+                                                           "fullTargetCatalogSha256":  null,
+                                                           "targetVersion":  null,
+                                                           "engineVersion":  null,
+                                                           "installationDir":  null,
+                                                           "publishedAt":  null
+                                                       },
+                                            "rawPrefix":  "{\"consentNotificationTriggeredTimestamp\":\"2026-09-26T11:43:46Z\",\"consentRequestIsComplete\":true}"
+                                        }
+                                    ],
+                     "hint":  "the client answers STALE_CATALOG when catalog.sequence \u003c accepted-sequence.json.sequence; the native channel compares against the install receipt (sequence + catalogSha256)"
+                 },
+    "network":  {
+                    "target":  "127.0.0.1",
+                    "port":  31831,
+                    "ports":  [
+                                  {
+                                      "port":  31831,
+                                      "tcpOk":  false,
+                                      "method":  "TcpClient",
+                                      "error":  "使用“1”个参数调用“EndConnect”时发生异常:“由于目标计算机积极拒绝，无法连接。 127.0.0.1:31831”",
+                                      "tnc":  {
+                                                  "tcpTestSucceeded":  false,
+                                                  "pingSucceeded":  true,
+                                                  "sourceAddress":  "127.0.0.1",
+                                                  "remoteAddress":  {
+                                                                        "Address":  16777343,
+                                                                        "AddressFamily":  2,
+                                                                        "ScopeId":  null,
+                                                                        "IsIPv6Multicast":  false,
+                                                                        "IsIPv6LinkLocal":  false,
+                                                                        "IsIPv6SiteLocal":  false,
+                                                                        "IsIPv6Teredo":  false,
+                                                                        "IsIPv4MappedToIPv6":  false
+                                                                    },
+                                                  "interfaceAlias":  "Loopback Pseudo-Interface 1"
+                                              }
+                                  }
+                              ],
+                    "localIpv4":  [
+                                      {
+                                          "ip":  "169.254.98.161",
+                                          "prefix":  16,
+                                          "ifAlias":  "WLAN 4"
+                                      },
+                                      {
+                                          "ip":  "169.254.4.130",
+                                          "prefix":  16,
+                                          "ifAlias":  "WLAN 3"
+                                      },
+                                      {
+                                          "ip":  "192.168.1.98",
+                                          "prefix":  24,
+                                          "ifAlias":  "以太网"
+                                      },
+                                      {
+                                          "ip":  "169.254.133.208",
+                                          "prefix":  16,
+                                          "ifAlias":  "WLAN 2"
+                                      },
+                                      {
+                                          "ip":  "169.254.138.62",
+                                          "prefix":  16,
+                                          "ifAlias":  "蓝牙网络连接"
+                                      },
+                                      {
+                                          "ip":  "169.254.149.31",
+                                          "prefix":  16,
+                                          "ifAlias":  "WLAN"
+                                      },
+                                      {
+                                          "ip":  "198.18.0.1",
+                                          "prefix":  30,
+                                          "ifAlias":  "Meta"
+                                      }
+                                  ],
+                    "endpoints":  [
+
+                                  ],
+                    "ping":  true
+                },
+    "logs":  {
+                 "file":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\xjy-fake-install\\logs\\main.log",
+                 "lines":  5,
+                 "tail":  [
+                              "log line 鑫 test",
+                              "log line 鑫 test",
+                              "log line 鑫 test",
+                              "log line 鑫 test",
+                              "log line 鑫 test"
+                          ],
+                 "candidates":  [
+                                    {
+                                        "path":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\xjy-fake-install\\logs\\main.log",
+                                        "size":  95,
+                                        "lastWrite":  "2026-10-22 17:53:22"
+                                    }
+                                ]
+             },
+    "notes":  [
+
+              ]
+}

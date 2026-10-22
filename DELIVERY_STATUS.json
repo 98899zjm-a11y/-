@@ -1,0 +1,549 @@
+{
+  "schemaVersion": 2,
+  "product": "xjy-jewelry-offline-1.7.0-first-batch-desktop",
+  "asOf": "2026-10-22",
+  "asOfNote": "round 10: two native defects fixed in a16 (rebuilt+resigned), production host upgraded and verified; employee side NOT accepted. round12 记录 18:19:53 的 seq21 外层签署。",
+  "status": "SIGNED_INTERNAL_VERIFIED_HOST_UPGRADED",
+  "secondaryStatus": "EMPLOYEE_ACCEPTANCE_PENDING",
+  "statusMeaning": "a16 signed candidate (3293 files, archive 85fb9881...) was used to upgrade the production host F:\\自制软件\\xjy-jewelry-offline from 1.6.2/engine 44.7.0 to 1.7.0/engine 44.9.0. Engine journal reached phase=committed with businessReleased=true; an independent verifier re-hashed the installed tree 3525/3525 with zero mismatch and confirmed business data is byte-identical apart from Electron/Chromium runtime caches. The installer's own final success dialog was NOT captured because the operator terminated the installer worker during verification (worker exit -1). Employee-side acceptance is still pending.",
+  "releaseQualified": false,
+  "finalAcceptancePassed": false,
+  "productionInstalled": true,
+  "round10": {
+    "defectsFixed": [
+      {
+        "id": "TREE_CHANGED_EMPTY_DIRECTORY",
+        "summary": "Post-commit verifyInstalled re-check rejected empty directories created during the initial-backup phase under .xjy-initial-upgrade / .xjy-patches, plus the approved GPU log chain, because allowMutable=false rebuilds the extra-directory set from the pre-backup capture.",
+        "fix": "exactTree now allows (a) the two approved GPU paths via emptyDirectoryAlwaysAllowed and (b) empty directories that live under the four writable history prefixes via emptyMutableDirectoryAllowed. File rows comparison is unchanged; unknown or non-empty undeclared directories are still rejected.",
+        "evidence": "tests/engine-empty-dirs-backup.test.cjs 5/5 on a15, legacy negative 5/5 on a14; tests/engine-empty-directories.test.cjs 12/12"
+      },
+      {
+        "id": "UNEXPECTED_SOURCE_FILE_LEGACY_EXTRAS",
+        "summary": "A real 1.6.2 installation carries three files outside the signed catalog (resources/default_app.asar, resources/elevate.exe, Uninstall 鑫金源珠宝报价.exe), which captureMutable refused with UNEXPECTED_SOURCE_FILE. The production tree carries the same three files, so a15 could never upgrade production.",
+        "fix": "a16 adds an exact-path allowlist (no prefixes, no wildcards) for those three files; they are tolerated as source extras and are NOT copied into the target tree.",
+        "evidence": "tests/engine-extra-source-files.test.cjs 10/10; sha256 of the three files match the a16 journal sourceMutableFiles entries"
+      }
+    ],
+    "engine": {
+      "version": "a16",
+      "file": "candidate/build/package/受信助手/delivery-tools/engine-tree-runtime170.cjs",
+      "bytes": 200809,
+      "sha256": "a294ec51027e2dff4aaff5d23cfa0e39d15531c4c51f6d5ae8d773d920b53ecf"
+    },
+    "archive": {
+      "file": "candidate/build/native-package.zip",
+      "bytes": 781517156,
+      "sha256": "06ceef98b0dc05dcac5f554c1bccf91e18c31a626bc662cf5acd45e17c69d848"
+    },
+    "outerSignature": {
+      "status": "SIGNED_INTERNAL_VERIFIED",
+      "files": 3293,
+      "internalSignaturesVerified": 9,
+      "envelopeSha256": "ba45f91000f611e1d835feecdfb1971688b1a7b846cca411491b3d4e42c91ebb"
+    },
+    "hostUpgrade": {
+      "installationDir": "F:\\自制软件\\xjy-jewelry-offline",
+      "stateDir": "F:\\自制软件\\.xjy-jewelry-offline.xjy-engine-state",
+      "transactionId": "b983439a-11ae-46d3-a555-822a25aac0c4",
+      "from": {
+        "programVersion": "1.6.2",
+        "engineVersion": "44.7.0"
+      },
+      "to": {
+        "programVersion": "1.7.0",
+        "engineVersion": "44.9.0"
+      },
+      "journalPhase": "committed",
+      "businessReleased": true,
+      "catalogSha256": "4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef",
+      "journalSha256": "9fc7d58c20273f0423d18d91f20ed51d02a88a5d5598ad49776e4a0849714819",
+      "verification": {
+        "artifact": "evidence-c6-failed-170/prod-verify-1.json",
+        "treeChecked": 3525,
+        "treeExpected": 3525,
+        "treeMismatch": 0,
+        "treeMissing": 0,
+        "treeExtraUnallowed": 0,
+        "dataSame": 1149,
+        "dataDiff": 19,
+        "dataMissing": 8,
+        "dataDriftNote": "all 19 differences and 8 missing entries are Electron/Chromium runtime caches (GPUCache/GrShaderCache/ShaderCache/Code Cache/Local Storage leveldb/remembered-login), permitted by design; business databases were not modified"
+      },
+      "installerFinalMessageCaptured": false,
+      "installerFinalMessageReason": "operator terminated the installer worker (exit -1) while verifying; re-running the installer is refused with UNSUPPORTED_SOURCE_VERSION because the source is already 1.7.0",
+      "appLaunch": "1.7.0 main window 鑫金源 · 珠宝报价工作室 opens; UI shows 总版本 v1.7.0"
+    },
+    "productionPrep": {
+      "removedEmptyDirs": [
+        "F:\\自制软件\\xjy-jewelry-offline\\NVIDIA Corporation\\umdlogs",
+        "F:\\自制软件\\xjy-jewelry-offline\\NVIDIA Corporation"
+      ],
+      "removedEmptyDirsNote": "both were empty (0 items, 0 bytes) and exist in the pre-upgrade backups; the signed directory whitelist does not cover the installation-root NVIDIA chain",
+      "aclChange": {
+        "exportedOriginal": "s5-tools/prod-acl-original.json",
+        "change": "removed the explicit Authenticated Users (S-1-5-11) allow entries on F:\\ (2 ACEs); inherited duplicates on 自制软件, the installation root and the data root disappeared with it",
+        "rollback": "s5-tools/prod-acl.ps1 -Phase rollback",
+        "preflight": "s5-tools/acl-preflight.ps1 VERDICT=PASS after the change"
+      }
+    },
+    "backupBeforeUpgrade": {
+      "root": "D:\\Codex\\xjy-private-backups\\pre170-a15-20261022-130238",
+      "files": 4708,
+      "bytes": 4066959857,
+      "verify": "program 3525 files/1620307739 B + data 1176 files/2394718644 B; per-file sha256 verified by the backup subagent; three sqlite copies integrity_check ok, foreign_key_check 0",
+      "report": "evidence-c6-failed-170/PROD_BACKUP_REPORT.md"
+    },
+    "iconStatus": {
+      "exeEmbeddedIcon": "FAILED - the program exe is taken from a pinned fresh-material source inside the builder, so patching desktop-first170-program-candidate-a1 / baseline / draft did not change the packaged exe (still 247,184,896 B, Electron default icon, FileVersion 44.9.0)",
+      "workaround": "desktop and start-menu shortcuts were re-pointed to an ico extracted from resources/app.asar, so the visible logo is correct",
+      "permanentFix": "requires a new pinned-inputs line for the program exe (rcedit at packaging time) plus re-signing"
+    }
+  },
+  "deliverables": {
+    "directory": "delivery-170-a15",
+    "note": "directory name kept for continuity; contents now describe a16",
+    "employeePatchZip": {
+      "file": "candidate/build/package/鑫金源珠宝1.7.0员工升级补丁.zip",
+      "bytes": 164878024,
+      "sha256": "b1a7b12029208994d0431101660368d22c8d887384485aff432765c380730dc9"
+    }
+  },
+  "explicitNonClaims": [
+    "employee in-app upgrade not accepted (no employee-role sandbox run in this round)",
+    "employee first install not accepted",
+    "power-loss failure recovery not exercised (recovery runbook delivered but never executed; treat as explicit non-fulfilment)",
+    "installer final success dialog for the production host upgrade was not captured",
+    "ERP/mobile/iOS/social video/UI redesign/AI integration remain deferred"
+  ],
+  "knownRisks": [
+    "native-employee-slot170.cjs has only the four writable prefixes and lacks the three exact extra paths, so an employee machine that went through the a16 upgrade can later hit BAD_MUTABLE_SCOPE in the EmployeeSlot phase",
+    "captureApprovedEmptyDirectories only walks approvedEmptyDirectoryPaths[0]; the whitelist is not generalised, and the installation-root NVIDIA chain is still not covered by the signed candidate",
+    "the three tolerated source extras are not hash-pinned; a local writer could substitute same-named files (they never reach the target tree, but they do reach the backup tree)"
+  ],
+  "nextCandidateSuggestions": [
+    "generalise the empty-directory whitelist and cover the installation-root NVIDIA chain so no manual cleanup is needed",
+    "pin the three legacy extras by exact size+sha256 per catalog",
+    "align native-employee-slot170.cjs extras with the engine allowlist",
+    "add phase heartbeats before journal.json so operators can tell slow from stuck",
+    "add an ACL preflight + rollback step to the standard host-upgrade checklist"
+  ],
+  "rootReleaseDirectory": "D:\\Codex\\xjy-release-20261022",
+  "round11": {
+    "r2Client": {
+      "status": "PATCHED_AND_VERIFIED_IN_ISOLATION_NOT_EMBEDDED",
+      "file": "_dsh/native-publication-update.patched.cjs (14,586 chars)",
+      "asar": "_dsh/r2asar/app-r2.asar 13,493,619B sha256 9593b161f7091f5b471ce4918afee480097105b5668abbe154eb60075b1025a4",
+      "loadTest": "D:/Codex/r2-progtest launched OK (window 鑫金源 · 珠宝报价工作室, 8 procs)"
+    },
+    "embedding": {
+      "blocked": "derive-builder 从 c27-candidate/proposal 物化 proposal；prepare-release:233-236 用 --proposal-sha256 校验 proposal 成员集与逐文件哈希，改 asar 必须新 proposal 清单+新 signing requests+worker 签署+新 outer scope",
+      "attempted": "把 r2 asar 放进 c28-candidate/proposal 后重建两次，包内 asar 仍为 d017ceb9…（13,495,963B，原版），证明未生效",
+      "conclusion": "r2 需要一次新的 proposal 修订（新 source revision），与 target-21 同属下一轮工程"
+    },
+    "inAppUpgrade": {
+      "blocked": "native-update-manifest.cjs:37 要求 manifest.sequence>已装 sequence；员工已装为 20",
+      "sequence21": "改 SEQUENCE.target=21 触发 SOURCE19_CONTRACT（typed source19 要求 target=source+1=20），需重签 typed source20/target21"
+    },
+    "mislabeledArtifacts": {
+      "movedTo": "F:/_mislabeled-r2-172248 (pkg + pkg.zip, 786,451,042B)",
+      "reason": "该包 asar 实为原版、说明却写 r2 行为，已隔离不交付"
+    },
+    "delivered": {
+      "manualPackage": "F:/鑫金源珠宝1.7.0完整安装包(.zip 786,451,126B sha256 306967C3…)"
+    },
+    "verified": {
+      "publicationDecision": {
+        "sameSeqNewCatalog": "STALE_NATIVE_MANIFEST",
+        "seq21NewCatalog": "available",
+        "seq19": "STALE_NATIVE_MANIFEST"
+      },
+      "versionIdentity": {
+        "target170": "passes identity",
+        "target171": "BAD_NATIVE_MANIFEST"
+      },
+      "r2VersionGate": {
+        "1.6.2": false,
+        "1.7.0": true,
+        "1.7.1": true,
+        "2.0.0": true
+      },
+      "evidence": [
+        "evidence-c6-failed-170/seq-acceptance2.json",
+        "evidence-c6-failed-170/r2-version-gate.json",
+        "evidence-c6-failed-170/IN_APP_UPGRADE_EVIDENCE.md"
+      ]
+    },
+    "seq21Inputs": {
+      "source20": {
+        "payload": "4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef",
+        "envelope": "6abc30889f4f79cd9313cf4480d805742d695b51da0846ad129b9fbaff6f10cf"
+      },
+      "target21": {
+        "payload": "b415a4e96c321dca805aca3eae429a9821dc5eb660a3b504ebbbeebd49264d98",
+        "envelope": "59f6e0ede1f710a9edae74f4150ae0c1db2739481cf80ec3c17ee0a18a9a87b6",
+        "sequence": 21,
+        "rows": 1079,
+        "signatureVerified": true
+      },
+      "pinSites": 23,
+      "plan": "SEQ21_PLAN.md"
+    },
+    "r2AsarProof": {
+      "status": "ASAR_PROOF_VERIFIED",
+      "verifier": "source/r2-asar/verify-r2-asar-a1.py",
+      "report": "source/r2-asar/r2-asar-report.json",
+      "reportSha256": "139fd30e9afc4324e76a4e571c9bba5b043ddd4fd43bf7cbef004b9c51541c2f",
+      "baselineAsarSha256": "d017ceb9947ec3ead43de68a2da1e9aac928c56129bb5c2abafa36238026141d",
+      "baselineSize": 13495963,
+      "r2AsarSha256": "9593b161f7091f5b471ce4918afee480097105b5668abbe154eb60075b1025a4",
+      "r2AsarSize": 13493619,
+      "originalMembers": 149,
+      "finalMembers": 149,
+      "changedMembers": [
+        "native-publication-update.cjs"
+      ],
+      "preservedMembers": 148,
+      "rendererSha256": "c08a94f2a32ef935c492f86b582da8f7cda364dac61ac1277406d51185285282",
+      "handoffSha256": "2d972ed47f0e58601a9a91a958fdb596ee5f9be754e5df55081a98f9de21a42d",
+      "programExecuted": false,
+      "runtimeLoadedInIsolatedCopy": true,
+      "note": "r2 client repacked into a standard asar (no shared-range proof needed); two-member variant also proven; pin fork DONE (17 edits, prepare-release-r2.cjs 59c505aa...), remaining = proposal revision + sequence 21 rebuild + outer signing"
+    },
+    "asarProof": {
+      "status": "PROOF_VERIFIED_IN_RW_NOT_EMBEDDED_IN_ANY_PACKAGE_YET",
+      "r2Asar": {
+        "path": "E:\\codex\\2026-10-15\\work\\xjy-v16-deep-audit\\release-work\\deepseek-r2-a1\\final-asar\\app.asar",
+        "bytes": 13493619,
+        "sha256": "9593b161f7091f5b471ce4918afee480097105b5668abbe154eb60075b1025a4"
+      },
+      "r2Report": {
+        "path": "E:\\codex\\2026-10-15\\work\\xjy-v16-deep-audit\\release-work\\deepseek-r2-a1\\final-asar\\report.json",
+        "bytes": 1780,
+        "sha256": "d391a5aa32bd34992f6f392f53d8990a39e03e311abfd10ad090837dfc0e7c0d",
+        "rewrittenAt": "2026-10-22T17:39:12+08:00",
+        "note": "v2 校验器重跑后重写（多出 proof/output 块），内容稳定：17:36:56 与 17:39:12 两次重跑都是 1,780B / d391a5aa…；判定结论与 v1 一致：changedMembers=[native-publication-update.cjs]、149/149、preservedSha256 2ef7e82a…、asar 9593b161…"
+      },
+      "reviewedCopy": {
+        "path": "source\\r2-asar\\r2-asar-report.json",
+        "bytes": 981,
+        "sha256": "139fd30e9afc4324e76a4e571c9bba5b043ddd4fd43bf7cbef004b9c51541c2f",
+        "capturedAt": "2026-10-22T17:30:01+08:00",
+        "stale": true,
+        "note": "仓库副本仍是 v1（981B）；RW 现行报告已是 1,780B / d391a5aa…，副本尚未回抄，签署前需同步"
+      },
+      "verifier": {
+        "path": "source\\r2-asar\\verify-r2-asar-a1.py",
+        "bytes": 5260,
+        "sha256": "a18b3c4e82652ce5de7f7414c9efb335f6c7ec9a0f91c2598cacd1cf36ed86c9",
+        "version": "v2",
+        "writtenAt": "2026-10-22T17:35:47+08:00",
+        "superseded": {
+          "bytes": 4712,
+          "sha256": "4aa351023fb6c0e92c1533cb15dda4079d017f16edc206217ef5ec7207321e25",
+          "stillPinnedBy": "source\\prepare-release-r2.cjs（17:31:09 分叉）里的 verifierPin"
+        },
+        "docstringBug": "docstring 写 'exactly two members changed' 并把 handoff 列为已变，但实现断言 changed==['native-publication-update.cjs']、handoff 在 unchangedButPinned（preserved=148）：注释笔误，结论未受影响"
+      },
+      "baselineAsar": {
+        "path": "candidate\\build\\package\\完整程序\\resources\\app.asar",
+        "bytes": 13495963,
+        "sha256": "d017ceb9947ec3ead43de68a2da1e9aac928c56129bb5c2abafa36238026141d"
+      },
+      "members": {
+        "original": 149,
+        "final": 149,
+        "changed": [
+          "native-publication-update.cjs"
+        ],
+        "preserved": 148
+      },
+      "changedPins": {
+        "native-publication-update.cjs": "a9e05a50398cbdf64cbd19498873b35d3f07e2e3830dff73be7780146250eaf6",
+        "native-update-handoff.cjs": "2d972ed47f0e58601a9a91a958fdb596ee5f9be754e5df55081a98f9de21a42d"
+      },
+      "unchangedButPinned": [
+        "native-update-handoff.cjs",
+        "renderer-dist/assets/main-7etXIfP0.js"
+      ],
+      "rendererSha256": "c08a94f2a32ef935c492f86b582da8f7cda364dac61ac1277406d51185285282",
+      "pureDataOnly": true,
+      "programExecuted": false,
+      "verified": true
+    },
+    "seq21Fork": {
+      "status": "APPLIED_17_OF_17_EDITS",
+      "tool": {
+        "path": "make-prepare-r2.cjs",
+        "bytes": 6829,
+        "sha256": "4047294eb3a7b5aa9dcdde5cae267eee3c08977dc65753ae3a358791a524c920",
+        "sha256AtForkTime": "a62d91ba7d13e376bdb54841df5d08409b22011c4045ad974e05d038d850a989",
+        "rewrittenAt": "2026-10-22T17:36:18+08:00",
+        "edits": 17
+      },
+      "output": {
+        "path": "source\\prepare-release-r2.cjs",
+        "bytes": 74937,
+        "sha256": "59c505aa1607397bd395b7486946b21d50d31f1db81ca72a60c8ffb107b43f74",
+        "writtenAt": "2026-10-22T17:31:09+08:00",
+        "note": "17 条 pin 分叉的落盘产物，此后未再变动"
+      },
+      "derivedStage": {
+        "path": "source\\prepare-release.cjs",
+        "bytes": 74975,
+        "sha256": "80382632c10922fc46b0103d158c048f2c6fdf35abf251fa70283a76e60356ee",
+        "writtenAt": "2026-10-22T17:39:02+08:00",
+        "manifestPath": "source\\reviewed-inputs-ROOT.json",
+        "manifestBytes": 3013,
+        "manifestSha256": "686be6945c2bb71c6e0cf45fc1c6f1e9da71a74ae03bb18a60a5bcc5a68e5d69",
+        "record": "builder-r2-diff.json",
+        "recordBytes": 6654,
+        "recordSha256": "3f883a05c6c5b6f13347a4efd2dd841d23f8f04a3c011a459b11c0d9aa3a0303",
+        "recordedOutputSha256": "80382632c10922fc46b0103d158c048f2c6fdf35abf251fa70283a76e60356ee",
+        "forkedSha256": "5c7f4c29a365f09fe42a62bd874ce751784f62d7b3f8af7408d5048d96bddc0e",
+        "recordConsistentWithDisk": true,
+        "note": "17:39:02 重跑后 builder-r2-diff.json 的 outputSha256 与磁盘产物一致（80382632…）。但该派生链在采集窗口内被反复重写：17:36:19 记录 eae72773… 而磁盘 17:36:24 为 80382632…、17:38:30 又变成 eae72773…、17:39:02 回到 80382632… —— 数字随时会变，签署前必须重测"
+      },
+      "pins": {
+        "SEQUENCE.target": "20 -> 21",
+        "SLOT_SOURCE_PIN": "c049bc4d... -> 4d78cbba...",
+        "SOURCE19.envelopeSha256": "53f6fa70... -> 6abc3088...",
+        "SOURCE19.sequence": "19 -> 20",
+        "TARGET20_REUSE": "4d78cbba/230255/6abc3088/246632 -> b415a4e9/230254/59f6e0ed/246639 (renamed TARGET21_REUSE)",
+        "A12_DRAFT.asarSha256": "d017ceb9... -> 9593b161...",
+        "A12_DRAFT.asarReportSha256": "d9e98563... -> 139fd30e...",
+        "verifierPin": "b2010ab4... -> 4aa35102...",
+        "purpose": "native170-known14-and19-target20-worker28 -> native170-known14-and20-target21-worker28"
+      },
+      "edits": [
+        "SEQUENCE.target",
+        "SLOT_SOURCE_PIN",
+        "verifySlotSourceCatalog",
+        "verifySlotSourceCatalog.msg",
+        "verifySource19Envelope",
+        "SOURCE19.envelopeSource",
+        "SOURCE19.envelopeSha256",
+        "SOURCE19.sequence",
+        "TARGET20_REUSE",
+        "verifyDefaultSource14.target",
+        "verifyDefaultSource14.msg",
+        "SIGNATURE.target",
+        "SIGNATURE.typed-source19",
+        "purpose.1",
+        "A12_DRAFT.asarSha256",
+        "A12_DRAFT.asarReportSha256",
+        "a12VerifyAsar"
+      ],
+      "proof": "make-prepare-r2.cjs 每条替换断言命中恰好 1 次（COUNT_MISMATCH 即中止）；derive-builder-r2.cjs 断言 edits.length===17"
+    },
+    "state": {
+      "asOf": "2026-10-22T17:40+08:00",
+      "measurementWindow": "数据在 17:38–17:40 直接从磁盘读出（Get-Item 取字节、Get-FileHash 取 sha256）。⚠️ 该目录在整个窗口内被并发重写（derive-builder-r2.cjs 于 17:38:58 从 8,848B 变为 9,139B；source\\prepare-release.cjs 在 80382632… 与 eae72773… 之间来回；builder-r2-diff.json 随之重写），签署前必须用 SEQUENCE21-STATUS.md 第五节命令重测",
+      "r2AsarAndReport": "r2 asar 已落 RW 并复核：app.asar 13,493,619B / 9593b161...（17:26:54 未变）。报告有两份：RW 现行 1,780B / d391a5aa...（v2 校验器重跑，17:39:12），仓库副本仍是 981B / 139fd30e...（17:30:01 采集 v1，未回抄）",
+      "deriveBuilderR2": "进行中：17 条 fork 产物已落盘（source\\prepare-release-r2.cjs 74,937B / 59c505aa...，17:31:09 后未变）；derive 链被反复重跑，最新快照 source\\prepare-release.cjs 74,975B / 80382632...（17:39:02）、reviewed manifest 686be694...、builder-r2-diff.json 3f883a05...（其 outputSha256 此刻与磁盘一致）",
+      "forkToolAndVerifierRewritten": "make-prepare-r2.cjs 17:36:18 重写（a62d91ba... → 4047294e...，仍 17 edits）；校验器 17:35:47 重写（4,712B/4aa35102... → 5,260B/a18b3c4e...），而 fork 产物仍 pin 旧校验器哈希——这是当前唯一待收口的 pin 漂移",
+      "churnObserved": "采集窗口内观测到的写操作：17:35:47 校验器、17:36:14 fix-prepare-r2b.cjs（新增）、17:36:18 fork+derive 脚本、17:36:24/17:38:30/17:39:02 prepare-release.cjs、17:36:56 与 17:39:12 RW 报告",
+      "rebuilt": false,
+      "rebuiltEvidence": "candidate\\build\\native-package.zip 仍是 17:19:28 的 781,517,180B / 21fad886...，包内 asar 仍是基线 d017ceb9...，即本轮未重建",
+      "signed": false,
+      "signedEvidence": "外层仍是 a16 的 envelope ba45f910...（3293 文件）；本轮未跑 finalize，未产生新 envelope",
+      "releaseQualified": false
+    },
+    "blockers": [
+      {
+        "id": "EMPLOYEE_IN_APP_UPGRADE_NEEDS_SEQUENCE_21",
+        "text": "员工机软件内升级仍需 sequence>=21 的新签名包：现网已装 sequence=20，native-update-manifest.cjs:37 要求 manifest.sequence > 已装值；同序号换目录会被判 STALE_NATIVE_MANIFEST",
+        "evidence": "evidence-c6-failed-170/IN_APP_UPGRADE_EVIDENCE.md"
+      },
+      {
+        "id": "EXE_ICON_NOT_EMBEDDED",
+        "text": "exe 图标未内嵌：程序 exe 取自 builder 内 pinned 物料，需新增 rcedit 的 pinned 行并重签；当前只把快捷方式指向从 app.asar 抽出的 ico"
+      },
+      {
+        "id": "POWER_LOSS_RECOVERY_NOT_ACCEPTED",
+        "text": "断电恢复未验收：恢复手册已交付但未真跑，按未完成处理"
+      }
+    ]
+  },
+  "round12": {
+    "asOf": "2026-10-22T18:21+08:00",
+    "status": "OUTER_SIGNED_SEQ21",
+    "summary": "seq21 候选完成外层签署：内部审计态构建（18:10:24）+ 生产根外层签名（18:19:53）+ 两份验证全通过。worker 变更行 4/5 之争不是笔误，而是\"步骤 4 报告\"与\"步骤 7 审计\"两个时点，按各自真实值分别固化。",
+    "build": {
+      "chain": "run-build-r2-all.cjs（7 步：derive-builder-r2 / prepare / derive-worker-signer / sign-worker-release / make-proposal-r2(4b) / prepare build / derive-auditor-a16 / fix-auditor-r2(6b) / audit-release）",
+      "status": "BUILT_INTERNAL_AUDITED",
+      "stage": "complete",
+      "finishedAt": "2026-10-22T18:10:24+08:00",
+      "log": "build.log",
+      "logBytes": 50238
+    },
+    "archive": {
+      "path": "candidate/build/native-package.zip",
+      "bytes": 781518221,
+      "sha256": "cacb213af9310824d2e357af17dada594615bed06683be45bcf11cae1cadabc5",
+      "compression": "DEFLATE",
+      "files": 3293,
+      "maximumBytes": 805306368,
+      "withinLimit": true
+    },
+    "asar": {
+      "relPath": "完整程序/resources/app.asar",
+      "bytes": 13493619,
+      "sha256": "9593b161f7091f5b471ce4918afee480097105b5668abbe154eb60075b1025a4",
+      "expectAsar": "match",
+      "declared": true,
+      "r2InPackage": true,
+      "assemblyInSync": true
+    },
+    "engine": {
+      "exe": {
+        "relPath": "完整程序/鑫金源珠宝报价.exe",
+        "bytes": 247184896,
+        "sha256": "c99a56d653220a8bf209b0b9ae2424ec1f1580946d1bf3395a968eb211a4f1b5"
+      },
+      "treeRuntime": {
+        "relPath": "受信助手/delivery-tools/engine-tree-runtime170.cjs",
+        "bytes": 200809,
+        "sha256": "a294ec51027e2dff4aaff5d23cfa0e39d15531c4c51f6d5ae8d773d920b53ecf"
+      },
+      "targetVersion": "1.7.0",
+      "engineVersion": "44.9.0",
+      "assemblyDeclaresBoth": true
+    },
+    "envelope": {
+      "path": "source/c28-native-publication/native-manifest.json",
+      "bytes": 806881,
+      "sha256": "6d3aec94ff56d27b56db8df3fd41e702f79dd560611665eb8cbf47d12dd05185",
+      "keys": [
+        "manifest",
+        "signature"
+      ],
+      "signatureBytes": 64,
+      "keyType": "ed25519",
+      "verifiedBy": "verify-outer-seq21.cjs（crypto.verify(null, manifest bytes, publisherPublicKey)）"
+    },
+    "payload": {
+      "role": "native-manifest.json 的 manifest 字段原文（UTF-8 文本，逐字节参与 ed25519 验签）",
+      "bytes": 757289,
+      "sha256": "03533e56012b15fae4f039d4296820cda84030bd8bfe3b57bc07434193e164dc"
+    },
+    "binding": {
+      "sha256": "7cd3eccd537b428aa28cacb703708acaf2744a44949654d9ef9cbd731014e235"
+    },
+    "outerSigning": {
+      "finalize": "run-finalize.cjs",
+      "statusFile": "outer-finalize-status.json",
+      "status": "SIGNED_INTERNAL_VERIFIED",
+      "finishedAt": "2026-10-22T18:19:53+08:00",
+      "signer": {
+        "file": "source/sign-native170-ROOT-20261022-outer-a1.cjs",
+        "bytes": 30712,
+        "sha256": "49e2a75a342134533afd411b20595183e04c9d1a4e6f68d953a833b360c9eb85"
+      },
+      "scope": {
+        "file": "source/root-outer-signing-scope-20261022-ROOT.json",
+        "bytes": 3451,
+        "sha256": "1da79c86ae8d4d28cef09b5ca4d646ed30078687069536472f38db7a6139a5a2"
+      },
+      "deriverReport": {
+        "file": "source/root-derive-new-outer-report.json",
+        "bytes": 8890,
+        "sha256": "6612397210fa9aeb476a76c73a0e97e7d3fbc09186c5ff4d25153c256b8cbf54"
+      },
+      "signReport": "source/outer-signing-report.json",
+      "keyReads": 1,
+      "privateKeyIncluded": false,
+      "zipModified": false,
+      "published": false,
+      "installed": false,
+      "feedPublicationForbidden": true,
+      "formalInstallForbidden": true
+    },
+    "workerCaliber": {
+      "why": "4 与 5 不是笔误，是两个时点：步骤 4 在 4b 之前，reviewer PS 尚未重渲染，真实 delta 就是 4 行；步骤 7 审计最终包，PS 已被 4b 重渲染（31,482B / 27d612a4…），真实 delta 是 5 行。",
+      "internalReport": {
+        "file": "source/worker-signing-report.json",
+        "caliber": "step 4（pre-4b）",
+        "changedWorkerRows": 4,
+        "unchangedWorkerRows": 97,
+        "newInternalSignatures": 1,
+        "reusedPublicSignatures": 6,
+        "pins": {
+          "proposalManifestSha256": "c20fa5367607140e7931f0de7a12babeeef3af1a71ce13924727502c3913890d",
+          "requestIndexSha256": "5ef3b49a6940968b8762c7672f796b64876e9b2bde4f171bc836229b1fe44354",
+          "workerPayloadSha256": "66aad0d8efb12f47c42a7db2ff7a596b228cf6e19ec735f245ae6cb076e3cc53",
+          "note": "三个 pin 都是 pre-4b 值；4b 之后 proposal/index/worker catalog 全部换新，报告相对最终产物天然过期——按\"历史真话\"固化，不追改"
+        }
+      },
+      "packageAudit": {
+        "file": "source/c28-native-publication/package-audit-report.json",
+        "caliber": "step 7（最终包真实 diff）",
+        "changedWorkerRows": 5,
+        "unchangedWorkerRows": 96,
+        "extraRow": "delivery-approval/Prepare-Repeat-Approval-170.ps1 31,482B sha256 27d612a4cbeb77bee8edab8171e9e0b803a8bdeb0b80b984fa57883fbce2d954",
+        "source": "audit-release.cjs:102-112 逐文件真实比对，非硬编码"
+      },
+      "reSigns": "4b 重签了两个信封：target.catalog-envelope.json（135de5f8…）与 worker.catalog-envelope.json（c8468db6…），故 index newInternalSignatureCount 由 1 变 2、reusedSignatureObjectCount 由 8 变 7"
+    },
+    "constantFix": {
+      "file": "ROOT_DERIVE_NEW_OUTER.cjs",
+      "rejected": "把 source/sign-worker-release.cjs 的 changedWorkerRows 直接改成 5 —— 该文件由步骤 3 derive-worker-signer.cjs 从模板重新生成（flag wx），改生成物下次跑链即被覆盖；且步骤 4 时 PS 还是旧版，写成 5 会让报告自证为假（拿不到 27d612a4 那一行）。",
+      "adopted": [
+        "ROOT_DERIVE_NEW_OUTER.cjs:56-61 DELTA_PATHS 保持 4 行 = step-4 口径（WORKER_DELTA）",
+        "ROOT_DERIVE_NEW_OUTER.cjs:70-72 新增 AUDIT_EXTRA_ROW = { delivery-approval/Prepare-Repeat-Approval-170.ps1: 27d612a4… }",
+        "ROOT_DERIVE_NEW_OUTER.cjs:73 AUDIT_DELTA_PATHS = DELTA_PATHS + AUDIT_EXTRA_ROW（5 行 = step-7 审计口径）",
+        "ROOT_DERIVE_NEW_OUTER.cjs:66 WORKER_UNCHANGED=97；:69 AUDIT_WORKER_UNCHANGED=96（101-4 / 101-5）",
+        "ROOT_DERIVE_NEW_OUTER.cjs:78-82 PRE_4B 冻结 pre-4b 的 proposal c20fa536… / index 5ef3b49a… / workerCatalog 66aad0d8…，:326 断言报告 pin 旧值且 assert.notEqual 新值（两份真话可同时成立）",
+        "ROOT_DERIVE_NEW_OUTER.cjs:85 R2_RESIGNED_ENVELOPES = [target.catalog-envelope.json, worker.catalog-envelope.json]",
+        "ROOT_DERIVE_NEW_OUTER.cjs:292 bindingsReady 断言 WORKER_DELTA.length=4 且 AUDIT_WORKER_DELTA.length=5；:523 assert.equal(WORKER_DELTA.length,4)",
+        "ROOT_DERIVE_NEW_OUTER.cjs:581 index.newInternalSignatureCount=2 / :651 assembly.oldSignatureObjectsReused=7 / assembly.newInternalSignatures=2（4b 重签两封）"
+      ]
+    },
+    "auditSemanticsChange": {
+      "file": "source/audit-release.cjs",
+      "line": 109,
+      "C28_ASAR_RANGE": "允许\"同起点 + 同终点 + 同 size\"的完全重合并（clash.every(x=>x[0]===at&&x[1]===end&&x[3]===e.size)）；此前任何区间重叠即 fail",
+      "C28_ASAR_INTEGRITY": "新增：逐 member 计算 data 段 sha256，若 asar 头带 integrity{algorithm:\"SHA256\"} 且 hash 不符则 fail(\"C28_ASAR_INTEGRITY\")",
+      "note": "放宽区间重叠、收紧内容校验：r2 重打包后两处 member 共享同一区间，重叠不再等同损坏，内容改由 integrity hash 逐条兜底"
+    },
+    "verification": {
+      "verifyPackage": {
+        "command": "E:/node/node.exe verify-r2/verify-package.cjs --build D:/Codex/xjy-release-20261022/candidate/build --expect-asar 9593b161f7091f5b471ce4918afee480097105b5668abbe154eb60075b1025a4 --executable 0 --process-check 1",
+        "ok": true,
+        "exitCode": 0,
+        "summary": "PASS | files 3293/3293 (disk 3293) | archive ok | asar 9593b161f709=r2 | engine c99a56d65322 | executed:false",
+        "filesVerified": 3293,
+        "hashFailures": 0,
+        "asarMatch": true,
+        "archiveStable": true,
+        "processCheck": {
+          "checked": true,
+          "running": [],
+          "launchedByTool": false,
+          "programExecuted": false
+        },
+        "generatedAt": "2026-10-22T18:20:25+08:00"
+      },
+      "verifyOuterSeq21": {
+        "command": "E:/node/node.exe verify-outer-seq21.cjs",
+        "ok": true,
+        "failedChecks": 0,
+        "archiveSizeMatch": true,
+        "archiveShaMatch": true,
+        "keyType": "ed25519",
+        "signatureBytes": 64,
+        "envelopeSha256": "6d3aec94ff56d27b56db8df3fd41e702f79dd560611665eb8cbf47d12dd05185",
+        "manifestSha256": "03533e56012b15fae4f039d4296820cda84030bd8bfe3b57bc07434193e164dc",
+        "generatedAt": "2026-10-22T18:20:33+08:00"
+      }
+    },
+    "incidents": [
+      "18:18:05 第一次 run-finalize 失败：外签署器 ReferenceError \"R2_RESIGNED is not defined\"（模板把 const R2_RESIGNED 定义在 async function inputs() 内，却在 sign() 的 report 里引用）。修正：模板内该常量改为模块级/内联后重生成签署器（18:18:22），18:19:53 重跑成功。属最小修复，未放宽任何断言。"
+    ],
+    "nonClaims": [
+      "未重装生产、未发布 feed、未改 ZIP 内容（zipModified:false）",
+      "未复制私钥（privateKeyIncluded:false；KeyReads:1，仅签名瞬间以 fd 读取并清零）",
+      "外层签名只覆盖 D:/Codex/xjy-release-20261022 这一份 payload，不覆盖员工机验收",
+      "F:/自制软件 与 F:/鑫金源珠宝资料 本轮零写入"
+    ]
+  }
+}

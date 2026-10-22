@@ -1,0 +1,397 @@
+{
+    "schemaVersion":  1,
+    "generatedAt":  "2026-10-22T18:07:25.3413462+08:00",
+    "host":  "张晋铭",
+    "releaseDir":  "F:\\鑫金源珠宝资料\\程序设置\\员工升级",
+    "publicPem":  "D:\\Codex\\xjy-release-20261022\\candidate\\proposal\\worker-draft\\publisher-public.pem",
+    "nodeExe":  "E:\\node\\node.exe",
+    "files":  [
+                  {
+                      "name":  "catalog.json",
+                      "path":  "F:\\鑫金源珠宝资料\\程序设置\\员工升级\\catalog.json",
+                      "exists":  true,
+                      "bytes":  205209,
+                      "sha256":  "3878062426c6ee85e7fbca0e9813ff91c80193d9a99d3db3ce307dacb1b999e8",
+                      "modified":  "2026-10-22 16:41:32"
+                  },
+                  {
+                      "name":  "package.zip",
+                      "path":  "F:\\鑫金源珠宝资料\\程序设置\\员工升级\\package.zip",
+                      "exists":  true,
+                      "bytes":  164878024,
+                      "sha256":  "b1a7b12029208994d0431101660368d22c8d887384485aff432765c380730dc9",
+                      "modified":  "2026-10-22 15:34:40"
+                  },
+                  {
+                      "name":  "native-manifest.json",
+                      "path":  "F:\\鑫金源珠宝资料\\程序设置\\员工升级\\native-manifest.json",
+                      "exists":  true,
+                      "bytes":  806881,
+                      "sha256":  "0ebf732cac77e24fd32f28924dd8c88d4c152d7a3fe5d5932a4ba1e8adc34a7d",
+                      "modified":  "2026-10-22 15:37:35"
+                  },
+                  {
+                      "name":  "native-package.zip",
+                      "path":  "F:\\鑫金源珠宝资料\\程序设置\\员工升级\\native-package.zip",
+                      "exists":  true,
+                      "bytes":  781517156,
+                      "sha256":  "06ceef98b0dc05dcac5f554c1bccf91e18c31a626bc662cf5acd45e17c69d848",
+                      "modified":  "2026-10-22 15:36:19"
+                  }
+              ],
+    "catalog":  {
+                    "schemaVersion":  1,
+                    "app":  "xjy-jewelry-offline",
+                    "channel":  "stable",
+                    "version":  "1.7.0",
+                    "sourceVersions":  [
+                                           "1.6.0",
+                                           "1.6.1",
+                                           "1.6.2"
+                                       ],
+                    "platform":  "win32",
+                    "arch":  "x64",
+                    "sequence":  4,
+                    "publishedAt":  "2026-10-22T08:41:32.784Z",
+                    "expiresAt":  "2027-01-20T08:41:32.785Z",
+                    "archive":  {
+                                    "size":  164878024,
+                                    "sha256":  "b1a7b12029208994d0431101660368d22c8d887384485aff432765c380730dc9"
+                                },
+                    "fileCount":  1020
+                },
+    "nativeManifest":  {
+                           "schemaVersion":  1,
+                           "purpose":  "xjy-native-employee-update-v1",
+                           "app":  "xjy-jewelry-offline",
+                           "platform":  "win32",
+                           "arch":  "x64",
+                           "role":  "employee",
+                           "targetVersion":  "1.7.0",
+                           "engineVersion":  "44.9.0",
+                           "sequence":  20,
+                           "publishedAt":  "2026-10-22T07:36:21.987Z",
+                           "expiresAt":  "2027-01-20T07:36:21.987Z",
+                           "fullTargetCatalogSha256":  "4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef",
+                           "bindingSha256":  "cb3bb4ce2702adba4d1dfd918c812299ba07eb7e7b306cc7f1d393eb7a09d2fd",
+                           "archive":  {
+                                           "size":  781517156,
+                                           "sha256":  "06ceef98b0dc05dcac5f554c1bccf91e18c31a626bc662cf5acd45e17c69d848"
+                                       },
+                           "fileCount":  3293
+                       },
+    "innerTargetCatalog":  {
+                               "parsable":  true,
+                               "schemaVersion":  1,
+                               "app":  "xjy-jewelry-offline",
+                               "channel":  "stable",
+                               "version":  "1.7.0",
+                               "sequence":  20,
+                               "publishedAt":  "2026-10-20T20:25:45.605Z",
+                               "expiresAt":  "2027-04-18T20:25:45.605Z",
+                               "archiveSize":  550748678,
+                               "archiveSha256":  "6065ae62dc4d61fb4b3eebd3aa71abff98b14e17001714c80986320861cea01f",
+                               "fileCount":  0
+                           },
+    "signature":  {
+                      "catalogVerified":  true,
+                      "manifestVerified":  true,
+                      "innerVerified":  true,
+                      "publicKeySha256":  null,
+                      "publicKeyDerSha256":  "6e8b9cadb59aeb53f30d41f4471f70f644f0dfc7376ffb9d8a4c62defb98458c"
+                  },
+    "checks":  [
+                   {
+                       "Id":  "K-1",
+                       "Level":  "PASS",
+                       "Title":  "publisher public key fingerprint (client pins this value)",
+                       "Detail":  "ed25519, pemSha256 bc6c3d2b42871e42d3eb91371034b410d507a228eeccb1d714acca60e8141b30\nD:\\Codex\\xjy-release-20261022\\candidate\\proposal\\worker-draft\\publisher-public.pem",
+                       "Data":  {
+                                    "ok":  true,
+                                    "mode":  "key",
+                                    "keyType":  "ed25519",
+                                    "pemPath":  "D:\\Codex\\xjy-release-20261022\\candidate\\proposal\\worker-draft\\publisher-public.pem",
+                                    "pemSha256":  "bc6c3d2b42871e42d3eb91371034b410d507a228eeccb1d714acca60e8141b30",
+                                    "derSha256":  "6e8b9cadb59aeb53f30d41f4471f70f644f0dfc7376ffb9d8a4c62defb98458c"
+                                }
+                   },
+                   {
+                       "Id":  "F-1",
+                       "Level":  "INFO",
+                       "Title":  "catalog.json",
+                       "Detail":  "size   : 205,209 bytes (0.2 MB)\nsha256 : 3878062426c6ee85e7fbca0e9813ff91c80193d9a99d3db3ce307dacb1b999e8\nmtime  : 2026-10-22 16:41:32",
+                       "Data":  null
+                   },
+                   {
+                       "Id":  "F-2",
+                       "Level":  "INFO",
+                       "Title":  "package.zip",
+                       "Detail":  "size   : 164,878,024 bytes (157.2 MB)\nsha256 : b1a7b12029208994d0431101660368d22c8d887384485aff432765c380730dc9\nmtime  : 2026-10-22 15:34:40",
+                       "Data":  null
+                   },
+                   {
+                       "Id":  "F-3",
+                       "Level":  "INFO",
+                       "Title":  "native-manifest.json",
+                       "Detail":  "size   : 806,881 bytes (0.8 MB)\nsha256 : 0ebf732cac77e24fd32f28924dd8c88d4c152d7a3fe5d5932a4ba1e8adc34a7d\nmtime  : 2026-10-22 15:37:35",
+                       "Data":  null
+                   },
+                   {
+                       "Id":  "F-4",
+                       "Level":  "INFO",
+                       "Title":  "native-package.zip",
+                       "Detail":  "size   : 781,517,156 bytes (745.3 MB)\nsha256 : 06ceef98b0dc05dcac5f554c1bccf91e18c31a626bc662cf5acd45e17c69d848\nmtime  : 2026-10-22 15:36:19",
+                       "Data":  null
+                   },
+                   {
+                       "Id":  "F-OK",
+                       "Level":  "PASS",
+                       "Title":  "all four release files present",
+                       "Detail":  "4/4 present, total 947,407,270 bytes (903.5 MB)",
+                       "Data":  [
+
+                                ]
+                   },
+                   {
+                       "Id":  "C-1",
+                       "Level":  "INFO",
+                       "Title":  "catalog fields",
+                       "Detail":  "version       : 1.7.0\nsequence      : 4\nchannel       : stable\nsourceVersions: 1.6.0,1.6.1,1.6.2\npublishedAt   : 2026-10-22T08:41:32.784Z\nexpiresAt     : 2027-01-20T08:41:32.785Z\nfiles         : 1020\ntargetVersion : (absent in catalog; it lives in native-manifest / inner target catalog)\nengineVersion : (absent in catalog; it lives in native-manifest)",
+                       "Data":  null
+                   },
+                   {
+                       "Id":  "C-2",
+                       "Level":  "PASS",
+                       "Title":  "catalog 签名 (Ed25519)",
+                       "Detail":  "verified; payload sha256 f4b2972e7357b1ab73e7c8cd1a4b3e3160c98b10da2c3da35eba481573591d83, key ed25519",
+                       "Data":  {
+                                    "ok":  true,
+                                    "mode":  "envelope",
+                                    "field":  "catalog",
+                                    "file":  "F:\\鑫金源珠宝资料\\程序设置\\员工升级\\catalog.json",
+                                    "keyType":  "ed25519",
+                                    "pemPath":  "D:\\Codex\\xjy-release-20261022\\candidate\\proposal\\worker-draft\\publisher-public.pem",
+                                    "derSha256":  "6e8b9cadb59aeb53f30d41f4471f70f644f0dfc7376ffb9d8a4c62defb98458c",
+                                    "payloadSha256":  "f4b2972e7357b1ab73e7c8cd1a4b3e3160c98b10da2c3da35eba481573591d83",
+                                    "payloadBytes":  194842,
+                                    "signatureBytes":  64,
+                                    "canonicallyReparsedStillVerifies":  true,
+                                    "verifyError":  null,
+                                    "payload":  {
+                                                    "parsable":  true,
+                                                    "schemaVersion":  1,
+                                                    "app":  "xjy-jewelry-offline",
+                                                    "channel":  "stable",
+                                                    "version":  "1.7.0",
+                                                    "sequence":  4,
+                                                    "publishedAt":  "2026-10-22T08:41:32.784Z",
+                                                    "expiresAt":  "2027-01-20T08:41:32.785Z",
+                                                    "archiveSize":  164878024,
+                                                    "archiveSha256":  "b1a7b12029208994d0431101660368d22c8d887384485aff432765c380730dc9",
+                                                    "fileCount":  1020
+                                                }
+                                }
+                   },
+                   {
+                       "Id":  "C-3",
+                       "Level":  "PASS",
+                       "Title":  "package.zip matches catalog.archive",
+                       "Detail":  "size+sha256 identical to signed catalog archive (164,878,024 bytes (157.2 MB))",
+                       "Data":  {
+                                    "diskBytes":  164878024,
+                                    "diskSha256":  "b1a7b12029208994d0431101660368d22c8d887384485aff432765c380730dc9",
+                                    "signedBytes":  164878024,
+                                    "signedSha256":  "b1a7b12029208994d0431101660368d22c8d887384485aff432765c380730dc9"
+                                }
+                   },
+                   {
+                       "Id":  "C-4",
+                       "Level":  "PASS",
+                       "Title":  "catalog not expired",
+                       "Detail":  "expires 2027-01-20T08:41:32.785Z (still valid)",
+                       "Data":  null
+                   },
+                   {
+                       "Id":  "N-1",
+                       "Level":  "INFO",
+                       "Title":  "native-manifest fields",
+                       "Detail":  "targetVersion : 1.7.0\nengineVersion : 44.9.0\nsequence      : 20\npurpose       : xjy-native-employee-update-v1\napp/role      : xjy-jewelry-offline / employee\npublishedAt   : 2026-10-22T07:36:21.987Z\nexpiresAt     : 2027-01-20T07:36:21.987Z\nfiles         : 3293\nbindingSha256 : cb3bb4ce2702adba4d1dfd918c812299ba07eb7e7b306cc7f1d393eb7a09d2fd\ntargetCatSha  : 4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef",
+                       "Data":  null
+                   },
+                   {
+                       "Id":  "N-2",
+                       "Level":  "PASS",
+                       "Title":  "native-manifest 签名 (Ed25519)",
+                       "Detail":  "verified; payload sha256 a40079f1336220ed30a60ab032298768245be52c575c7a354ec1cf86cfb2e944",
+                       "Data":  {
+                                    "ok":  true,
+                                    "mode":  "envelope",
+                                    "field":  "manifest",
+                                    "file":  "F:\\鑫金源珠宝资料\\程序设置\\员工升级\\native-manifest.json",
+                                    "keyType":  "ed25519",
+                                    "pemPath":  "D:\\Codex\\xjy-release-20261022\\candidate\\proposal\\worker-draft\\publisher-public.pem",
+                                    "derSha256":  "6e8b9cadb59aeb53f30d41f4471f70f644f0dfc7376ffb9d8a4c62defb98458c",
+                                    "payloadSha256":  "a40079f1336220ed30a60ab032298768245be52c575c7a354ec1cf86cfb2e944",
+                                    "payloadBytes":  757289,
+                                    "signatureBytes":  64,
+                                    "canonicallyReparsedStillVerifies":  false,
+                                    "verifyError":  null,
+                                    "payload":  {
+                                                    "parsable":  true,
+                                                    "schemaVersion":  1,
+                                                    "purpose":  "xjy-native-employee-update-v1",
+                                                    "app":  "xjy-jewelry-offline",
+                                                    "role":  "employee",
+                                                    "targetVersion":  "1.7.0",
+                                                    "engineVersion":  "44.9.0",
+                                                    "sequence":  20,
+                                                    "publishedAt":  "2026-10-22T07:36:21.987Z",
+                                                    "expiresAt":  "2027-01-20T07:36:21.987Z",
+                                                    "bindingSha256":  "cb3bb4ce2702adba4d1dfd918c812299ba07eb7e7b306cc7f1d393eb7a09d2fd",
+                                                    "fullTargetCatalogSha256":  "4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef",
+                                                    "archiveSize":  781517156,
+                                                    "archiveSha256":  "06ceef98b0dc05dcac5f554c1bccf91e18c31a626bc662cf5acd45e17c69d848",
+                                                    "fileCount":  3293
+                                                }
+                                }
+                   },
+                   {
+                       "Id":  "N-3",
+                       "Level":  "PASS",
+                       "Title":  "client identity pins (purpose/app/role/target=1.7.0/engine=44.9.0)",
+                       "Detail":  "all pins match what the shipped 1.7.0 employee client accepts",
+                       "Data":  {
+                                    "purpose":  "xjy-native-employee-update-v1",
+                                    "app":  "xjy-jewelry-offline",
+                                    "role":  "employee",
+                                    "targetVersion":  "1.7.0",
+                                    "engineVersion":  "44.9.0"
+                                }
+                   },
+                   {
+                       "Id":  "N-4",
+                       "Level":  "PASS",
+                       "Title":  "native-package.zip matches manifest.archive",
+                       "Detail":  "size+sha256 identical to signed manifest archive (781,517,156 bytes (745.3 MB))",
+                       "Data":  {
+                                    "diskBytes":  781517156,
+                                    "diskSha256":  "06ceef98b0dc05dcac5f554c1bccf91e18c31a626bc662cf5acd45e17c69d848",
+                                    "signedBytes":  781517156,
+                                    "signedSha256":  "06ceef98b0dc05dcac5f554c1bccf91e18c31a626bc662cf5acd45e17c69d848"
+                                }
+                   },
+                   {
+                       "Id":  "N-5",
+                       "Level":  "PASS",
+                       "Title":  "native-manifest not expired",
+                       "Detail":  "expires 2027-01-20T07:36:21.987Z (still valid)",
+                       "Data":  null
+                   },
+                   {
+                       "Id":  "N-6",
+                       "Level":  "PASS",
+                       "Title":  "fixed maintenance worker pin (sha db3ad206...)",
+                       "Detail":  "worker entry present with the exact size+sha256 the client demands",
+                       "Data":  {
+                                    "path":  "受信助手/鑫金源珠宝报价.exe",
+                                    "size":  246302720,
+                                    "sha256":  "db3ad2066a55546f9b6737da3c7f011370e4856fb36888055b544d45653e4f40"
+                                }
+                   },
+                   {
+                       "Id":  "B-1",
+                       "Level":  "PASS",
+                       "Title":  "binding.json sha256 == manifest.bindingSha256",
+                       "Detail":  "match: cb3bb4ce2702adba4d1dfd918c812299ba07eb7e7b306cc7f1d393eb7a09d2fd",
+                       "Data":  {
+                                    "zipEntrySha256":  "cb3bb4ce2702adba4d1dfd918c812299ba07eb7e7b306cc7f1d393eb7a09d2fd",
+                                    "manifestBindingSha256":  "cb3bb4ce2702adba4d1dfd918c812299ba07eb7e7b306cc7f1d393eb7a09d2fd",
+                                    "bytes":  2016620
+                                }
+                   },
+                   {
+                       "Id":  "B-2",
+                       "Level":  "PASS",
+                       "Title":  "inner target catalog 签名 (Ed25519)",
+                       "Detail":  "verified; inner target catalog sha256 4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef",
+                       "Data":  {
+                                    "ok":  true,
+                                    "mode":  "binding",
+                                    "field":  "native.targetEnvelope.catalog",
+                                    "file":  "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\s6-binding-4e7e27f15b2a41f899b1d72d23fac1e7.json",
+                                    "keyType":  "ed25519",
+                                    "pemPath":  "D:\\Codex\\xjy-release-20261022\\candidate\\proposal\\worker-draft\\publisher-public.pem",
+                                    "derSha256":  "6e8b9cadb59aeb53f30d41f4471f70f644f0dfc7376ffb9d8a4c62defb98458c",
+                                    "payloadSha256":  "4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef",
+                                    "payloadBytes":  230255,
+                                    "signatureBytes":  64,
+                                    "canonicallyReparsedStillVerifies":  false,
+                                    "verifyError":  null,
+                                    "payload":  {
+                                                    "parsable":  true,
+                                                    "schemaVersion":  1,
+                                                    "app":  "xjy-jewelry-offline",
+                                                    "channel":  "stable",
+                                                    "version":  "1.7.0",
+                                                    "sequence":  20,
+                                                    "publishedAt":  "2026-10-20T20:25:45.605Z",
+                                                    "expiresAt":  "2027-04-18T20:25:45.605Z",
+                                                    "archiveSize":  550748678,
+                                                    "archiveSha256":  "6065ae62dc4d61fb4b3eebd3aa71abff98b14e17001714c80986320861cea01f",
+                                                    "fileCount":  1079
+                                                }
+                                }
+                   },
+                   {
+                       "Id":  "B-3",
+                       "Level":  "PASS",
+                       "Title":  "inner target catalog sha256 == manifest.fullTargetCatalogSha256",
+                       "Detail":  "match: 4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef",
+                       "Data":  {
+                                    "innerTargetCatalogSha256":  "4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef",
+                                    "manifestFullTargetCatalogSha256":  "4d78cbbac07b05f267fabb870a10376a2c1158a8b4623ba4ea35d3334cb828ef"
+                                }
+                   },
+                   {
+                       "Id":  "B-4",
+                       "Level":  "INFO",
+                       "Title":  "inner target catalog (what the employee installs)",
+                       "Detail":  "version : 1.7.0\nsequence: 20\nfiles   : 1079\narchive : 550748678 / 6065ae62dc4d61fb4b3eebd3aa71abff98b14e17001714c80986320861cea01f",
+                       "Data":  null
+                   },
+                   {
+                       "Id":  "X-1",
+                       "Level":  "PASS",
+                       "Title":  "catalog.version == manifest.targetVersion == 1.7.0",
+                       "Detail":  "1.7.0 / 1.7.0",
+                       "Data":  null
+                   },
+                   {
+                       "Id":  "X-2",
+                       "Level":  "INFO",
+                       "Title":  "two independent sequence counters (not a defect by itself)",
+                       "Detail":  "catalog.sequence        : 4   \u003c- patch-catalog channel generation\nnative-manifest.sequence: 20   \u003c- native full-program channel generation\ninner target catalog seq: 20\nemployee already accepts up to a stored accepted-sequence.json + a native install receipt;\nthe native channel only offers work when the published target catalog differs AND its sequence\nis not lower than the installed one.",
+                       "Data":  null
+                   },
+                   {
+                       "Id":  "X-3",
+                       "Level":  "PASS",
+                       "Title":  "inner target catalog sequence == native-manifest sequence",
+                       "Detail":  "both 20",
+                       "Data":  null
+                   },
+                   {
+                       "Id":  "S-1",
+                       "Level":  "WARN",
+                       "Title":  "服务副本 (where the LAN feed is actually served from)",
+                       "Detail":  "no 员工升级 folder found under %APPDATA%, %LOCALAPPDATA% or %ProgramData%\nthe four files in the release point are the hand-off copies; the LAN feed serves the host\nprofile copy, so the host must publish once before the employee can see this release.\nif the folder lives elsewhere, re-run with:  -ServedDir \"\u003cpath to the 员工升级 folder\u003e\"",
+                       "Data":  null
+                   }
+               ],
+    "summary":  {
+                    "pass":  15,
+                    "warn":  1,
+                    "fail":  0,
+                    "ok":  true
+                }
+}

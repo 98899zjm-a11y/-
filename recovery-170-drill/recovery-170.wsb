@@ -1,0 +1,26 @@
+<Configuration>
+  <Networking>Disable</Networking>
+  <MemoryInMB>8192</MemoryInMB>
+  <MappedFolders>
+    <MappedFolder>
+      <HostFolder>D:\Codex\xjy-1.7.0\c28-candidate\build\package</HostFolder>
+      <SandboxFolder>C:\XjyPackage</SandboxFolder>
+      <ReadOnly>true</ReadOnly>
+    </MappedFolder>
+    <MappedFolder>
+      <HostFolder>D:\Codex\xjy-accept-170\legacy-root</HostFolder>
+      <SandboxFolder>C:\XjySeedRoot</SandboxFolder>
+      <ReadOnly>true</ReadOnly>
+    </MappedFolder>
+    <MappedFolder>
+      <HostFolder>D:\Codex\xjy-accept-170\legacy-data</HostFolder>
+      <SandboxFolder>C:\XjySeedData</SandboxFolder>
+      <ReadOnly>true</ReadOnly>
+    </MappedFolder>
+    <MappedFolder>
+      <HostFolder>D:\Codex\xjy-release-20261022\guest-results</HostFolder>
+      <SandboxFolder>C:\XjyResults</SandboxFolder>
+      <ReadOnly>false</ReadOnly>
+    </MappedFolder>
+  </MappedFolders>
+</Configuration>
