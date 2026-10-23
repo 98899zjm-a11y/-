@@ -1,0 +1,14 @@
+{
+ "schemaVersion":1,
+ "moduleId":"inventory-approved-snapshot-reader",
+ "label":"已审核库存快照查询候选",
+ "sourceModule":"D:/Codex/xjy-inventory-agent-20261023/harness-candidate/inventory-report-reader.mjs",
+ "kind":"internal-read-only-library",
+ "runtimeEnabled":false,
+ "productionConnected":false,
+ "isLiveInventory":false,
+ "author":"DeepSeek Harness",
+ "independentValidation":"Codex; Root reports 22 passing checks",
+ "requiredHostCallbacks":["authorize","loadReport"],
+ "toolPermissionsGranted":false
+}

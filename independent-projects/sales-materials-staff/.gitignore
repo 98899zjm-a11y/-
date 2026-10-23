@@ -1,0 +1,15 @@
+node_modules/
+runtime/
+evaluation/*
+!evaluation/*.mjs
+auth/evidence/
+evidence/
+*.sqlite*
+*.db*
+*.log
+.env*
+*.pem
+*.key
+*.jpg
+*.png
+*.webp

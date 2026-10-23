@@ -1,0 +1,18 @@
+{
+ "schemaVersion":1,
+ "moduleId":"sales-materials-staff-candidate",
+ "label":"员工权限素材工作台（候选）",
+ "entry":"entry.mjs",
+ "launcher":"Start-StaffMaterials.ps1",
+ "sourceModule":"D:/Codex/xjy-sales-materials-staff-20261023/server.mjs",
+ "dataRoot":"D:/Codex/xjy-sales-materials-staff-20261023/runtime/data",
+ "host":"127.0.0.1",
+ "port":21964,
+ "url":"http://127.0.0.1:21964",
+ "model":"qwen3-vl:4b-instruct",
+ "authenticationRequired":true,
+ "permissionBoundary":"real-auth-code-synthetic-accounts",
+ "productionConnected":false,
+ "productionEmployeePermissionsInherited":false,
+ "nodeRuntime":"D:/Codex/xjy-agent-sales-media/openclaw-isolated/runtime/node-v24.22.1-win-x64/node.exe"
+}

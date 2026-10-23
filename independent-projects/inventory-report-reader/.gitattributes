@@ -1,0 +1,2 @@
+# Preserve exact reviewed source bytes.
+* -text whitespace=cr-at-eol
