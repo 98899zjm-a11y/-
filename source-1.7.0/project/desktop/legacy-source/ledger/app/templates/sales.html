@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block title %}销售明细{% endblock %}
+{% block bodyclass %}ledger-sales{% endblock %}
+{% block body %}
+<div class="page-head">
+  <div>
+    <h1>销售明细</h1>
+    <div class="sub">
+      默认显示全部历史销售。原表来源可追溯，历史单据保留原金额与规则版本。
+    </div>
+  </div>
+  <div class="page-actions">
+    <a class="btn" href="{{ url_for('sales.export') }}">导出 CSV（发给会计）</a>
+    <a class="btn" href="{{ url_for('sales.index', all=1) }}">看全部</a>
+  </div>
+</div>
+
+{% if not total_count %}
+<div class="card"><div class="card-body"><p>{{ empty_reason }}</p><div class="page-actions">
+{% if history_count %}<a class="btn primary" href="{{ url_for('sales.index') }}">清除筛选，查看全部销售</a>
+{% elif source_sales_link_count %}<a class="btn primary" href="{{ url_for('enhanced.source_page') }}">查看原表对账</a>
+{% elif original_import_doc is defined and original_import_doc and cu.role=='admin' %}
+<form method="post" action="{{ url_for('bundled_source.import_book') }}" onsubmit="return confirm('确认将这份原表的销售、库存和存料明细导入当前账本？已对应记录不会重复入账。')"><input type="hidden" name="document_id" value="{{ original_import_doc.id }}"><input type="hidden" name="snapshot" value="{{ original_import_token }}"><input type="hidden" name="confirm" value="1"><button class="btn primary" type="submit">确认导入原表数据</button></form>
+{% else %}<a class="btn primary" href="{{ url_for('enhanced.source_page') }}">查看原表与导入</a>{% endif %}
+{% if original_excel_available is defined and original_excel_available %}<a class="btn" href="{{ url_for('bundled_source.preview') }}">预览原版 Excel</a><a class="btn" href="{{ url_for('bundled_source.download') }}">下载原版 Excel</a>{% endif %}
+</div></div></div>
+{% endif %}
+
+<div class="card">
+  <h2>{{ '修改这一笔' if edit else '记一笔销售' }}
+    <span class="hint">带 * 的是必填；灰色框是自动算的，不用填</span></h2>
+  <div class="card-body">
+    <form method="post" action="{{ url_for('sales.save') }}" id="f">
+      <input type="hidden" name="id" value="{{ edit.id if edit else '' }}">
+      <input type="hidden" name="labor" id="w_labor" value="{{ edit.labor if edit else default_labor }}">
+      <input type="hidden" name="template" id="w_tpl" value="{{ edit.template if edit else '' }}">
+      {% if edit %}<input type="hidden" name="snapshot" value="{{ row_token('sales', edit) }}">{% endif %}
+      <div class="form-grid">
+        <div class="field"><label for="w_date">日期 *</label><input type="date" name="date" id="w_date" required
+          value="{{ edit.date if edit else today }}"></div>
+        <div class="field"><label for="w_order">销售单号</label><input type="text" name="order_no" id="w_order"
+          placeholder="xjy6004241" value="{{ edit.order_no if edit else '' }}"></div>
+        <div class="field"><label for="w_channel">销售渠道</label>
+          <select name="channel" id="w_channel">
+            {% for c in channels %}<option {{ 'selected' if edit and edit.channel == c }}>{{ c }}</option>{% endfor %}
+          </select></div>
+        <div class="field"><label for="w_product">商品 *</label><input type="text" name="product" id="w_product" required
+          placeholder="PT950 小裙子吊坠2.41" value="{{ edit.product if edit else '' }}"></div>
+        <div class="field"><label for="w_weight">规格 / 克重 (g) *</label><input type="number" step="0.0001" min="0"
+          name="weight" id="w_weight" value="{{ edit.weight if edit else '' }}"></div>
+        <div class="field"><label for="w_sgp">销售克价 (元/克)</label><input type="number" step="0.0001" min="0"
+          name="sell_gram_price" id="w_sgp" value="{{ edit.sell_gram_price if edit else '' }}"></div>
+        <div class="field"><label for="w_amount_override">销售金额（可修改）</label><input type="number" step="any" name="amount_c" id="w_amount_override" value="{{ edit.amount_c if edit else '' }}" placeholder="留空按计算金额" aria-describedby="amount-help"><div class="field-note" id="amount-help">特殊情况可手填本次销售金额；未填写时按当前规则计算。</div></div>
+        <div class="field"><label for="w_cost">成本 (元)</label><input type="number" step="0.01" min="0"
+          name="cost" id="w_cost" value="{{ edit.cost if edit else '' }}"></div>
+        <div class="field"><label for="w_recv">实际到账 (元)</label><input type="number" step="0.01" min="0"
+          name="received" id="w_recv" value="{{ edit.received if edit else '' }}"></div>
+        <div class="field"><label for="w_spread">点差 (元/克)</label>
+          <input type="number" step="0.01" min="0" name="spread" id="w_spread"
+          value="{{ effective_spread if edit else '' }}" aria-describedby="spread-help"><div class="field-note" id="spread-help">留 0 按默认 {{ spread|fmt2 }}</div></div>
+        <div class="field"><label for="w_staff">销售人员</label>
+          <select name="staff" id="w_staff">
+            <option value="">（未指定）</option>
+            {% for s in staffs %}<option {{ 'selected' if edit and edit.staff == s }}>{{ s }}</option>{% endfor %}
+          </select></div>
+        <div class="field"><label for="xjy-sales-field-12">订单详情</label>
+          <select id="xjy-sales-field-12" name="status">
+            {% for st in statuses %}<option {{ 'selected' if edit and edit.status == st }}>{{ st }}</option>{% endfor %}
+          </select></div>
+        <div class="field"><label for="xjy-sales-field-13">汇款日期</label><input id="xjy-sales-field-13" type="date" name="remit_date"
+          value="{{ edit.remit_date if edit else '' }}"></div>
+        <div class="field"><label for="xjy-sales-field-14">小红书复购</label><input id="xjy-sales-field-14" type="text" name="xhs_repeat"
+          value="{{ edit.xhs_repeat if edit else '' }}"></div>
+        <div class="field wide"><label for="xjy-sales-field-15">备注</label><input id="xjy-sales-field-15" type="text" name="note"
+          value="{{ edit.note if edit else '' }}"></div>
+      </div>
+
+      {% if edit %}<label class="check-label"><input type="checkbox" name="current_rules" value="1"> 明确按当前规则重算这笔单据（第 {{ edit.rule_version }} 版历史规则仍可追溯）</label>{% endif %}
+      <div class="tip" id="preview" style="margin-top:4px">填了克重、销售克价、成本、实际到账，这里实时显示算出来的数。</div>
+
+      <div class="page-actions" style="margin-top:12px">
+        <button class="btn primary" type="submit">{{ '保存修改' if edit else '保存这一笔' }}</button>
+        {% if edit %}<a class="btn" href="{{ url_for('sales.index') }}">取消</a>{% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <h2>筛选</h2>
+  <div class="card-body">
+    <form method="get" class="filter">
+      <div class="field"><label for="xjy-sales-field-16">从</label><input id="xjy-sales-field-16" type="date" name="s" value="{{ s }}"></div>
+      <div class="field"><label for="xjy-sales-field-17">到</label><input id="xjy-sales-field-17" type="date" name="e" value="{{ e }}"></div>
+      <div class="field"><label for="xjy-sales-field-18">销售员</label>
+        <select id="xjy-sales-field-18" name="staff"><option value="">全部</option>
+          {% for x in staffs %}<option {{ 'selected' if staff == x }}>{{ x }}</option>{% endfor %}
+        </select></div>
+      <div class="field"><label for="xjy-sales-field-19">渠道</label>
+        <select id="xjy-sales-field-19" name="channel"><option value="">全部</option>
+          {% for x in channels %}<option {{ 'selected' if channel == x }}>{{ x }}</option>{% endfor %}
+        </select></div>
+      <div class="field"><label for="xjy-sales-field-20">订单详情</label>
+        <select id="xjy-sales-field-20" name="status"><option value="">全部</option>
+          {% for x in statuses %}<option {{ 'selected' if status == x }}>{{ x }}</option>{% endfor %}
+        </select></div>
+      <div class="field"><button class="btn primary" type="submit">查</button></div>
+      <div class="field"><a class="btn" href="{{ url_for('sales.index', all=1) }}">全部时间</a></div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <h2>合计 <span class="hint">共 {{ total_count }} 笔（明细显示 {{ rows|length }} 笔，合计包含全部筛选结果）</span></h2>
+  <div class="card-body">
+    <div class="grid c4">
+      <div class="stat blue"><div class="k">销售金额</div><div class="v">￥{{ tot.amount|fmt2 }}</div></div>
+      <div class="stat"><div class="k">实际到账</div><div class="v">￥{{ tot.received|fmt2 }}</div></div>
+      <div class="stat"><div class="k">成本</div><div class="v">￥{{ tot.cost|fmt2 }}</div></div>
+      <div class="stat {{ 'good' if tot.profit >= 0 else 'bad' }}"><div class="k">公司利润</div><div class="v">￥{{ tot.profit|fmt2 }}</div><div class="n">毛利率 {{ rate|fmt2 }}%</div></div>
+      <div class="stat warn"><div class="k">提成</div><div class="v">￥{{ tot.comm|fmt2 }}</div></div>
+      <div class="stat"><div class="k">提成利润</div><div class="v">￥{{ tot.comm_profit|fmt2 }}</div></div>
+      <div class="stat"><div class="k">克重合计</div><div class="v">{{ tot.weight|fmt2 }} g</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>明细</h2>
+  <div class="card-body tight">
+    <p class="scroll-hint">左右滑动可查看全部明细字段。</p><div class="table-wrap">
+      <table class="sales-table">
+        <thead><tr>
+          <th>日期</th><th>单号</th><th>渠道</th><th>商品</th><th class="num">克重</th>
+          <th class="num">销售克价</th><th class="num">销售金额</th><th class="num">实际到账</th>
+          <th>详情</th><th class="num">成本</th><th class="num">成本金价</th>
+          <th class="num">公司利润</th><th class="num">毛利率</th><th>销售员</th>
+          <th class="num">提成成本</th><th class="num">提成</th><th class="num">提成利润</th>
+          <th>操作</th>
+        </tr></thead>
+        <tbody>
+        {% for r in rows %}
+          <tr>
+            <td>{{ r.date }}</td>
+            <td>{{ r.order_no }}</td>
+            <td>{{ r.channel }}</td>
+            <td>{{ r.product }}</td>
+            <td class="num">{{ r.weight|fmt2 }}</td>
+            <td class="num">{{ r.sell_gram_price|fmt2 }}</td>
+            <td class="num">{{ r.amount_c|fmt2 }}</td>
+            <td class="num">{{ r.received|fmt2 }}</td>
+            <td>{{ r.status }}</td>
+            <td class="num">{{ r.cost|fmt2 }}</td>
+            <td class="num">{{ r.cost_gram_c|fmt2 }}</td>
+            <td class="num {{ 'pos' if r.profit_c >= 0 else 'neg' }}">{{ r.profit_c|fmt2 }}</td>
+            <td class="num">{{ (r.gross_rate_c * 100)|fmt2 }}%</td>
+            <td>{{ r.staff }}</td>
+            <td class="num">{{ r.comm_cost_c|fmt2 }}</td>
+            <td class="num">{{ r.comm_c|fmt2 }}</td>
+            <td class="num">{{ r.comm_profit_c|fmt2 }}</td>
+            <td>
+              <a class="btn sm" href="{{ url_for('sales.index', edit=r.id) }}">改</a><a class="btn sm" href="{{ url_for('enhanced.provenance',table='sales',rid=r.id) }}">来源</a>
+              <form method="post" action="{{ url_for('sales.delete', rid=r.id) }}" style="display:inline"
+                    onsubmit="return confirm('确定删掉这一笔吗？删了不能恢复。')">
+                <input type="hidden" name="snapshot" value="{{ row_token('sales', r) }}"><button class="btn sm danger" type="submit">删</button>
+              </form>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td class="empty" colspan="18">{{ empty_reason }}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}{% endblock %}

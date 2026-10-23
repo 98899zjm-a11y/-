@@ -1,0 +1,90 @@
+{
+  "name": "xjy-jewelry-offline",
+  "version": "1.7.0",
+  "description": "鑫金源珠宝离线报价工作室",
+  "author": "鑫金源",
+  "private": true,
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "build": "node build.cjs",
+    "package": "electron-builder --win portable --x64"
+  },
+  "devDependencies": {
+    "electron": "44.7.0",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "cn.xjy.jewelry.offline",
+    "productName": "鑫金源珠宝报价",
+    "copyright": "鑫金源珠宝",
+    "asar": true,
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "main.cjs",
+      "preload.cjs",
+      "print-preload.cjs",
+      "remote-print-host.cjs",
+      "remote-print-jobs.cjs",
+      "backup.cjs",
+      "backend.cjs",
+      "administration.cjs",
+      "workplace-polls.cjs",
+      "ai-adapter.cjs",
+      "workspace-collaboration.cjs",
+      "runtime.cjs",
+      "local-auth.cjs",
+      "lan.cjs",
+      "network-workspace.cjs",
+      "print-settings.cjs",
+      "generated/**",
+      "renderer-dist/**",
+      "migrations/**",
+      "assets/**",
+      "package.json",
+      "storage-locations.cjs",
+      "image-output.cjs",
+      "clipboard-output.cjs",
+      "launch-role.cjs",
+      "credentials.cjs",
+      "warranty-docx.cjs",
+      "legacy-modules.cjs",
+      "module-gateway.cjs",
+      "module-views.cjs",
+      "module-workspace-policy.cjs",
+      "module-preload.cjs",
+      "legacy-modules/**"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "signExecutable": false,
+      "icon": "assets/icon.ico"
+    },
+    "portable": {
+      "artifactName": "鑫金源珠宝报价-手机打印版-1.2.0.exe"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "鑫金源珠宝工作室",
+      "artifactName": "鑫金源珠宝-手机打印版-安装程序-1.2.0.exe"
+    }
+  }
+}

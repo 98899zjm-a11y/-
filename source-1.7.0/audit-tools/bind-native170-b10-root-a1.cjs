@@ -1,0 +1,26 @@
+'use strict';
+// Pure source/metadata binding, no native execution. Root still must review real check and DS response before prepare.
+const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
+const w=path.resolve(__dirname,'..'),src=path.join(w,'release-work/native170-guest-vhd-stage-b10-source-draft-a2'),out=path.join(w,'release-work/native170-guest-vhd-stage-b10-root-bound-a1');
+const sha=b=>crypto.createHash('sha256').update(b).digest('hex'),need=(v,m)=>{if(!v)throw Error(m);};
+const canon=v=>Array.isArray(v)?'['+v.map(canon).join(',')+']':v&&typeof v==='object'?'{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+canon(v[k])).join(',')+'}':JSON.stringify(v);
+const approval=fs.readFileSync(path.join(w,'reports/native170-b10-root-write-approval-a1.json')),approvalSha=sha(approval),a=JSON.parse(approval);
+need(approvalSha==='72a06ac69366ed4057ec9e7b4cb88feb9105a38b0a85614e1038c606e35dd6b8'&&a.businessWritesPermitted===false&&a.startsUtc==='2026-10-20T20:00:00Z'&&a.expiresUtc==='2026-10-20T21:00:00Z','EXACT_NEW_ROOT_SCOPE');
+const cpp=fs.readFileSync(path.join(src,'GuestFStageB10.cpp'));need(sha(cpp)===a.sourceCppSha256,'REVIEWED_SOURCE_CHANGED');
+const ro=fs.readFileSync(path.join(w,'release-work/deepseek-stage1-development-a1/handoff-input/existing809c-readonly-report.ndjson'));need(ro.length===2122&&sha(ro)===a.readOnlyRawSha256,'ACTUAL_RO_BYTES_CHANGED');
+const pRaw=fs.readFileSync(path.join(src,'PLAN.canonical.json'));need(sha(pRaw)==='6e4e60d604d91472243d65be98f8db972060437181821f88384b44d68063c666','DRAFT_PLAN_CHANGED');const p=JSON.parse(pRaw);
+p.purpose='xjy-c6-existing809c-raw-F-format-b10-root-bound-a1';p.reviewed=true;p.executable=true;p.startsAt=a.startsUtc;p.expiresAt=a.expiresUtc;p.rootEvidence.approvalRawHeaderSha256=approvalSha;
+p.blockers=['Root must review actual exact native --check and real DeepSeek response before prepare','Business database tests and any production deployment not authorized by this plan'];
+const finalPlan=Buffer.from(canon(p)),planSha=sha(finalPlan);
+const replaceOne=(s,from,to)=>{need(s.split(from).length===2,'BINDING_LITERAL_NOT_UNIQUE:'+from);return s.replace(from,to);};
+let header=fs.readFileSync(path.join(src,'StageBBindings.unbound.h'),'utf8');need(sha(Buffer.from(header))==='efca433db4612c3beb490057d84df013746eb40c396161cdf79bd16194cc8dd2','DRAFT_HEADER_CHANGED');
+header=replaceOne(header,'writeWindowBound = false','writeWindowBound = true');header=replaceOne(header,'UNBOUND_NEW_B10_ROOT_APPROVAL',approvalSha);header=replaceOne(header,'6e4e60d604d91472243d65be98f8db972060437181821f88384b44d68063c666',planSha);
+const filetime=iso=>((BigInt(Date.parse(iso))+11644473600000n)*10000n).toString();
+header=replaceOne(header,'startsFileTime = 0ULL','startsFileTime = '+filetime(a.startsUtc)+'ULL');header=replaceOne(header,'expiresFileTime = 0ULL','expiresFileTime = '+filetime(a.expiresUtc)+'ULL');
+let controller=fs.readFileSync(path.join(src,'run-native-f-b10-controller.cjs'),'utf8');need(sha(Buffer.from(controller))==='b992cc9874966e0e478dd6094f1f7e4ffd19a9c07c91a129f2195be1da799de4','DRAFT_CONTROLLER_CHANGED');
+controller=replaceOne(controller,'6e4e60d604d91472243d65be98f8db972060437181821f88384b44d68063c666',planSha);controller=replaceOne(controller,'UNBOUND_NEW_B10_APPROVAL',approvalSha);controller=replaceOne(controller,'WRITE_WINDOW_BOUND=false','WRITE_WINDOW_BOUND=true');
+need(!fs.existsSync(out),'CREATE_NEW_BOUND_DIRECTORY');fs.mkdirSync(out);
+for(const [name,bytes] of [['GuestFStageB10.cpp',cpp],['PLAN.canonical.json',finalPlan],['PLAN.json',Buffer.from(JSON.stringify(p,null,2)+'\n')],['StageBBindings.unbound.h',Buffer.from(header)],['run-native-f-b10-controller.cjs',Buffer.from(controller)],['compile-only.cmd',fs.readFileSync(path.join(src,'compile-only.cmd'))]])fs.writeFileSync(path.join(out,name),bytes,{flag:'wx'});
+const files=fs.readdirSync(out).map(name=>{const b=fs.readFileSync(path.join(out,name));return{name,length:b.length,sha256:sha(b)};});
+const report={pureData:true,output:out,approvalSha256:approvalSha,readOnlyReportSha256:sha(ro),planSha256:planSha,files,nativeExecuted:false,deepseekBeforePrepareRequired:true,businessWritesPermitted:false};
+fs.writeFileSync(path.join(out,'root-binding-report.json'),JSON.stringify(report,null,2)+'\n',{flag:'wx'});console.log(JSON.stringify(report));

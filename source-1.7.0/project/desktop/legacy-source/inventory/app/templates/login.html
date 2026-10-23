@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}登录{% endblock %}
+{% block bodyclass %}login-page{% endblock %}
+
+{% block body %}
+<div class="login-card">
+  <h1>库存核对台</h1>
+  <div class="sub">鑫金源内部库存核对台</div>
+
+  {% with msgs = get_flashed_messages(with_categories=true) %}
+    {% for cat, m in msgs %}
+      <div class="flash {{ cat }}" style="margin-bottom:14px">{{ m }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <form method="post" autocomplete="off">
+    <div class="field">
+      <label for="username">账号</label>
+      <input type="text" id="username" name="username" value="{{ username or '' }}"
+             autofocus autocomplete="username" placeholder="请输入账号">
+    </div>
+    <div class="field">
+      <label for="password">密码</label>
+      <input type="password" id="password" name="password"
+             autocomplete="current-password" placeholder="请输入密码">
+    </div>
+    <label class="remember">
+      <input type="checkbox" name="remember" value="1" checked>
+      <span>记住我<em>（这台电脑 90 天不用再登，自己的电脑才勾）</em></span>
+    </label>
+    <button class="btn primary" type="submit">登 录</button>
+  </form>
+
+  <div class="tip" style="margin-top:16px;text-align:center;color:var(--ink-3);font-size:12px">
+    忘记密码请联系管理员重置<br>
+    初始账号与密码见程序启动窗口的提示
+  </div>
+</div>
+{% endblock %}

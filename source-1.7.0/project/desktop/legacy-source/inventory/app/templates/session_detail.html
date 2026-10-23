@@ -1,0 +1,318 @@
+{% extends "base.html" %}
+{% block title %}{{ s.name }}{% endblock %}
+
+{% block crumbs %}
+<div class="crumbs">
+  <a href="{{ url_for('count.session_list') }}">盘点任务</a>
+  <span class="sep">/</span>
+  <span class="cur">{{ s.name }}</span>
+</div>
+{% endblock %}
+
+{% block body %}
+<div class="page-head">
+  <div>
+    <h1>{{ s.name }}
+      <span class="tag {{ s.status }}">{{ status_names.get(s.status, s.status) }}</span>
+      {% if s.blind %}<span class="tag" title="打印盘点表时隐藏账面数">盲盘</span>{% endif %}
+      {% if s.scope_location %}<span class="tag">{{ s.scope_location }}</span>{% endif %}
+    </h1>
+    <div class="sub">
+      账面基准：<b>{{ batch.label if batch else '（批次已删除）' }}</b>
+      · 范围：{{ s.scope_location or '全部库位' }}
+      · 建于 {{ s.created_at }}
+      {% if s.finished_at %} · 结束于 {{ s.finished_at }}{% endif %}
+      {% if s.note %} · {{ s.note }}{% endif %}
+    </div>
+  </div>
+  <div class="page-actions">
+    <a class="btn primary" href="{{ url_for('count.session_entry', sid=s.id) }}">录入实盘</a>
+    <a class="btn" href="{{ url_for('count.session_mobile', sid=s.id) }}"
+       title="手机上打开这一页：一个大输入框，敲编号后几位或扫一下就能录，录完不用点保存">手机录数</a>
+    <a class="btn" href="{{ url_for('count.session_print', sid=s.id) }}" target="_blank">打印盘点表</a>
+    <a class="btn" href="{{ url_for('count.session_sheet_xlsx', sid=s.id) }}">导出 Excel</a>
+    {% if cu.role in ('admin', 'reviewer') %}
+      <a class="btn" href="{{ url_for('review.diff_list', sid=s.id) }}">差异审核</a>
+    {% endif %}
+  </div>
+</div>
+
+{# ── 下一步：这个任务现在卡在谁手上、该点哪里 ── #}
+{% set pct = (st.counted * 100 // st.total) if st.total else 0 %}
+<div class="card">
+  <div class="card-body tight">
+    <div class="todos">
+      {% if s.status == 'cancelled' %}
+        <div class="todo">
+          <span class="ico">×</span>
+          <div class="tx">
+            <div class="ti">这个任务已作废</div>
+            <div class="td">已录入的实盘数据还留着，但不再计入正常流程。要接着盘就把它恢复成「盘点中」。</div>
+          </div>
+        </div>
+      {% elif s.status == 'done' %}
+        <div class="todo">
+          <span class="ico green">✓</span>
+          <div class="tx">
+            <div class="ti">这个任务已结案</div>
+            <div class="td">
+              全部 {{ st.total }} 个商品编号都盘过了{% if st.diff_rows %}，其中 {{ st.diff_rows }} 个有差异{% endif %}。
+              数据保留可查，需要重盘可以「重开为盘点中」。
+            </div>
+          </div>
+          {% if adj %}
+            <a class="btn sm" href="{{ url_for('review.adjustment_detail', aid=adj[0].id) }}">看调整单</a>
+          {% endif %}
+        </div>
+      {% elif s.status == 'counting' %}
+        {% if st.not_counted %}
+          <div class="todo">
+            <span class="ico amber">→</span>
+            <div class="tx">
+              <div class="ti">实盘还没录完：还差 {{ st.not_counted }} 个商品编号</div>
+              <div class="td">
+                已录 {{ st.counted }} / {{ st.total }}（{{ pct }}%）。
+                纸上盘点表填完之后，去「录入实盘」按商品编号逐条录，或者整页回录。
+              </div>
+            </div>
+            <a class="btn primary sm" href="{{ url_for('count.session_entry', sid=s.id) }}">继续录入</a>
+          </div>
+        {% else %}
+          <div class="todo">
+            <span class="ico green">✓</span>
+            <div class="tx">
+              <div class="ti">全部 {{ st.total }} 个商品编号都录完了</div>
+              <div class="td">
+                录完不等于盘完——录入过程中随时可以改。确认无误后转「复核中」，交给复核员判定差异。
+              </div>
+            </div>
+            {% if cu.role in ('admin', 'counter') %}
+              <form method="post" action="{{ url_for('count.session_status', sid=s.id) }}"
+                    data-confirm="确认实盘已全部录完？状态将改为「复核中」，交给复核员看差异。">
+                <input type="hidden" name="status" value="reviewing">
+                <button class="btn primary sm" type="submit">录完了 → 转复核</button>
+              </form>
+            {% else %}
+              <span class="muted" style="font-size:13px">等盘点员转「复核中」</span>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% elif s.status == 'reviewing' %}
+        {% if st.pending %}
+          <div class="todo">
+            <span class="ico red">!</span>
+            <div class="tx">
+              <div class="ti">有 {{ st.pending }} 条差异等着判</div>
+              <div class="td">
+                共 {{ st.diff_rows }} 个商品编号有差异，已判 {{ st.approved }} 条通过、{{ st.rejected }} 条驳回。
+                只有点「通过」的才会被收进库存调整单。
+              </div>
+            </div>
+            {% if cu.role in ('admin', 'reviewer') %}
+              <a class="btn primary sm" href="{{ url_for('review.diff_list', sid=s.id) }}">去审核</a>
+            {% else %}
+              <span class="muted" style="font-size:13px">等复核员处理</span>
+            {% endif %}
+          </div>
+        {% else %}
+          <div class="todo">
+            <span class="ico green">✓</span>
+            <div class="tx">
+              <div class="ti">差异都判完了</div>
+              <div class="td">在差异页点「生成库存调整单」，再执行那张单子，账面数才会更新成实盘数。</div>
+            </div>
+            {% if cu.role in ('admin', 'reviewer') %}
+              <a class="btn primary sm" href="{{ url_for('review.diff_list', sid=s.id) }}">生成调整单</a>
+            {% else %}
+              <span class="muted" style="font-size:13px">等复核员生成调整单</span>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="grid c4" style="margin-bottom:16px">
+  <div class="stat">
+    <div class="k">应盘商品编号</div>
+    <div class="v">{{ st.total }}</div>
+    <div class="n">账面全部商品编号</div>
+  </div>
+  <div class="stat {{ 'good' if st.counted >= st.total else 'warn' }}">
+    <div class="k">已录实盘</div>
+    <div class="v">{{ st.counted }}</div>
+    <div class="n">还没录：{{ st.not_counted }} 个</div>
+  </div>
+  <div class="stat {{ 'good' if st.diff_rows == 0 else 'bad' }}">
+    <div class="k">有差异商品编号</div>
+    <div class="v">{{ st.diff_rows }}</div>
+    <div class="n">一致：{{ st.match }} 个</div>
+  </div>
+  <div class="stat {{ 'bad' if st.pending else 'good' }}">
+    <div class="k">待审核</div>
+    <div class="v">{{ st.pending }}</div>
+    <div class="n">通过 {{ st.approved }} · 驳回 {{ st.rejected }}</div>
+  </div>
+</div>
+
+<div class="grid c2">
+  <div class="card">
+    <h2>录入进度与差异构成</h2>
+    <div class="card-body">
+      <div class="bar" style="height:12px">
+        <i class="{{ 'full' if st.total and st.counted >= st.total else '' }}"
+           style="width:{{ pct }}%"></i>
+      </div>
+      <div class="muted" style="margin-top:8px">
+        已录 <b>{{ st.counted }}</b> / {{ st.total }} 个商品编号（{{ pct }}%）
+      </div>
+
+      <table class="tb mt12">
+        <tbody>
+          <tr><td>盘点一致</td><td class="num">{{ st.match }}</td></tr>
+          <tr class="row-diff"><td><span class="tag surplus">盘盈</span> 实物比账面多</td><td class="num">{{ st.surplus }}</td></tr>
+          <tr class="row-bad"><td><span class="tag shortage">盘亏</span> 实物比账面少</td><td class="num">{{ st.shortage }}</td></tr>
+          <tr class="row-bad"><td><span class="tag missing">账有实无</span> 账上有一件都没找到</td><td class="num">{{ st.missing }}</td></tr>
+          <tr class="row-diff"><td><span class="tag extra">账无实有</span> 账上没有但盘出来了</td><td class="num">{{ st.extra }}</td></tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <th>合计盘盈数量 / 盘亏数量</th>
+            <th class="num">
+              <span class="green">+{{ st.surplus_qty|qty }}</span>
+              /
+              <span class="red">{{ st.shortage_qty|qty }}</span>
+            </th>
+          </tr>
+        </tfoot>
+      </table>
+      <div class="muted" style="font-size:12.5px;margin-top:8px">
+        账面总量 {{ st.book_qty|qty }} · 实盘总量 {{ st.counted_qty|qty }}
+      </div>
+      {% if st.missing and s.status == 'counting' %}
+      <div class="note warn" style="margin-top:12px">
+        现在有 {{ st.missing }} 个「账有实无」，但盘点才做了 {{ pct }}%。
+        <b>这多半只是「还没盘到」，不是真差异</b>——差异以盘点完成后的数字为准。
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>任务操作</h2>
+    <div class="card-body">
+      {% if cu.role in ('admin', 'counter') %}
+        <div class="field">
+          <label>推进任务状态</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+            {% if s.status == 'counting' %}
+              <form method="post" action="{{ url_for('count.session_status', sid=s.id) }}"
+                    data-confirm="确认实盘已全部录完？状态将改为「复核中」，交给复核员看差异。">
+                <input type="hidden" name="status" value="reviewing">
+                <button class="btn primary" type="submit">录完了 → 转复核</button>
+              </form>
+            {% elif s.status == 'reviewing' %}
+              <form method="post" action="{{ url_for('count.session_status', sid=s.id) }}"
+                    data-confirm="确认复核完成、结案？结案后仍可回录数据，但请确认差异都已处理。">
+                <input type="hidden" name="status" value="done">
+                <button class="btn primary" type="submit">复核完成 → 结案</button>
+              </form>
+              <form method="post" action="{{ url_for('count.session_status', sid=s.id) }}">
+                <input type="hidden" name="status" value="counting">
+                <button class="btn" type="submit">退回盘点中</button>
+              </form>
+            {% elif s.status == 'done' %}
+              <form method="post" action="{{ url_for('count.session_status', sid=s.id) }}"
+                    data-confirm="重开这个任务继续盘点？">
+                <input type="hidden" name="status" value="counting">
+                <button class="btn" type="submit">重开为盘点中</button>
+              </form>
+            {% elif s.status == 'cancelled' %}
+              <form method="post" action="{{ url_for('count.session_status', sid=s.id) }}">
+                <input type="hidden" name="status" value="counting">
+                <button class="btn" type="submit">恢复为盘点中</button>
+              </form>
+            {% endif %}
+
+            {% if s.status != 'cancelled' %}
+              <form method="post" action="{{ url_for('count.session_status', sid=s.id) }}"
+                    data-confirm="作废这个任务？已录入的实盘数据会保留，但不再计入正常流程。">
+                <input type="hidden" name="status" value="cancelled">
+                <button class="btn danger" type="submit">作废任务</button>
+              </form>
+            {% endif %}
+          </div>
+          <div class="tip">
+            状态只是流程标记，任何状态下都可以继续录入或修改实盘数。
+          </div>
+        </div>
+      {% else %}
+        <div class="muted">你是复核员，可以审核差异、生成调整单。任务状态的推进由管理员或盘点员操作。</div>
+      {% endif %}
+
+      {% if adj %}
+        <hr class="hr">
+        <label>本任务生成的调整单</label>
+        <table class="tb" style="margin-top:6px">
+          <tbody>
+          {% for a in adj %}
+            <tr>
+              <td><a class="mono" href="{{ url_for('review.adjustment_detail', aid=a.id) }}">{{ a.code }}</a></td>
+              <td><span class="tag {{ a.status }}">{{ '已执行' if a.status == 'applied' else '草稿' }}</span></td>
+              <td class="muted nowrap">{{ a.created_at }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      {% endif %}
+
+      {% if cu.role == 'admin' %}
+        <hr class="hr">
+        <form method="post" action="{{ url_for('count.session_delete', sid=s.id) }}"
+              data-confirm="彻底删除任务「{{ s.name }}」连同里面所有实盘数据？此操作不可撤销，建议先导出 Excel。">
+          <button class="btn danger" type="submit">删除这个任务</button>
+        </form>
+        <div class="tip">已有调整单的任务不能删除。</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>最近录入的 20 条 <span class="hint">倒序，最新的在最上面</span></h2>
+  <div class="card-body tight">
+    {% if recent %}
+    <table class="tb">
+      <thead>
+        <tr>
+          <th style="width:170px">商品编号</th>
+          <th>商品名称</th>
+          <th class="num" style="width:110px">实盘数</th>
+          <th style="width:90px">单位</th>
+          <th style="width:110px">录入人</th>
+          <th style="width:160px">录入时间</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for r in recent %}
+        <tr>
+          <td class="mono"><b>{{ r.code }}</b></td>
+          <td class="ellip">{{ r.name or '—' }}</td>
+          <td class="num"><b>{{ r.qty|qty }}</b></td>
+          <td class="muted">{{ r.unit or '—' }}</td>
+          <td>{{ r.counted_by_name or '—' }}</td>
+          <td class="muted nowrap">{{ r.updated_at or r.counted_at }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <div class="empty">
+        还没有录入任何实盘数。
+        <div style="margin-top:12px"><a class="btn primary" href="{{ url_for('count.session_entry', sid=s.id) }}">开始录入</a></div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

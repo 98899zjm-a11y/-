@@ -1,0 +1,71 @@
+param([Parameter(Mandatory=$true)][string]$OperationRoot,
+      [Parameter(Mandatory=$true)][ValidatePattern('^[a-f0-9]{64}$')][string]$ArchiveSha256,
+      [Parameter(Mandatory=$true)][ValidatePattern('^[a-f0-9]{64}$')][string]$ManifestSha256)
+$ErrorActionPreference='Stop'
+Set-StrictMode -Version Latest
+Add-Type -AssemblyName System.IO.Compression
+@@PATH_GUARD@@
+$held=New-Object 'Collections.Generic.List[IDisposable]'
+$heldDirs=New-Object 'Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+function Hold-Parents([string]$Name){$current=[IO.Path]::GetFullPath($Name);while($current){if($heldDirs.Add($current)){$held.Add((Pin-PlainDirectory $current))};$parent=[IO.Directory]::GetParent($current);if(!$parent){break};$current=$parent.FullName}}
+function Hash-Stream($Stream){$Stream.Position=0;$hash=[Security.Cryptography.SHA256]::Create();try{return ([BitConverter]::ToString($hash.ComputeHash($Stream))).Replace('-','').ToLowerInvariant()}finally{$hash.Dispose()}}
+function Safe-Relative([string]$Name){
+ if(!$Name -or $Name.Length -gt 700 -or [IO.Path]::IsPathRooted($Name) -or $Name.Contains('\') -or $Name.Contains(':')){throw '升级文件路径不规范。'}
+ foreach($part in ($Name -split '/')){if(!$part -or $part -in @('.','..') -or $part -match '[\x00-\x1f\x7f<>"|?*]' -or $part -match '[. ]$' -or $part -match '^(?i:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:[.]|$)'){throw '升级文件路径不安全。'}}
+ return $Name
+}
+function Ensure-Parent([string]$Root,[string]$Relative){$current=$Root;foreach($part in (($Relative -split '/')|Select-Object -SkipLast 1)){$current=Join-Path $current $part;if(![IO.Directory]::Exists($current)){[void][IO.Directory]::CreateDirectory($current)};Hold-Parents $current}}
+$zip=$null
+try{
+ $root=[IO.Path]::GetFullPath($OperationRoot).TrimEnd('\');if($root.StartsWith('\\') -or $root.Substring(2).Contains(':')){throw '升级目录必须是普通本地目录。'};Hold-Parents $root
+ $manifestFile=Join-Path $root 'payload-manifest.json';$manifestStream=Pin-PlainFile $manifestFile;$held.Add($manifestStream)
+ if($manifestStream.Length -gt 4194304 -or (Hash-Stream $manifestStream) -cne $ManifestSha256){throw '升级清单校验失败。'}
+ $manifestStream.Position=0;$reader=New-Object IO.StreamReader($manifestStream,[Text.UTF8Encoding]::new($false,$true),$true,4096,$true)
+ try{$manifest=$reader.ReadToEnd()|ConvertFrom-Json}finally{$reader.Dispose()}
+ if($manifest.version -ne 1 -or $manifest.purpose -cne 'xjy-native-bridge-bundle170' -or @($manifest.files).Count -lt 1 -or @($manifest.files).Count -gt 8192){throw '升级清单格式不受支持。'}
+ $expected=New-Object 'Collections.Generic.Dictionary[string,object]' ([StringComparer]::OrdinalIgnoreCase)
+ $parents=New-Object 'Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+ $total=[long]0
+ foreach($row in $manifest.files){
+  $name=Safe-Relative ([string]$row.path)
+  if(@($row.PSObject.Properties).Count -ne 3 -or $row.sha256 -cnotmatch '^[a-f0-9]{64}$' -or $row.size.GetType().Name -notin @('Int32','Int64') -or $row.size -lt 0 -or $row.size -gt 1073741824 -or $expected.ContainsKey($name)){throw '升级文件清单存在错误或重复。'}
+  if($name -match '(?i)[.](?:db|sqlite|sqlite3|key|pfx)$' -or $name -match '(?i)(?:^|/)(?:data|profile|profiles|customers|private)/'){throw '程序材料中不能包含业务资料。'}
+  $expected.Add($name,$row);$total+=[long]$row.size
+  $parts=$name -split '/';for($i=1;$i -lt $parts.Length;$i++){[void]$parents.Add(($parts[0..($i-1)] -join '/'))}
+ }
+ if($total -gt 4294967296){throw '升级展开大小超过上限。'}
+ $archive=Pin-PlainFile (Join-Path $root 'payload.zip');$held.Add($archive)
+ if($archive.Length -gt 805306368 -or (Hash-Stream $archive) -cne $ArchiveSha256){throw '升级材料校验失败。'}
+ $archive.Position=0;$zip=New-Object IO.Compression.ZipArchive($archive,[IO.Compression.ZipArchiveMode]::Read,$true)
+ if($zip.Entries.Count -ne $expected.Count){throw '升级文件数量不符。'}
+ $seen=New-Object 'Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+ foreach($entry in $zip.Entries){$name=Safe-Relative $entry.FullName;$kind=(([long]$entry.ExternalAttributes -shr 16) -band 61440);if(!$expected.ContainsKey($name) -or !$seen.Add($name) -or $kind -notin @(0,32768) -or $entry.Length -ne [long]$expected[$name].size){throw '压缩材料含链接、重复或不符合清单的文件。'}}
+ $bundle=Join-Path $root 'bundle';if(![IO.Directory]::Exists($bundle)){[void][IO.Directory]::CreateDirectory($bundle)};Hold-Parents $bundle
+ $retained=0;$copied=0;$buffer=New-Object byte[] 1048576
+ foreach($entry in $zip.Entries){
+  $name=$entry.FullName;$row=$expected[$name];Ensure-Parent $bundle $name;$target=[IO.Path]::GetFullPath((Join-Path $bundle ($name.Replace('/','\'))))
+  if(!$target.StartsWith($bundle+'\',[StringComparison]::OrdinalIgnoreCase)){throw '升级目标越界。'}
+  if([IO.File]::Exists($target)){
+   $prior=Pin-PlainFile $target;$valid=$prior.Length -eq [long]$row.size -and (Hash-Stream $prior) -ceq $row.sha256
+   if($valid){$held.Add($prior);continue}
+   $prior.Dispose();$keep=Join-Path $root 'retained-partials';if(![IO.Directory]::Exists($keep)){[void][IO.Directory]::CreateDirectory($keep)};Hold-Parents $keep
+   $saved=Join-Path $keep ([Guid]::NewGuid().ToString('N')+'.partial');if(![IO.Path]::GetFullPath($saved).StartsWith($root+'\',[StringComparison]::OrdinalIgnoreCase)){throw '保留目录越界。'}
+   [IO.File]::Move($target,$saved);$retained++
+  }
+  $source=$entry.Open();$destination=[IO.File]::Open($target,[IO.FileMode]::CreateNew,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None)
+  try{[XjyInitialPathGuard]::Check($destination.SafeFileHandle,$target,$false);$written=[long]0;while(($length=$source.Read($buffer,0,$buffer.Length)) -gt 0){$written+=$length;if($written -gt [long]$row.size){throw '解压文件超过声明大小。'};$destination.Write($buffer,0,$length)};$destination.Flush($true);if($written -ne [long]$row.size -or (Hash-Stream $destination) -cne $row.sha256){throw '解压文件校验失败，已保留现场。'}}finally{$source.Dispose();$destination.Dispose()}
+  $held.Add((Pin-PlainFile $target));$copied++
+ }
+ $queue=New-Object 'Collections.Generic.Queue[string]';$queue.Enqueue('')
+ while($queue.Count){$relative=$queue.Dequeue();$folder=if($relative){Join-Path $bundle ($relative.Replace('/','\'))}else{$bundle};Hold-Parents $folder
+  foreach($item in [IO.Directory]::GetFileSystemEntries($folder)){$leaf=[IO.Path]::GetFileName($item);$rel=if($relative){$relative+'/'+$leaf}else{$leaf};$attributes=[IO.File]::GetAttributes($item);if(($attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0){throw '升级目录含链接。'}
+   if(($attributes -band [IO.FileAttributes]::Directory) -ne 0){if(!$parents.Contains($rel)){throw '升级目录含未声明的子目录。'};$queue.Enqueue($rel)}elseif(!$expected.ContainsKey($rel)){
+    if($rel -cnotin @('engine-bridge-handoff.json','engine-bridge-accepted.json')){throw '升级目录含未声明的文件。'}
+    $dynamic=Pin-PlainFile $item;try{if($dynamic.Length -gt 16384){throw '交接记录超过上限。'}}finally{$dynamic.Dispose()}
+   }
+  }
+ }
+ [Console]::WriteLine((@{extracted=$true;files=$expected.Count;copied=$copied;retainedPartials=$retained}|ConvertTo-Json -Compress))
+ exit 0
+}catch{[Console]::Error.WriteLine($_.Exception.Message);exit 1}
+finally{if($zip){$zip.Dispose()};for($i=$held.Count-1;$i -ge 0;$i--){$held[$i].Dispose()}}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}外部 Excel 自动同步{% endblock %}
+{% block body %}
+<div class="page-head"><div><h1>外部 Excel 自动同步</h1><p class="sub">在指定联动文件里修改并保存，系统自动读取；系统修改也会回写这份 Excel。</p></div><a class="btn" href="{{ url_for('transfer.index', doc=doc.id if doc else none) }}">返回导入与导出</a></div>
+<div class="card"><h2>选择联动原表</h2><div class="card-body"><form method="get" class="filter"><div class="field wide"><label for="sync-document">原始工作簿</label><select id="sync-document" name="doc">{% for item in docs %}<option value="{{ item.id }}" {{ 'selected' if doc and item.id==doc.id }}>{{ item.name }}</option>{% endfor %}</select></div><button class="btn" type="submit">查看同步状态</button></form></div></div>
+{% if doc %}
+<div class="card"><h2>{{ status_labels.get(sync_state.status, '尚未开启') if sync_state else '尚未开启自动同步' }}</h2><div class="card-body">
+  <p>当前原表：<strong>{{ doc.name }}</strong></p>
+  <label for="sync-path">请用 Excel 打开这一个文件</label><input id="sync-path" value="{{ sync_path }}" readonly style="width:100%;margin:8px 0 12px" onclick="this.select()">
+  {% if sync_state %}<p class="{{ 'tip' if sync_state.status in ['conflict','structure','error'] else 'note' }}">{{ sync_state.message }}</p><p class="note">最近状态更新：{{ sync_state.updated_at }} · 同步基线版本 {{ sync_state.revision }}</p>{% endif %}
+  <p class="note">只同步这份工作副本。原上传文件仍在归档中。下载到其他目录的文件不会自动同步。</p>
+  {% if can_control %}<div class="page-actions">
+    {% if not sync_state or (not sync_state.enabled and sync_state.status not in ['conflict','structure','error']) %}<form method="post" action="{{ url_for('external_sync.enable', doc=doc.id) }}"><button class="btn primary" type="submit">{{ '继续自动检测' if sync_state else '生成联动文件并开启同步' }}</button></form>{% endif %}
+    {% if sync_state and sync_state.enabled %}<form method="post" action="{{ url_for('external_sync.pause', doc=doc.id) }}"><button class="btn" type="submit">暂停自动同步</button></form>{% endif %}
+    <a class="btn" href="{{ url_for('workbooks.page', doc=doc.id) }}">打开系统电子表格</a>
+  </div>{% else %}<p class="tip">当前账号只可查看，启用与冲突处理需要操作员或管理员账号。</p>{% endif %}
+</div></div>
+{% if conflicts %}<div class="card"><h2>同一单元格的修改冲突（{{ conflicts|length }} 格）</h2><div class="card-body"><p class="note">双方的修改都保留在原处，自动同步已暂停。确认下面的内容后再选择恢复方式。</p></div><div class="table-wrap" style="max-height:55vh"><table><thead><tr><th>单元格</th><th>上次同步</th><th>Excel 现在</th><th>系统现在</th></tr></thead><tbody>{% for item in conflicts %}<tr><td>{{ item.sheet }}!{{ item.cell }}</td><td>{{ item.baseline.formula or (item.baseline.value if item.baseline.value is not none else '空') }}</td><td>{{ item.external.formula or (item.external.value if item.external.value is not none else '空') }}</td><td>{{ item.system.formula or (item.system.value if item.system.value is not none else '空') }}</td></tr>{% endfor %}</tbody></table></div></div>{% endif %}
+{% if can_control and sync_state and sync_state.status in ['conflict','structure','error'] %}
+<div class="card"><h2>明确选择恢复方式</h2><div class="card-body"><p class="note">处理前会在联动目录保留一份文件备份。没有选择时不会自动采用任何一方。</p>
+<form method="post" action="{{ url_for('external_sync.resolve', doc=doc.id) }}">
+  <input type="hidden" name="resolve_token" value="{{ resolve_token }}">
+  {% if sync_state.status != 'structure' and sync_state.baseline_json != '{}' %}<label class="check-label" style="display:block;margin:12px 0"><input type="radio" name="mode" value="external" required> 采用 Excel 修改：将 Excel 相对上次基线的修改写入系统，未修改的格保留系统内容</label>{% endif %}
+  <label class="check-label" style="display:block;margin:12px 0"><input type="radio" name="mode" value="system" required> 重新导出系统数据：用系统当前工作簿替换联动文件</label>
+  <label class="check-label" style="display:block;margin:16px 0"><input type="checkbox" name="confirmed" value="1" required> 已核对位置、公式与金额，确认执行所选方式</label>
+  <button class="btn primary" type="submit">按所选方式恢复同步</button><a class="btn" href="{{ url_for('transfer.index', doc=doc.id) }}">去导入窗口核对结构</a>
+</form></div></div>{% endif %}
+<div class="card"><h2>使用方法</h2><div class="card-body"><p>先开启同步，再打开上方指定的联动文件。编辑既有单元格或公式后，在 Excel 中保存，系统每两秒检查一次，连续两轮稳定后同步。</p><p>Excel 正占用文件时，系统修改会保持待回写并继续尝试。需要让系统写入时，先保存并关闭 Excel。</p><p>单元格与公式以原 Excel 为依据。工作表名称、顺序或行列结构发生变化时会暂停，请通过导入窗口确认。系统生成的新月份工作表会自动加入联动文件。</p><p class="note">此功能同步内容和公式。修改表头、供货商对应或其他业务结构时，需要先确认新的对应规则。</p></div></div>
+{% else %}<div class="card"><div class="card-body">尚未归档原表。请先到导入与导出窗口上传工作簿。</div></div>{% endif %}
+{% endblock %}

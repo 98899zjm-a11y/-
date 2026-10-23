@@ -1,0 +1,18 @@
+ALTER TABLE inventory_report_batches ADD COLUMN source_hash TEXT;
+ALTER TABLE inventory_report_batches ADD COLUMN previous_id TEXT REFERENCES inventory_report_batches(id);
+UPDATE inventory_report_batches SET source_hash=content_hash;
+CREATE INDEX inventory_source_author ON inventory_report_batches(source_hash,created_by);
+ALTER TABLE sales_publications ADD COLUMN source_hash TEXT;
+ALTER TABLE sales_publications ADD COLUMN previous_id TEXT REFERENCES sales_publications(id);
+ALTER TABLE sales_publications ADD COLUMN correction_request_id TEXT;
+ALTER TABLE sales_publications ADD COLUMN correction_reason TEXT;
+ALTER TABLE sales_publications ADD COLUMN prepared_by TEXT REFERENCES staff_users(id);
+ALTER TABLE sales_publications ADD COLUMN verified_by TEXT REFERENCES staff_users(id);
+ALTER TABLE sales_publications ADD COLUMN verified_name TEXT;
+ALTER TABLE sales_publications ADD COLUMN verified_at TEXT;
+ALTER TABLE sales_publications ADD COLUMN verified_revision INTEGER;
+ALTER TABLE sales_publications ADD COLUMN verified_hash TEXT;
+ALTER TABLE sales_publications ADD COLUMN verification_note TEXT;
+UPDATE sales_publications SET source_hash=content_hash,prepared_by=created_by;
+CREATE INDEX sales_source_hash ON sales_publications(source_hash,status);
+CREATE UNIQUE INDEX sales_correction_request ON sales_publications(created_by,correction_request_id) WHERE correction_request_id IS NOT NULL;

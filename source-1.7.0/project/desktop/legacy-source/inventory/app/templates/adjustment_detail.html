@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}调整单 {{ a.code }}{% endblock %}
+
+{% block body %}
+<div class="page-head">
+  <div>
+    <h1><span class="mono">{{ a.code }}</span>
+      <span class="tag {{ a.status }}">{{ '已执行' if a.status == 'applied' else '草稿（未执行）' }}</span>
+    </h1>
+    <div class="sub">
+      来源任务：
+      {% if s %}<a href="{{ url_for('count.session_detail', sid=s.id) }}">{{ s.name }}</a>{% else %}（任务已删除）{% endif %}
+      · 生成人 {{ a.created_by or '—' }} · 生成于 {{ a.created_at }}
+      {% if a.confirmed_at %} · 执行于 {{ a.confirmed_at }}{% endif %}
+      {% if a.note %} · {{ a.note }}{% endif %}
+    </div>
+  </div>
+  <div class="page-actions">
+    <a class="btn" href="{{ url_for('review.adjustment_list') }}">← 调整单列表</a>
+    <a class="btn" href="{{ url_for('review.adjustment_export', aid=a.id) }}">导出 Excel</a>
+    {% if a.status != 'applied' %}
+      <form class="inline" method="post" action="{{ url_for('review.adjustment_apply', aid=a.id) }}"
+            data-confirm="执行 {{ a.code }}？系统会按实盘数生成一份新的账面批次，并把当前账面退为历史。此操作不可撤销。">
+        <button class="btn primary" type="submit">执行这张调整单</button>
+      </form>
+      <form class="inline" method="post" action="{{ url_for('review.adjustment_delete', aid=a.id) }}"
+            data-confirm="删除草稿 {{ a.code }}？只是删掉这张单，不会动账面。">
+        <button class="btn danger" type="submit">删除草稿</button>
+      </form>
+    {% endif %}
+  </div>
+</div>
+
+{% if a.status == 'applied' %}
+<div class="note">
+  <b>这张单已经执行过了。</b>执行时系统按实盘数生成了一份新的账面批次并设为当前账面。
+  如果后面又发现问题，不要改这张单——重新盘一次、再走一轮差异审核和新的调整单，保证痕迹完整。
+</div>
+{% else %}
+<div class="note warn">
+  <b>这是草稿，还没有动账面。</b>点「执行这张调整单」之后：<br>
+  ① 系统按每一行的<b>实盘数</b>生成一份新的账面批次（相当于把账面改成实物数）；<br>
+  ② 新批次自动设为「当前账面」，原批次退为历史；<br>
+  ③ 本单状态变成「已执行」，记录执行人和时间。<br>
+  执行前请再核一遍下面每一行的差异——执行之后改起来很麻烦。
+</div>
+{% endif %}
+
+<div class="grid c4" style="margin-bottom:16px">
+  <div class="stat"><div class="k">调整条目</div><div class="v">{{ items|length }}</div><div class="n">个有差异的商品编号</div></div>
+  <div class="stat good"><div class="k">调增合计</div><div class="v">{{ signed(up) }}</div><div class="n">盘盈，要调上去的量</div></div>
+  <div class="stat bad"><div class="k">调减合计</div><div class="v">{{ signed(down) }}</div><div class="n">盘亏，要调下来的量</div></div>
+  <div class="stat {{ 'bad' if (up + down) < 0 else 'good' }}">
+    <div class="k">账面净变化</div>
+    <div class="v">{{ signed(up + down) }}</div>
+    <div class="n">执行后账面总量的增减</div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>调整明细 <span class="hint">执行后每一项都会落到新账面</span></h2>
+  <div class="card-body tight">
+    {% if items %}
+    <div class="scroll">
+    <table class="tb">
+      <thead>
+        <tr>
+          <th style="width:56px" class="num">#</th>
+          <th style="width:96px">库位</th>
+          <th style="width:140px">商品编号</th>
+          <th>商品名称 / 克重</th>
+          <th style="width:56px">单位</th>
+          <th class="num" style="width:90px">账面数</th>
+          <th class="num" style="width:90px">实盘数</th>
+          <th class="num" style="width:96px">差异</th>
+          <th style="width:200px">差异原因</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for i in items %}
+        <tr class="{{ 'row-bad' if i.diff_qty < 0 else 'row-diff' }}">
+          <td class="num muted">{{ loop.index }}</td>
+          <td>{{ i.location or '—' }}</td>
+          <td class="mono"><b>{{ i.sku_code }}</b></td>
+          <td>
+            {{ i.sku_name or '—' }}
+            {% if i.spec %}<span class="muted" style="font-size:12px"> / {{ i.spec }}</span>{% endif %}
+          </td>
+          <td class="muted">{{ i.unit or '' }}</td>
+          <td class="num">{{ fmt_qty(i.book_qty) }}</td>
+          <td class="num">{{ fmt_qty(i.counted_qty) }}</td>
+          <td class="num">
+            {% if i.diff_qty > 0 %}<b class="pos">↑ {{ signed(i.diff_qty) }}</b>
+            {% else %}<b class="neg">↓ {{ signed(i.diff_qty) }}</b>{% endif %}
+          </td>
+          <td class="muted">{{ i.reason or '—' }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <th colspan="7" class="right">调增 / 调减 / 净变化</th>
+          <th class="num">
+            <span class="pos">↑ {{ signed(up) }}</span> /
+            <span class="neg">↓ {{ signed(down) }}</span> /
+            <b>{{ signed(up + down) }}</b>
+          </th>
+          <th></th>
+        </tr>
+      </tfoot>
+    </table>
+    </div>
+    {% else %}
+      <div class="empty">这张调整单里没有任何条目。</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+{% block title %}商品主数据{% endblock %}
+
+{% block body %}
+<div class="page-head">
+  <div>
+    <h1>商品主数据</h1>
+    <div class="sub">
+      一个商品编号对应一件货。默认只列<b>还在库</b>的：
+      <b>{{ counts.ins or 0 }}</b> 个在库{% if counts.outs %}，<b>{{ counts.outs }}</b> 个已出库{% endif %}。
+      导入账面表时商品编号会自动建进来，这里可以补名称、商品分类、材质分类、克重、克单价、单位、库位和进货商。Excel 在独立页面同步。
+    </div>
+  </div>
+  <div class="page-actions">
+    {# 这一页只改商品资料，库存得去「商品出入库」录。以前这里没有出口，
+       人改完资料想录一笔就找不着路了。 #}
+    <a class="btn primary" href="{{ url_for('moves.move_list') }}">录一条出入库</a>
+    <a class="btn" href="{{ url_for('stock.sku_ledger_export') }}"
+       title="列和顺序跟你们自己那份《饰品库存台账》一样：序号 / 入库日期 / 出库日期 / 商品编码 / 商品名称 / 规格型号 / 备注 / 退回">导出成台账格式</a>
+    <a class="btn" href="{{ url_for('stock.sku_export') }}">导出全部</a>
+    <a class="btn" href="{{ url_for('stock.sku_template') }}">下载导入模板</a>
+  </div>
+</div>
+
+<div class="tabs">
+  <a class="{{ 'on' if st == 'in' }}" href="{{ url_for('stock.sku_list', st='in', q=q, cat=cat, mt=request.args.get('mt','')) }}">
+    在库 <span class="cnt">{{ counts.ins or 0 }}</span>
+  </a>
+  <a class="{{ 'on' if st == 'out' }}" href="{{ url_for('stock.sku_list', st='out', q=q, cat=cat, mt=request.args.get('mt','')) }}">
+    已出库 <span class="cnt">{{ counts.outs or 0 }}</span>
+  </a>
+  {# 退回件单独一档：客户退回来的货还压在手上（库存不等于 0），但性质跟在库货不一样，
+     不能混在一起看。这一档的数字算的是「当前关键字 + 分类」范围里退回件的总数。 #}
+  <a class="{{ 'on' if st == 'ret' }}" href="{{ url_for('stock.sku_list', st='ret', q=q, cat=cat, mt=request.args.get('mt','')) }}">
+    退回件 <span class="cnt">{{ counts.ret or 0 }}</span>
+  </a>
+  <a class="{{ 'on' if st == 'all' }}" href="{{ url_for('stock.sku_list', st='all', q=q, cat=cat, mt=request.args.get('mt','')) }}">
+    全部 <span class="cnt">{{ counts.all_n or 0 }}</span>
+  </a>
+</div>
+
+<div class="card">
+  <h2>
+    <span>{{ {'in': '在库商品', 'out': '已出库商品', 'all': '全部商品编号', 'ret': '退回件'}[st] }}</span>
+    <form method="get" class="row" style="gap:6px">
+      <input type="hidden" name="st" value="{{ st }}">
+      <select name="cat" aria-label="商品分类筛选" style="width:190px">
+        <option value="">全部分类</option>
+        {% for c in CATEGORIES %}
+          <option value="{{ c }}" {{ 'selected' if cat == c }}>{{ c }}</option>
+        {% endfor %}
+        <option value="__none__" {{ 'selected' if cat == '__none__' }}>未分类（{{ counts.nocat or 0 }}）</option>
+      </select>
+      <select name="mt" aria-label="材质分类筛选" style="width:170px"><option value="">全部材质</option>{% for kind in MATERIAL_TYPES %}<option value="{{ kind }}" {{ 'selected' if request.args.get('mt') == kind }}>{{ kind }}</option>{% endfor %}<option value="__none__" {{ 'selected' if request.args.get('mt') == '__none__' }}>未设置材质</option></select>
+      <input type="search" name="q" value="{{ q or '' }}" placeholder="搜编号 / 名称 / 分类 / 进货商" style="width:280px">
+      <button class="btn sm" type="submit">搜索</button>
+      {% if q or cat %}<a class="btn sm ghost" href="{{ url_for('stock.sku_list', st=st) }}">清空</a>{% endif %}
+    </form>
+  </h2>
+  <div class="card-body tight">
+    {# 批量设分类。真实台账里几百个编号的名字是「PT950肖邦链7.47 45cm」这种，
+       分不出素链还是套链，只能人工判断；一行一个下拉点几百次没人会认真填，
+       最后分类栏全空、筛选跟着一起废掉，所以给一个「勾一片、一次设好」的入口。
+       勾选框挂在独立的 catmulti 表单上（用 form= 属性），不干扰每行自己那个保存表单。 #}
+    <form id="catmulti" method="post" action="{{ url_for('stock.sku_bulk_cat') }}">
+      <input type="hidden" name="st" value="{{ st }}">
+      <input type="hidden" name="q" value="{{ q or '' }}">
+      <input type="hidden" name="cat" value="{{ cat or '' }}"><input type="hidden" name="mt" value="{{ request.args.get('mt','') }}">
+    </form>
+    <div class="catbar">
+      <span class="cs">已选 <b id="cat-n">0</b> 个</span>
+      <select name="category" form="catmulti" aria-label="批量设置商品分类">
+        <option value="">设为分类…</option>
+        {% for c in CATEGORIES %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+        <option value="__clear__">（清空分类）</option>
+      </select>
+      <button class="btn sm primary" type="submit" form="catmulti" name="mode" value="checked"
+              id="cat-apply" disabled
+              data-confirm-click="把勾选的商品编号的分类改掉？">设为这个分类</button>
+      <span class="sp"></span>
+      <button class="btn sm" type="submit" form="catmulti" name="mode" value="all"
+              data-confirm-click="把当前筛选出来的全部 {{ total }} 个商品编号都设成这个分类？不只是本页这 {{ rows|length }} 个。">把筛出来的 {{ total }} 个全设成这个分类</button>
+    </div>
+    <div class="scroll">
+    <table class="tb ed" style="min-width:1310px">
+      <thead>
+        <tr>
+          <th style="width:34px" class="mid">
+            <input type="checkbox" data-checkall="#skubody" title="全选本页" aria-label="全选本页商品">
+          </th>
+          <th style="width:130px">商品编号 *</th>
+          <th style="width:180px">商品名称</th>
+          <th style="width:110px">分类</th>
+          <th style="width:140px">材质分类</th><th style="width:120px">克重（克）</th><th style="width:140px">克单价（元/克）</th><th style="width:130px">单件成本（元）</th>
+          <th style="width:64px">单位</th>
+          <th style="width:100px">库位</th>
+          <th style="width:130px">进货商</th>
+          <th style="width:100px" class="num">当前库存</th>
+          <th style="width:84px" class="mid">状态</th>
+          <th style="width:70px" class="mid">启用</th>
+          <th style="width:230px" class="mid">操作</th>
+        </tr>
+      </thead>
+      <tbody id="skubody">
+      {% for r in rows %}
+        <tr class="{{ 'muted' if not r.active }}">
+          <td class="mid">
+            <input type="checkbox" form="catmulti" name="ids" value="{{ r.id }}">
+          </td>
+          <td class="codewrap">
+            <input form="sf{{ r.id }}" type="text" name="code" value="{{ r.code }}" class="mono" required>
+            <a class="peek" href="{{ url_for('stock.sku_detail', sid=r.id) }}"
+               title="看这件货的全部记录：入库、出库、盘点、调整">记录</a>
+          </td>
+          <td><input form="sf{{ r.id }}" type="text" name="name" list="name-choices" value="{{ r.name }}" placeholder="商品名称"></td>
+          <td>
+            {# 没填分类的那一格描成琥珀色：真实台账里这类最多（名字是「肖邦链」「吊坠」，
+               光看名字分不清素链还是套链），不标出来就得一行行找。 #}
+            <select form="sf{{ r.id }}" name="category" class="{{ 'need' if not r.category }}">
+              <option value="">未分类</option>
+              {% for c in CATEGORIES %}
+                <option value="{{ c }}" {{ 'selected' if r.category == c }}>{{ c }}</option>
+              {% endfor %}
+            </select>
+          </td>
+          <td><select form="sf{{ r.id }}" name="material_type"><option value="">未设置材质</option>{% for kind in MATERIAL_TYPES %}<option value="{{ kind }}" {{ 'selected' if r.material_type == kind }}>{{ kind }}</option>{% endfor %}</select></td><td><input form="sf{{ r.id }}" type="text" name="spec" value="{{ r.spec }}" placeholder="克重"></td>
+          <td><input form="sf{{ r.id }}" type="number" name="gram_price" min="0" step="any" value="{{ r.gram_price|number }}" placeholder="未录入"></td><td class="num">{{ purchase(r).unit_cost|money }}</td>
+          <td><input form="sf{{ r.id }}" type="text" name="unit" list="unit-choices" value="{{ r.unit }}" placeholder="件"></td>
+          <td><input form="sf{{ r.id }}" type="text" name="location" list="location-choices" value="{{ r.location }}" placeholder="库位"></td>
+          <td><input form="sf{{ r.id }}" type="text" name="supplier" list="supplier-choices" value="{{ r.supplier }}" placeholder="进货商"></td>
+          <td class="num">
+            <a href="{{ url_for('stock.sku_detail', sid=r.id) }}"
+               title="看这件货的全部记录：入库、出库、盘点、调整"><b>{{ (stock.get(r.id, 0))|qty }}</b></a>
+          </td>
+          <td class="mid">
+            {% if stock.get(r.id, 0) > 0 %}
+              <span class="tag approved">在库</span>
+            {% else %}
+              <span class="tag">已出库</span>
+            {% endif %}
+            {% if r.returned %}<span class="tag ret" title="客户退回来的货">退回</span>{% endif %}
+          </td>
+          <td class="mid">
+            {% if r.active %}<span class="tag approved">启用</span>{% else %}<span class="tag">停用</span>{% endif %}
+          </td>
+          <td class="ops">
+            <button form="sf{{ r.id }}" class="btn sm primary" type="submit">保存</button>
+            <button form="tf{{ r.id }}" class="btn sm" type="submit">{{ '停用' if r.active else '启用' }}</button>
+            <button form="rf{{ r.id }}" class="btn sm" type="submit"
+                    title="导入时那一列只加不减，怕忘指列把标记清空；要取消就在这里点">{{ '取消退回' if r.returned else '标退回' }}</button>
+            {% if cu.role == 'admin' %}
+              <button form="df{{ r.id }}" class="btn sm danger" type="submit">删</button>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+
+    {% if pages > 1 %}
+    <div class="pager">
+      <span>第 {{ page }} / {{ pages }} 页 · 匹配 {{ total }} 个商品编号</span>
+      <span class="sp"></span>
+      {% if page > 1 %}
+        <a href="{{ url_for('stock.sku_list', st=st, q=q, cat=cat, mt=request.args.get('mt',''), page=1, size=size) }}">首页</a>
+        <a href="{{ url_for('stock.sku_list', st=st, q=q, cat=cat, mt=request.args.get('mt',''), page=page-1, size=size) }}">上一页</a>
+      {% endif %}
+      {% if page < pages %}
+        <a href="{{ url_for('stock.sku_list', st=st, q=q, cat=cat, mt=request.args.get('mt',''), page=page+1, size=size) }}">下一页</a>
+        <a href="{{ url_for('stock.sku_list', st=st, q=q, cat=cat, mt=request.args.get('mt',''), page=pages, size=size) }}">末页</a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% for r in rows %}
+      <form id="sf{{ r.id }}" method="post" action="{{ url_for('stock.sku_save') }}">
+        <input type="hidden" name="id" value="{{ r.id }}">
+      </form>
+      <form id="tf{{ r.id }}" method="post" action="{{ url_for('stock.sku_toggle', sid=r.id) }}"></form>
+      <form id="rf{{ r.id }}" method="post" action="{{ url_for('stock.sku_returned', sid=r.id) }}"></form>
+      {% if cu.role == 'admin' %}
+        <form id="df{{ r.id }}" method="post" action="{{ url_for('stock.sku_delete', sid=r.id) }}"
+              data-confirm="删除商品编号「{{ r.code }} {{ r.name }}」？如果它已经被盘点过，系统会拒绝删除，改用「停用」。"></form>
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>
+
+<div class="card" style="max-width:960px">
+  <h2>手工新增一个商品编号</h2>
+  <div class="card-body">
+    <form class="sku-create" method="post" action="{{ url_for('stock.sku_save') }}">
+      <div class="row">
+        <div style="flex:0 0 160px">
+          <label for="c-code">商品编号 *</label>
+          <input type="text" id="c-code" name="code" class="mono" required placeholder="SKU001">
+        </div>
+        <div class="grow">
+          <label for="c-name">商品名称</label>
+          <input type="text" id="c-name" name="name" list="name-choices" placeholder="例如：素链 45cm">
+        </div>
+        <div style="flex:0 0 120px">
+          <label for="c-cat">分类</label>
+          <select id="c-cat" name="category">
+            <option value="">未分类</option>
+            {% for c in CATEGORIES %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+          </select>
+        </div>
+        <div style="flex:0 0 150px">
+          <label for="c-spec">克重</label>
+          <input type="text" id="c-spec" name="spec" placeholder="例如：3.2g">
+        </div>
+      </div>
+      <div class="row mt12">
+        <div style="flex:0 0 90px">
+          <label for="c-price">克单价（元/克）</label><input type="number" id="c-price" name="gram_price" min="0" step="any" placeholder="例如：600"></div><div style="flex:0 0 90px"><label for="c-material-type">材质分类</label><select id="c-material-type" name="material_type"><option value="">未设置材质</option>{% for kind in MATERIAL_TYPES %}<option value="{{ kind }}">{{ kind }}</option>{% endfor %}</select></div><div style="flex:0 0 90px"><label for="c-unit">单位</label>
+          <input type="text" id="c-unit" name="unit" list="unit-choices" placeholder="件">
+        </div>
+        <div style="flex:0 0 130px">
+          <label for="c-loc">库位</label>
+          <input type="text" id="c-loc" name="location" list="location-choices" placeholder="A区-3排">
+        </div>
+        <div style="flex:0 0 190px">
+          <label for="c-sup">进货商</label>
+          <input type="text" id="c-sup" name="supplier" list="supplier-choices" placeholder="例如：深圳某厂">
+        </div>
+        <div>
+          <button class="btn primary" type="submit">新增</button>
+        </div>
+      </div>
+      <div class="tip">
+        商品编号不能重复（不区分大小写）。留空「单位」「库位」不影响盘点，只是盘点表上少一列提示。
+        「分类」用固定的六项（{{ CATEGORIES|join('、') }}），筛选才筛得干净。
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

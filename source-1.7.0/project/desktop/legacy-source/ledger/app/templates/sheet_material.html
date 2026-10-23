@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}存料费（表格）{% endblock %}
+{% block body %}
+<div class="page-head">
+  <div>
+    <h1>存料费　<span class="note" style="font-weight:400">电子表格</span></h1>
+    <div class="sub">
+      跟你原表一样的版式：**一天两行**——上面一行填「板料（克）」，下面一行填「金额（元）」，
+      横向就是各供货商。一格里同时填克数和金额也行。
+    </div>
+  </div>
+  <div class="page-actions">
+    <a class="btn" href="{{ url_for('sheet.material_export') }}">导出 CSV</a>
+    <a class="btn" href="{{ url_for('sheet.material') }}">重新载入</a>
+  </div>
+</div>
+
+<div class="xl-tabs">
+  <a href="{{ url_for('sheet.view', name='sales') }}">销售明细</a>
+  <a href="{{ url_for('sheet.view', name='stock') }}">库存台账</a>
+  <a href="{{ url_for('sheet.material') }}" class="on">存料费</a>
+</div>
+
+<form method="post" action="{{ url_for('sheet.material_save') }}">
+<div class="xl-bar">
+  <button class="btn primary" type="submit">保存全部修改</button>
+  <button class="btn" type="submit" formaction="{{ url_for('sheet.material_save') }}" name="newday" value="1">加今天这一行</button>
+  <span class="sp"></span>
+  <span class="xl-hint">**不同供货商绝不相加**：每一列各算各的，「汇总」列只是当天的合计，方便对总数。</span>
+</div>
+
+<div class="xl-scroll">
+  <table class="xl">
+    <thead>
+      <tr class="xl-letter">
+        <th class="xl-rn"></th>
+        <th>　</th><th>A</th>
+        {% for i in range(sups|length) %}
+          <th>{{ 'BCDEFGHIJKLMNOPQRSTUVWXYZ'[i] if i < 25 else 'A' ~ (i - 24) }}</th>
+        {% endfor %}
+        <th>合计</th><th>×</th>
+      </tr>
+      <tr class="xl-name">
+        <th class="xl-rn">行</th>
+        <th>日期</th><th>商品</th>
+        {% for s in sups %}<th>{{ s }}</th>{% endfor %}
+        <th>汇总</th><th>删</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for d in day_rows %}
+      <tr>
+        <td class="xl-rn">{{ loop.index }}a</td>
+        <input type="hidden" name="dates" value="{{ d.date }}">
+        <input type="hidden" name="snapshot_{{ d.date }}" value="{{ d.snapshot }}">
+        <td class="xl-c" rowspan="2"><input type="date" name="d_{{ d.date }}" value="{{ d.date }}" readonly></td>
+        <td class="xl-c"><span style="padding:2px 8px;color:#4a5260">板料（克）</span></td>
+        {% for s in sups %}
+          {% set c = d.cells.get(s) %}
+          <td class="xl-c num"><input type="number" step="0.0001" name="g_{{ d.date }}_{{ s }}"
+            value="{{ c.grams if c and c.grams else '' }}"></td>
+        {% endfor %}
+        <td class="xl-calc">{{ d.grams|fmt2 }}</td>
+        <td class="xl-del" rowspan="2">
+          <input type="checkbox" name="deldate_{{ d.date }}" value="1" title="勾上再保存就删掉这一天">
+        </td>
+      </tr>
+      <tr>
+        <td class="xl-rn">{{ loop.index }}b</td>
+        <td class="xl-c"><span style="padding:2px 8px;color:#4a5260">金额（元）</span></td>
+        {% for s in sups %}
+          {% set c = d.cells.get(s) %}
+          <td class="xl-c num"><input type="number" step="0.01" name="a_{{ d.date }}_{{ s }}"
+            value="{{ '%.2f'|format(c.amount) if c and c.amount else '' }}"></td>
+        {% endfor %}
+        <td class="xl-calc">{{ d.amount|fmt2 }}</td>
+      </tr>
+      {% endfor %}
+
+      {% if newday %}
+      <tr class="xl-new">
+        <td class="xl-rn">新a</td>
+        <input type="hidden" name="dates" value="{{ today }}">
+        <td class="xl-c"><input type="date" name="d_{{ today }}" value="{{ today }}" readonly></td>
+        <td class="xl-c"><span style="padding:2px 8px;color:#4a5260">板料（克）</span></td>
+        {% for s in sups %}
+          <td class="xl-c num"><input type="number" step="0.0001" name="g_{{ today }}_{{ s }}"></td>
+        {% endfor %}
+        <td class="xl-calc">—</td><td class="xl-del"></td>
+      </tr>
+      <tr class="xl-new">
+        <td class="xl-rn">新b</td>
+        <td class="xl-c"><span style="padding:2px 8px;color:#4a5260">金额（元）</span></td>
+        {% for s in sups %}
+          <td class="xl-c num"><input type="number" step="0.01" name="a_{{ today }}_{{ s }}"></td>
+        {% endfor %}
+        <td class="xl-calc">—</td>
+      </tr>
+      {% endif %}
+
+      {% if not day_rows and not newday %}
+      <tr><td class="xl-rn">1</td>
+        <td class="xl-calc" colspan="{{ sups|length + 4 }}" style="text-align:center;color:#7a8697">
+          还没有数据。点上面的「加今天这一行」开始填。
+        </td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+
+<div class="xl-foot">
+  <span>天数：<b>{{ day_rows|length }}</b></span>
+  {% for k, v in totals.items() %}<span>{{ k }}：<b>{{ v|money if '金额' in k else v|gram }}</b></span>{% endfor %}
+</div>
+</form>
+{% endblock %}

@@ -1,0 +1,35 @@
+'use strict';
+// Read-only adapter for the separately reviewed PowerShell GUI. No writes,
+// business imports, subprocesses, SQLite, configuration or F-drive data access.
+const fs=process.versions.electron?require('original-fs').promises:require('node:fs/promises'),path=require('node:path'),crypto=require('node:crypto');
+const core=require('./approval-core.cjs'),archive=require('./approval-archive.cjs'),CHUNK=4194304;
+function fail(code,message){const e=new Error(message);e.code=code;throw e;}
+const identity=s=>[s.dev,s.ino,s.size,s.mtimeNs,s.ctimeNs,s.nlink].map(String).join(':');
+async function plain(file,{directory=false,missing=false}={}){
+ if(typeof file!=='string'||!path.isAbsolute(file)||/^[\\/]{2}/.test(file)||/[\x00-\x1f"<>|?*]/.test(file)||file.slice(2).includes(':')||path.normalize(file)!==file||file.slice(path.parse(file).root.length).split(/[\\/]/).some(p=>!p||p==='.'||p==='..'||/[. ]$/.test(p)||/^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(p)))fail('UNSAFE_PATH','必须使用普通本机规范路径。');
+ let result;for(let p=file;;p=path.dirname(p)){let s;try{s=await fs.lstat(p,{bigint:true});}catch(e){if(!(missing&&p===file&&e.code==='ENOENT'))throw e;}if(s){if(s.isSymbolicLink()||p!==file&&!s.isDirectory()||(await fs.realpath(p)).toLowerCase()!==p.toLowerCase())fail('UNSAFE_PATH','路径不能经过链接或重解析点。');if(p===file)result=s;}if(p===path.dirname(p))break;}
+ if(result&&(directory?!result.isDirectory():!result.isFile()||result.nlink!==1n))fail('UNSAFE_PATH','文件必须是单链接普通文件。');return result;
+}
+async function openRead(file){const before=await plain(file),h=await fs.open(file,'r');try{const stat=await h.stat({bigint:true}),current=await plain(file);if(identity(stat)!==identity(before)||identity(current)!==identity(stat))fail('FILE_CHANGED','文件打开期间发生变化。');const source={size:Number(stat.size),read:async(at,n)=>{const b=Buffer.alloc(n);let done=0;while(done<n){const r=await h.read(b,done,n-done,at+done);if(!r.bytesRead)fail('INCOMPLETE_FILE','读取不完整。');done+=r.bytesRead;}return b;},check:async()=>{if(identity(await h.stat({bigint:true}))!==identity(stat)||identity(await plain(file))!==identity(stat))fail('FILE_CHANGED','文件读取期间发生变化。');},close:()=>h.close()};return source;}catch(e){await h.close();throw e;}}
+async function digestSource(source){if(source.size>1073741824)fail('FILE_TOO_LARGE','单个输入超过安全限制。');const h=crypto.createHash('sha256');for(let at=0;at<source.size;at+=CHUNK)h.update(await source.read(at,Math.min(CHUNK,source.size-at)));await source.check();return{size:source.size,sha256:h.digest('hex')};}
+async function fileInfo(file){const r=await openRead(file);try{return await digestSource(r);}finally{await r.close();}}
+async function small(file,max=2097152){const r=await openRead(file);try{if(r.size>max)fail('BAD_METADATA','元数据过大。');const b=await r.read(0,r.size);await r.check();return b;}finally{await r.close();}}
+async function inspectTree(root,zipFiles){await plain(root,{directory:true});const allowed=new Set(zipFiles.map(f=>f.path)),directories=new Set(),files=[];for(const n of allowed){const parts=n.split('/');while(parts.length>1){parts.pop();directories.add(parts.join('/'));}}async function walk(dir,relative=''){for(const n of(await fs.readdir(dir)).sort()){const name=relative+n;if(!core.safeRelative(name))fail('UNSAFE_PATH','补丁相对路径无效。');const f=path.join(dir,n),stat=await fs.lstat(f);if(stat.isDirectory()){if(!directories.has(name))fail('UNEXPECTED_FILE','解包目录含 ZIP 外目录；未读取其内容。');await plain(f,{directory:true});await walk(f,name+'/');}else{if(!allowed.has(name)||files.length>=8192)fail('UNEXPECTED_FILE','解包目录含 ZIP 外文件；未读取其内容。');files.push({path:name,...await fileInfo(f)});}}}await walk(root);return files;}
+async function program(file){const r=await openRead(file);try{const pkg=await archive.readPackedIdentity(r),info=await digestSource(r);return{...pkg,...info};}finally{await r.close();}}
+async function runReadonlyReview(request){
+ if(!request||!['initial','reapprove-original'].includes(request.operation)||typeof request.osUser!=='string'||!request.osUser.startsWith('S-1-'))fail('BAD_REQUEST','审定请求无效。');
+ const zipFile=request.archiveFile,root=request.artifactDir,exe=request.executablePath;await plain(root,{directory:true});await plain(path.dirname(exe),{directory:true});
+ if(root.toLowerCase()===path.dirname(exe).toLowerCase()||path.relative(root,path.dirname(exe)).split(path.sep)[0]!=='..'&&!path.isAbsolute(path.relative(root,path.dirname(exe))))fail('UNSAFE_PATH','补丁目录不能包含正式程序目录。');
+ const r=await openRead(zipFile);let zip;try{zip=await archive.inspectStoredZip(r);await r.check();}finally{await r.close();}
+ const treeFiles=await inspectTree(root,zip.files),metadata={publicKeyPem:await small(path.join(root,'publisher-public.pem'),4096),catalogBytes:await small(path.join(root,'catalog-envelope.json')),policyBytes:await small(path.join(root,'source-policy-envelope.json'))};
+ const state=path.join(path.dirname(exe),'.xjy-initial-upgrade');let transactionExists=false;try{await plain(state,{directory:true});transactionExists=true;}catch(e){if(e.code!=='ENOENT')throw e;}
+ let previousApproval=null;if(request.previousApprovalBase64){const b=Buffer.from(request.previousApprovalBase64,'base64');if(b.length>8192)fail('BAD_REQUEST','原审定记录过大。');previousApproval=JSON.parse(new TextDecoder('utf8',{fatal:true}).decode(b));}
+ const options={operation:request.operation,now:Date.now(),approvalId:crypto.randomUUID(),independent:{artifactSha256:request.expectedArtifactSha256,publisherPublicKeySha256:request.expectedPublisherPublicKeySha256,verifiedPublisherName:request.verifiedPublisherName},archive:zip,treeFiles,metadata,installation:{installationDir:path.dirname(exe),executableName:path.basename(exe),osUser:request.osUser,role:request.role,engine:await fileInfo(exe),source:request.operation==='initial'?await program(path.join(path.dirname(exe),'resources','app.asar')):null,target:await program(path.join(root,'payload','resources','app.asar'))},previousApproval,transactionExists};
+ const result=core.reviewInitialApproval(options);if(result.executableName!==path.basename(exe))fail('ENGINE_MISMATCH','选定 EXE 文件名与已签名引擎策略不符。');if(!core.plainWindowsDirectory(result.record.installationDir))fail('UNSAFE_PATH','安装路径无效。');return{...result,filePaths:treeFiles.map(f=>f.path)};
+}
+if(require.main===module){
+ if(process.argv.length!==3||process.argv[2]!=='--review'||process.env.ELECTRON_RUN_AS_NODE!=='1'||process.env.XJY_INDEPENDENT_APPROVAL_REVIEW!=='1'||process.env.NODE_OPTIONS||process.env.NODE_PATH){process.stderr.write('仅由独立负责人审定界面启动。\n');process.exitCode=1;}else{
+  const chunks=[];let length=0;process.stdin.on('data',b=>{length+=b.length;if(length>16384){process.stderr.write('审定请求过大。\n');process.exit(1);}chunks.push(b);});process.stdin.on('end',()=>Promise.resolve().then(()=>JSON.parse(Buffer.concat(chunks).toString('utf8'))).then(runReadonlyReview).then(result=>process.stdout.write(JSON.stringify(result)+'\n'),e=>{process.stderr.write((e.code||'REVIEW_FAILED')+' '+e.message+'\n');process.exitCode=1;}));
+ }
+}
+module.exports={runReadonlyReview};

@@ -1,0 +1,2 @@
+# Preserve imported source bytes and SHA bindings across Windows/Linux checkouts.
+/source-1.7.0/** -text whitespace=cr-at-eol

@@ -1,0 +1,284 @@
+{% extends "base.html" %}
+{% block title %}报表{% endblock %}
+
+{% block body %}
+<div class="page-head">
+  <div>
+    <h1>报表</h1>
+    <div class="sub">
+      现在有多少、这段时间进了多少出了多少。
+      {% if batch %}账面基准：<b>{{ batch.name }}</b>{% endif %}
+      {% if since %}· 进出统计从 <b>{{ since[:10] }}</b> 起{% else %}· 进出统计不限时间{% endif %}
+    </div>
+  </div>
+  <div class="page-actions">
+    <a class="btn" href="{{ url_for('stock.sku_ledger_export') }}"
+       title="列和顺序跟你们自己那份《饰品库存台账》一样">导出成台账格式</a>
+    <button class="btn" onclick="window.print()">打印这一页</button>
+  </div>
+</div>
+
+<div class="tabs">
+  {% for key, text in [('30','最近 30 天'), ('90','最近 90 天'), ('365','最近一年'), ('all','全部时间')] %}
+    <a class="{{ 'on' if r == key }}" href="{{ url_for('report.index', r=key) }}">{{ text }}</a>
+  {% endfor %}
+</div>
+
+<div class="grid c4">
+  <div class="stat blue">
+    <div class="k">在库总件数</div>
+    <div class="v">{{ stock_total|qty }}</div>
+    <div class="n">账面数 + 出入库流水，和盘点表上的「账面数」同源；只算当前还有货的</div>
+  </div>
+  <div class="stat">
+    <div class="k">在库商品编号</div>
+    <div class="v">{{ cat_total_n }}</div>
+    <div class="n">共 {{ sku_total }} 个编号，其中退回件 {{ ret_total }} 个</div>
+  </div>
+  <div class="stat good">
+    <div class="k">本期入库</div>
+    <div class="v">{{ mv_in.qty|qty }}</div>
+    <div class="n">{{ mv_in.n }} 笔</div>
+  </div>
+  <div class="stat bad">
+    <div class="k">本期出库</div>
+    <div class="v">{{ mv_out.qty|qty }}</div>
+    <div class="n">{{ mv_out.n }} 笔 · 净额 <span class="num {{ 'in' if net_qty >= 0 else 'out' }}">{{ '+' if net_qty >= 0 else '' }}{{ net_qty|qty }}</span></div>
+  </div>
+</div>
+
+<div class="grid c2">
+  {# ── 库存按分类 ── #}
+  <div class="card">
+    <h2>在库按分类 <span class="hint">共 {{ cat_total_n }} 个编号 / {{ cat_total_qty|qty }} 件</span></h2>
+    {% if cat_rows %}
+      {% set cat_max = cat_rows[0][1]['qty'] or 1 %}
+      <div class="scroll">
+        <table class="tb">
+          <thead>
+            <tr>
+              <th style="width:110px">分类</th>
+              <th style="width:70px" class="right">编号数</th>
+              <th style="width:80px" class="right">件数</th>
+              <th>占比</th>
+              <th style="width:64px" class="right">退回</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for name, d in cat_rows %}
+              <tr>
+                <td>{{ name }}</td>
+                <td class="right">{{ d.n }}</td>
+                <td class="right">{{ d.qty|qty }}</td>
+                <td>
+                  <span class="rbar"><i style="width:{{ (d.qty * 100 / cat_max)|round(1) }}%"></i></span>
+                </td>
+                <td class="right">{% if d.ret %}<span class="tag ret">{{ d.ret }}</span>{% else %}<span class="muted">—</span>{% endif %}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% if cat_rows|length and cat_rows[0][0] == '（未分类）' %}
+        <div class="note warn">
+          还有 {{ cat_total_n }} 件没分类，全挤在「（未分类）」里。到
+          <a href="{{ url_for('stock.sku_list', cat='__none__') }}">商品主数据 → 未分类</a>
+          上勾一片、一次设好分类，这儿才看得出货都压在哪些品类上。
+        </div>
+      {% endif %}
+    {% else %}
+      <div class="empty">现在没有在库的商品。</div>
+    {% endif %}
+  </div>
+
+  {# ── 按月进出 ── #}
+  <div class="card">
+    <h2>按月出入库 <span class="hint">最近 {{ month_rows|length }} 个月{% if not month_rows %} · 还没有流水{% endif %}</span></h2>
+    {% if month_rows %}
+      {% set m_max = [month_rows|map(attribute='in')|max, month_rows|map(attribute='out')|max, 1]|max %}
+      <div class="scroll">
+        <table class="tb">
+          <thead>
+            <tr>
+              <th style="width:90px">月份</th>
+              <th style="width:76px" class="right">入库</th>
+              <th>　</th>
+              <th style="width:76px" class="right">出库</th>
+              <th>　</th>
+              <th style="width:76px" class="right">净额</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for m in month_rows %}
+              {% set net = m.in - m.out %}
+              <tr>
+                <td class="mono">{{ m.mon }}</td>
+                <td class="right num in">{{ m.in|qty }}</td>
+                <td><span class="rbar"><i class="in" style="width:{{ (m.in * 100 / m_max)|round(1) }}%"></i></span></td>
+                <td class="right num out">{{ m.out|qty }}</td>
+                <td><span class="rbar"><i class="out" style="width:{{ (m.out * 100 / m_max)|round(1) }}%"></i></span></td>
+                <td class="right num {{ 'in' if net >= 0 else 'out' }}">{{ '+' if net >= 0 else '' }}{{ net|qty }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty">
+        这段时间还没有出入库记录。平时进出货到
+        <a href="{{ url_for('moves.move_list') }}">出入库记录</a> 上记一笔，这儿就有数了。
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="grid c2">
+  {# ── 本期出库最多 ── #}
+  <div class="card">
+    <h2>本期出库最多的商品 <span class="hint">{{ range_name }}</span></h2>
+    {% if top_out %}
+      {% set t_max = top_out[0]['qty'] or 1 %}
+      <div class="scroll">
+        <table class="tb">
+          <thead>
+            <tr>
+              <th style="width:130px">商品编号</th>
+              <th>商品名称</th>
+              <th style="width:60px" class="right">次数</th>
+              <th style="width:70px" class="right">数量</th>
+              <th style="width:120px">　</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in top_out %}
+              <tr>
+                <td class="mono">{{ t.sku_code }}</td>
+                <td>{{ t.sku_name or '—' }}</td>
+                <td class="right">{{ t.n }}</td>
+                <td class="right num out">{{ t.qty|qty }}</td>
+                <td><span class="rbar"><i class="out" style="width:{{ (t.qty * 100 / t_max)|round(1) }}%"></i></span></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty">这段时间没有出库记录。</div>
+    {% endif %}
+  </div>
+
+  {# ── 进货商 ── #}
+  <div class="card">
+    <h2>在库货按进货商 <span class="hint">前 {{ sup_rows|length }} 家</span></h2>
+    {% if sup_rows %}
+      {% set s_max = sup_rows[0][1]['qty'] or 1 %}
+      <div class="scroll">
+        <table class="tb">
+          <thead>
+            <tr>
+              <th>进货商</th>
+              <th style="width:70px" class="right">编号数</th>
+              <th style="width:80px" class="right">件数</th>
+              <th style="width:130px">占比</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for name, d in sup_rows %}
+              <tr>
+                <td>{{ name }}</td>
+                <td class="right">{{ d.n }}</td>
+                <td class="right">{{ d.qty|qty }}</td>
+                <td><span class="rbar"><i class="gray" style="width:{{ (d.qty * 100 / s_max)|round(1) }}%"></i></span></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty">在库的商品都还没填进货商。</div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="grid c2">
+  {# ── 盘点与调整 ── #}
+  <div class="card">
+    <h2>盘点任务 <span class="hint">共 {{ sess_stat.total }} 个 · 进行中 {{ sess_stat.open }} · 已结案 {{ sess_stat.done }}</span></h2>
+    {% if sess %}
+      <div class="scroll">
+        <table class="tb">
+          <thead>
+            <tr>
+              <th>任务</th>
+              <th style="width:96px">状态</th>
+              <th style="width:130px">建的时间</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for x in sess %}
+              <tr>
+                <td><a href="{{ url_for('count.session_detail', sid=x.id) }}">{{ x.name }}</a></td>
+                <td><span class="tag {{ x.status }}">{{ STATUS_NAMES.get(x.status, x.status) }}</span></td>
+                <td class="mono muted">{{ x.created_at }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty">还没有盘点过。</div>
+    {% endif %}
+    {% if adj_draft %}
+      <div class="note warn">
+        有 <b>{{ adj_draft }}</b> 张调整单还是草稿状态，没执行就没有改动账面数。
+        <a href="{{ url_for('review.adjustment_list') }}">去调整单 →</a>
+      </div>
+    {% endif %}
+  </div>
+
+  {# ── 物料 ── #}
+  <div class="card">
+    <h2>物料库存 <span class="hint">前 {{ mats|length }} 项 · 库存 = 入库合计 − 出库合计</span></h2>
+    {% if mats %}
+      {% set mat_max = mats[0]['qty'] or 1 %}
+      <div class="scroll">
+        <table class="tb">
+          <thead>
+            <tr>
+              <th style="width:120px">物料编号</th>
+              <th>物料名称</th>
+              <th style="width:60px">单位</th>
+              <th style="width:80px" class="right">库存</th>
+              <th style="width:110px">　</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for m in mats %}
+              <tr>
+                <td class="mono">{{ m.code }}</td>
+                <td>{{ m.name or '—' }}</td>
+                <td class="muted">{{ m.unit or '—' }}</td>
+                <td class="right {{ 'num out' if m.qty < 0 else '' }}">{{ m.qty|qty }}</td>
+                <td><span class="rbar"><i class="gray" style="width:{{ (m.qty * 100 / mat_max)|round(1) if m.qty > 0 else 0 }}%"></i></span></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty">
+        还没有物料。<a href="{{ url_for('materials.material_list') }}">物料出入库 →</a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{# 口径写在页面底部而不是藏在文档里：数字被人质疑时，当事人当场就能看到它怎么算出来的。 #}
+<div class="note">
+  <b>这些数字是怎么来的</b>：
+  「在库总件数」= 当前批次账面数 + 挂在当前批次上的出入库流水净额（跟盘点表上的「账面数」同一个口径）；
+  「本期入库 / 出库」只看流水记录的进出，<b>不含没有录进来的历史出货</b>；
+  一个商品编号对应一件货，所以「件数」和「编号数」在这些表里经常是同一个数。
+  一共 {{ move_total }} 条出入库流水。
+</div>
+{% endblock %}

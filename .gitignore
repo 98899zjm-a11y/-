@@ -121,3 +121,13 @@ coverage/
 /员工无F盘修复补丁-*/
 /交付检查版-*/
 /手机端安装包校验.json
+
+# Source snapshot: exclude generated runtime and original compiled legacy modules.
+__pycache__/
+*.pyc
+*.pyo
+source-1.7.0/project/desktop/generated/
+source-1.7.0/project/desktop/renderer-dist/
+source-1.7.0/project/desktop/web-runtime/
+source-1.7.0/project/desktop/release-modules/
+source-1.7.0/project/desktop/legacy-modules/

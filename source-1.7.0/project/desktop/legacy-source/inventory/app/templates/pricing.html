@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+{% block title %}一键算价{% endblock %}
+
+{% block body %}
+<div class="page-head">
+  <div>
+    <h1>一键算价</h1>
+    <div class="sub">算成本 → 出建议售价。下面这些参数都是<b>你自己能改的</b>，改完点「保存我的默认值」就记住，下次打开还是这个数。</div>
+  </div>
+</div>
+
+<div class="card" style="max-width:1180px">
+  <h2>① 我自己的参数（改完记得保存）</h2>
+  <div class="grid c3">
+    <div class="field"><label>成本金价（元/克）</label><input type="number" id="px_gp" step="0.01" min="0" placeholder="0.00"></div>
+    <div class="field"><label>每克拉石价（元/ct）</label><input type="number" id="px_sp" step="0.01" min="0" placeholder="0.00"></div>
+    <div class="field"><label>默认工费（元）</label><input type="number" id="px_labor" step="0.01" min="0" placeholder="0.00"></div>
+    <div class="field"><label>默认加价率（%）</label><input type="number" id="px_markup" step="0.01" min="0" placeholder="30"></div>
+    <div class="field"><label>默认倍数（1.5 = 成本 ×1.5）</label><input type="number" id="px_mult" step="0.01" min="1" placeholder="1.5"></div>
+    <div class="field"><label>默认目标毛利率（%）</label><input type="number" id="px_margin" step="0.01" min="0" placeholder="30"></div>
+  </div>
+  <div class="field" style="margin-top:8px">
+    <label>成色折算率（每行一条「名称=折算率」，下面「成色」下拉就按这个来）</label>
+    <textarea id="px_finlist" rows="5" style="font-family:Consolas,monospace;width:100%"></textarea>
+  </div>
+  <div class="field" style="margin-top:8px">
+    <label style="font-weight:600"><input type="checkbox" id="px_tax" style="width:auto;margin-right:6px">把消费税（5%）算进毛利</label>
+    <div class="tip">默认不勾：毛利 = 售价 − 成本。勾上后：毛利 = 售价÷1.13 − 成本 − 消费税。怎么算由你定，不影响法定申报。</div>
+  </div>
+  <div class="page-actions" style="margin-top:10px">
+    <button class="btn primary" id="px_save">保存我的默认值</button>
+    <span class="tip" id="px_saved" style="display:inline-block"></span>
+  </div>
+</div>
+
+<div class="card" style="max-width:1180px">
+  <h2>② 算这一件货</h2>
+  <div class="grid c4">
+    <div class="field"><label>金重（g）</label><input type="number" id="px_gold" step="0.0001" min="0" placeholder="0"></div>
+    <div class="field"><label>成色</label><select id="px_fin"></select></div>
+    <div class="field"><label>石重（ct）</label><input type="number" id="px_stone" step="0.0001" min="0" placeholder="0"></div>
+    <div class="field"><label>每克拉石价（元/ct）</label><input type="number" id="px_stone_price" step="0.01" min="0" placeholder="0"></div>
+    <div class="field"><label>工费（元）</label><input type="number" id="px_labor2" step="0.01" min="0" placeholder="0"></div>
+    <div class="field"><label>成本金价（元/克）</label><input type="number" id="px_gp2" step="0.01" min="0" placeholder="0"></div>
+    <div class="field"><label>定价方式</label>
+      <select id="px_mode">
+        <option value="markup">按加价率</option>
+        <option value="mult">按倍数</option>
+        <option value="margin">按目标毛利率</option>
+        <option value="gprice">按销售克价（元/克）</option>
+        <option value="price">直接填售价</option>
+      </select>
+    </div>
+    <div class="field"><label><span id="px_param_cap">加价率（%）</span></label><input type="number" id="px_param" step="0.01" min="0" placeholder="30"></div>
+  </div>
+  <div id="px_result" style="margin-top:18px"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  var KEY = 'jewelry_pricing_v1';
+  var DEFAULTS = {
+    gp: '', sp: '', labor: '', markup: 30, mult: 1.5, margin: 30, tax: false,
+    fin: [['铂金PT950', 0.95], ['铂金PT999.5', 0.9995], ['黄金足金999', 0.999], ['白银足银999', 0.999]]
+  };
+  function load() {
+    try { var o = JSON.parse(localStorage.getItem(KEY)); if (o && typeof o === 'object') return o; } catch (e) {}
+    return DEFAULTS;
+  }
+  function val(id) { var e = document.getElementById(id); return e ? e.value : ''; }
+  function num(x) { var n = parseFloat(x); return isFinite(n) ? n : 0; }
+  function money(x) { return num(x).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function wt(x) { return num(x).toFixed(4); }
+  function pct(x) { return (num(x) * 100).toFixed(2); }
+
+  function parseFin() {
+    var lines = String(document.getElementById('px_finlist').value).split(/\r?\n/);
+    var out = [];
+    lines.forEach(function (ln) {
+      var s = ln.replace(/[，,]/g, '').trim();
+      if (!s) return;
+      var m = s.split('=');
+      var name = (m[0] || '').trim();
+      var rate = parseFloat(m[1]);
+      if (name && isFinite(rate) && rate > 0 && rate <= 1.0001) out.push([name, rate]);
+    });
+    return out.length ? out : DEFAULTS.fin;
+  }
+  function finRate(name, fin) {
+    for (var i = 0; i < fin.length; i++) if (fin[i][0] === name) return fin[i][1];
+    return 0;
+  }
+  function fillFinSelect(fin) {
+    var sel = document.getElementById('px_fin');
+    var cur = sel.value;
+    sel.innerHTML = '';
+    fin.forEach(function (p) {
+      var o = document.createElement('option');
+      o.value = p[0];
+      o.textContent = p[0] + '（折算率 ' + p[1] + '）';
+      sel.appendChild(o);
+    });
+    if (fin.some(function (p) { return p[0] === cur; })) sel.value = cur;
+  }
+  function syncLabels() {
+    var mode = val('px_mode');
+    var cap = document.getElementById('px_param_cap');
+    var input = document.getElementById('px_param');
+    if (mode === 'markup') { cap.textContent = '加价率（%）'; input.placeholder = '30'; }
+    else if (mode === 'mult') { cap.textContent = '倍数（1.5 = 成本×1.5）'; input.placeholder = '1.5'; }
+    else if (mode === 'margin') { cap.textContent = '目标毛利率（%）'; input.placeholder = '30'; }
+    else if (mode === 'gprice') { cap.textContent = '销售克价（元/克）'; input.placeholder = '460'; }
+    else { cap.textContent = '直接填售价（元）'; input.placeholder = '0'; }
+  }
+  function calc() {
+    var fin = parseFin();
+    var rate = finRate(val('px_fin'), fin);
+    var gold = num(val('px_gold'));
+    var base = gold * rate;
+    var gp = num(val('px_gp2'));
+    var stone = num(val('px_stone'));
+    var sp = num(val('px_stone_price'));
+    var labor = num(val('px_labor2'));
+    var goldCost = base * gp;
+    var stoneCost = stone * sp;
+    var cost = goldCost + stoneCost + labor;
+
+    var mode = val('px_mode');
+    var param = num(val('px_param'));
+    var taxOn = document.getElementById('px_tax').checked;
+    var price = 0, err = '';
+    if (mode === 'price') { price = param; }
+    else if (mode === 'margin') {
+      var m = param / 100;
+      if (taxOn) {
+        var den = 1 - 0.05 - m;
+        if (den <= 1e-9) { err = '目标毛利率填太高了：算消费税时除不尽。'; }
+        else { price = cost * 1.13 / den; }
+      } else {
+        if (m >= 1) { err = '目标毛利率必须小于 100%。'; }
+        else { price = cost / (1 - m); }
+      }
+    } else if (mode === 'mult') { price = cost * param; }
+    else if (mode === 'gprice') { price = gold * param; }
+    else { price = cost * (1 + param / 100); }
+
+    var gross, grate, excl = 0, excise = 0;
+    if (taxOn) {
+      excl = price / 1.13;
+      excise = excl * 0.05;
+      gross = excl - cost - excise;
+      grate = excl > 0 ? gross / excl : 0;
+    } else {
+      gross = price - cost;
+      grate = price > 0 ? gross / price : 0;
+    }
+
+    var h = '';
+    if (err) h += '<div class="flash warn" style="margin-bottom:12px">' + err + '</div>';
+    h += '<div class="grid c3">' +
+      '<div class="stat"><div class="k">折足重 = 金重×折算率</div><div class="v">' + wt(base) + ' g</div></div>' +
+      '<div class="stat"><div class="k">料成本 = 折足重 × 成本金价</div><div class="v">￥' + money(goldCost) + '</div></div>' +
+      '<div class="stat"><div class="k">石成本 = 石重×石价</div><div class="v">￥' + money(stoneCost) + '</div></div>' +
+      '<div class="stat"><div class="k">总成本 = 料+石+工费</div><div class="v">￥' + money(cost) + '</div></div>' +
+      '<div class="stat blue"><div class="k">建议售价</div><div class="v">￥' + money(price) + '</div></div>' +
+      '<div class="stat"><div class="k">销售克价 = 售价 ÷ 克重</div><div class="v">' + (gold > 0 ? money(price / gold) : '0.00') + ' 元/克</div></div>' +
+      '<div class="stat ' + (gross < 0 ? 'bad' : 'good') + '"><div class="k">毛利</div><div class="v">￥' + money(gross) + '</div></div>' +
+      '<div class="stat ' + (grate < 0 ? 'bad' : 'good') + '"><div class="k">毛利率</div><div class="v">' + pct(grate) + '%</div></div>' +
+      '</div>';
+    if (taxOn) {
+      h += '<div class="tip" style="margin-top:12px">已把消费税算进去：不含税收入 ￥' + money(excl) +
+        '，消费税 ￥' + money(excise) + '，毛利 = 不含税收入 − 成本 − 消费税。</div>';
+    }
+    document.getElementById('px_result').innerHTML = h;
+  }
+
+  function init() {
+    var cfg = load();
+    document.getElementById('px_gp').value = cfg.gp;
+    document.getElementById('px_sp').value = cfg.sp;
+    document.getElementById('px_labor').value = cfg.labor;
+    document.getElementById('px_markup').value = cfg.markup;
+    document.getElementById('px_mult').value = cfg.mult;
+    document.getElementById('px_margin').value = cfg.margin;
+    document.getElementById('px_tax').checked = !!cfg.tax;
+    document.getElementById('px_finlist').value = cfg.fin.map(function (p) { return p[0] + '=' + p[1]; }).join('\n');
+    fillFinSelect(cfg.fin);
+    document.getElementById('px_gp2').value = cfg.gp;
+    document.getElementById('px_stone_price').value = cfg.sp;
+    document.getElementById('px_labor2').value = cfg.labor;
+    document.getElementById('px_param').value = cfg.markup;
+    syncLabels();
+    calc();
+  }
+
+  function bind() {
+    ['px_gold', 'px_fin', 'px_stone', 'px_stone_price', 'px_labor2', 'px_gp2', 'px_param'].forEach(function (id) {
+      var e = document.getElementById(id);
+      if (e) { e.addEventListener('input', calc); e.addEventListener('change', calc); }
+    });
+    var mode = document.getElementById('px_mode');
+    if (mode) mode.addEventListener('change', function () { syncLabels(); calc(); });
+    var tax = document.getElementById('px_tax');
+    if (tax) tax.addEventListener('change', calc);
+    var save = document.getElementById('px_save');
+    if (save) save.addEventListener('click', function () {
+      var o = {
+        gp: val('px_gp'), sp: val('px_sp'), labor: val('px_labor'),
+        markup: val('px_markup'), mult: val('px_mult'), margin: val('px_margin'),
+        tax: document.getElementById('px_tax').checked,
+        fin: parseFin()
+      };
+      try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {}
+      document.getElementById('px_saved').textContent = '已保存，下次打开还是这个数。';
+      document.getElementById('px_gp2').value = val('px_gp');
+      document.getElementById('px_stone_price').value = val('px_sp');
+      document.getElementById('px_labor2').value = val('px_labor');
+      fillFinSelect(parseFin());
+      calc();
+    });
+  }
+
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', function () { init(); bind(); }); }
+  else { init(); bind(); }
+})();
+</script>
+{% endblock %}

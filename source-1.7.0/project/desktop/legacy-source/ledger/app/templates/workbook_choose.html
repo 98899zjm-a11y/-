@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% block title %}电子表格{% endblock %}{% block body %}
+<div class="page-head"><div><h1>电子表格</h1><p class="sub">按上传 Excel 的工作表、列名和公式编辑。原始文件保留，当前修改可另存为 Excel。</p></div><a class="btn primary" href="/transfer">导入与导出</a></div>
+<div class="card"><h2>选择工作簿</h2><div class="card-body">{% for doc in docs %}<a class="btn" href="{{ url_for('workbooks.page',doc=doc.id) }}">{{ doc.name }} · {{ doc.created_at }}</a>{% else %}<p>还没有原表，请先在导入窗口上传你的 Excel。</p>{% endfor %}</div></div>
+{% endblock %}

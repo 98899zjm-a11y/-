@@ -1,0 +1,706 @@
+/* 库存核对台 —— 样式表
+   设计目标：信息密度高、打印友好、不用任何外部 CDN（内网可用）。
+
+   改动前请先读这三条：
+   1) 所有颜色都走 :root 变量，不要在模板里写死色值——改主题时才能一处生效。
+   2) 顶栏高度是 --topbar-h，表格 sticky 表头的 top 跟着它走。改高度只改这一个变量。
+   3) 打印样式在文件末尾，@media print 之外不要加会影响打印的阴影/背景。 */
+
+:root {
+  /* 中性色
+     ⚠ --ink-3 的对比度是硬要求，不要凭好看改浅：
+        它承担全站 23 处辅助文字（统计卡说明、表格 hint、面包屑、页脚、空状态），
+        原来用的 #8b93a1 在页面灰底上只有 2.86:1，远低于 WCAG AA 的 4.5:1，
+        仓库里光线差一点的显示器上基本看不清。
+        现在这个值：白底 5.38:1 / 页面灰底 4.97:1 / 浅灰块 4.80:1，全部达标。 */
+  --bg: #f5f6f8;
+  --panel: #ffffff;
+  --panel-2: #fafbfc;
+  --ink: #171a1f;
+  --ink-2: #4a5260;
+  --ink-3: #636b78;
+  --line: #e4e7ec;
+  --line-2: #f0f2f5;
+
+  /* 语义色
+     ⚠ 同理，--green / --red 也是按对比度定的，不是随便挑的绿和红：
+        --green 要能压在 --green-bg 上（盘盈 / 已通过 / 入库这些「好消息」恰恰最需要看清），
+        --red 要能压在 --red-bg 上（盘亏 / 已驳回是复核员最需要看清的字）。
+        旧值 #0f8a4d 在白底 4.41:1、在浅绿底 3.99:1；#d1293d 在浅红底 4.49:1——都差一点点。
+        新值：#0d7d45 白底 5.20:1 / 浅绿底 4.71:1；#c62336 白底 5.68:1 / 浅红底 4.98:1。 */
+  --blue: #2563eb;
+  --blue-d: #1d4ed8;
+  --blue-bg: #eef4ff;
+  --green: #0d7d45;
+  --green-bg: #e8f7ef;
+  --red: #c62336;
+  --red-bg: #fdecee;
+  --amber: #9a6700;
+  --amber-bg: #fff7e6;
+  --violet: #6d28d9;
+  --violet-bg: #f3eeff;
+
+  /* 形状与阴影 */
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-xs: 6px;
+  --shadow-1: 0 1px 2px rgba(16, 24, 40, .05);
+  --shadow-2: 0 6px 20px rgba(16, 24, 40, .09);
+  --ring: 0 0 0 3px rgba(37, 99, 235, .16);
+
+  --topbar-h: 56px;
+  --wrap-max: 1600px;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 14px/1.6 "Microsoft YaHei", "PingFang SC", "Segoe UI", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+h1, h2, h3 { letter-spacing: .2px; }
+
+/* ---------- 顶栏 ---------- */
+.topbar {
+  background: rgba(255, 255, 255, .92);
+  backdrop-filter: saturate(150%) blur(8px);
+  border-bottom: 1px solid var(--line);
+  position: sticky; top: 0; z-index: 50;
+}
+.topbar-inner {
+  max-width: var(--wrap-max); margin: 0 auto; padding: 0 20px;
+  display: flex; align-items: center; gap: 20px; height: var(--topbar-h);
+}
+.brand { display: flex; align-items: center; gap: 9px; color: var(--ink); font-weight: 700; }
+.brand:hover { text-decoration: none; }
+.brand-mark {
+  width: 28px; height: 28px; border-radius: 9px;
+  background: linear-gradient(140deg, var(--blue), #4f8bff);
+  color: #fff; display: grid; place-items: center; font-size: 14px;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, .3);
+}
+.brand-name { font-size: 15px; letter-spacing: .4px; }
+
+.nav { display: flex; gap: 3px; flex: 1; flex-wrap: wrap; }
+.nav a {
+  color: var(--ink-2); padding: 7px 13px; border-radius: var(--radius-sm); font-size: 13.5px;
+  position: relative; white-space: nowrap; transition: background .12s, color .12s;
+}
+.nav a:hover { background: var(--line-2); text-decoration: none; color: var(--ink); }
+.nav a.on { background: var(--blue-bg); color: var(--blue-d); font-weight: 600; }
+.dot {
+  display: inline-block; margin-left: 5px; min-width: 18px; padding: 0 5px;
+  background: var(--red); color: #fff; border-radius: 9px; font-size: 11px;
+  text-align: center; font-weight: 700; vertical-align: 1px; line-height: 17px;
+}
+.dot.soft { background: var(--amber); }
+
+.userbox { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.userbox .who { font-weight: 600; }
+.userbox .role {
+  background: var(--line-2); color: var(--ink-2); padding: 2px 8px;
+  border-radius: 999px; font-size: 12px;
+}
+.userbox .mini { color: var(--ink-3); font-size: 12.5px; }
+.userbox .mini:hover { color: var(--ink-2); }
+
+/* ---------- 布局 ---------- */
+.wrap { max-width: var(--wrap-max); margin: 20px auto 44px; padding: 0 20px; }
+.foot {
+  max-width: var(--wrap-max); margin: 0 auto 26px; padding: 0 20px;
+  color: var(--ink-3); font-size: 12px;
+}
+
+.page-head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 16px; margin-bottom: 16px; flex-wrap: wrap;
+}
+.page-head h1 { margin: 0; font-size: 21px; font-weight: 700; letter-spacing: .2px; }
+.page-head .sub { color: var(--ink-3); font-size: 13px; margin-top: 4px; }
+.page-head .sub b { color: var(--ink-2); }
+.page-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+/* 面包屑：给「从哪进来的」一个交代，比单纯一个返回按钮好找路 */
+.crumbs { font-size: 12.5px; color: var(--ink-3); margin-bottom: 8px; }
+.crumbs a { color: var(--ink-3); }
+.crumbs a:hover { color: var(--blue); }
+.crumbs .sep { margin: 0 6px; color: var(--line); }
+
+.card {
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: var(--radius); margin-bottom: 16px; overflow: hidden;
+  box-shadow: var(--shadow-1);
+}
+.card > h2 {
+  margin: 0; padding: 13px 18px; font-size: 14.5px; font-weight: 700;
+  border-bottom: 1px solid var(--line-2);
+  background: var(--panel-2); display: flex; align-items: center;
+  justify-content: space-between; gap: 10px;
+}
+.card > h2 .hint { font-weight: 400; color: var(--ink-3); font-size: 12.5px; }
+.card-body { padding: 18px; }
+.card-body.tight { padding: 0; }
+.card-body.pad-sm { padding: 12px 18px; }
+
+.grid { display: grid; gap: 16px; }
+.grid.c2 { grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); }
+.grid.c3 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.grid.c4 { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+
+/* ---------- 欢迎条（首页顶部） ---------- */
+.hero {
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 52%, #3b82f6 100%);
+  border-radius: var(--radius); padding: 20px 24px; color: #fff;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 20px; flex-wrap: wrap; margin-bottom: 16px;
+  box-shadow: 0 10px 26px rgba(30, 58, 138, .22);
+}
+.hero h1 { margin: 0; font-size: 22px; font-weight: 700; }
+.hero .sub { margin-top: 5px; font-size: 13px; color: rgba(255, 255, 255, .82); }
+.hero .sub b { color: #fff; }
+.hero .page-actions { gap: 9px; }
+.hero .btn { border-color: rgba(255, 255, 255, .34); background: rgba(255, 255, 255, .13); color: #fff; }
+.hero .btn:hover { background: rgba(255, 255, 255, .24); }
+.hero .btn.primary { background: #fff; color: var(--blue-d); border-color: #fff; font-weight: 700; }
+.hero .btn.primary:hover { background: #eef4ff; }
+.hero .warnline { color: #ffe6a8; font-weight: 600; }
+
+/* ---------- 待办清单 ---------- */
+.todos { display: flex; flex-direction: column; gap: 2px; }
+.todo {
+  display: flex; align-items: center; gap: 12px; padding: 12px 18px;
+  border-bottom: 1px solid var(--line-2); color: var(--ink);
+}
+.todo:last-child { border-bottom: none; }
+.todo:hover { background: var(--panel-2); text-decoration: none; }
+.todo .ico {
+  flex: 0 0 auto; width: 30px; height: 30px; border-radius: 9px; display: grid;
+  place-items: center; font-size: 15px; background: var(--line-2); color: var(--ink-2);
+}
+.todo .ico.red { background: var(--red-bg); color: var(--red); }
+.todo .ico.amber { background: var(--amber-bg); color: var(--amber); }
+.todo .ico.blue { background: var(--blue-bg); color: var(--blue-d); }
+.todo .ico.green { background: var(--green-bg); color: var(--green); }
+.todo .txt { flex: 1; min-width: 0; }
+.todo .t { font-weight: 600; }
+.todo .d { color: var(--ink-3); font-size: 12.5px; margin-top: 1px; }
+.todo .go { color: var(--ink-3); font-size: 12.5px; white-space: nowrap; }
+.todo.done .t { font-weight: 400; color: var(--ink-2); }
+
+/* ---------- 统计块 ---------- */
+.stat {
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 15px 18px; box-shadow: var(--shadow-1); position: relative; overflow: hidden;
+}
+.stat::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--line); border-radius: 3px 0 0 3px;
+}
+.stat.good::before { background: var(--green); }
+.stat.bad::before { background: var(--red); }
+.stat.warn::before { background: var(--amber); }
+.stat.blue::before { background: var(--blue); }
+.stat .k { color: var(--ink-3); font-size: 12.5px; }
+.stat .v {
+  font-size: 27px; font-weight: 700; line-height: 1.22; margin-top: 3px;
+  font-variant-numeric: tabular-nums;
+}
+.stat .v.sm { font-size: 18px; font-weight: 650; }
+.stat .v.xs { font-size: 15px; font-weight: 600; }
+.stat .n { color: var(--ink-3); font-size: 12px; margin-top: 3px; }
+.stat.good .v { color: var(--green); }
+.stat.bad .v { color: var(--red); }
+.stat.warn .v { color: var(--amber); }
+.stat.blue .v { color: var(--blue-d); }
+.stat a { font-size: 12.5px; }
+
+/* 一格里放两个数的紧凑统计（出入库页用） */
+.duo { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 2px; }
+.duo > div { min-width: 0; }
+.duo .lbl { font-size: 12px; color: var(--ink-3); }
+.duo .num { font-size: 19px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.duo .num.in { color: var(--green); }
+.duo .num.out { color: var(--red); }
+/* 数量正负的颜色，表格里也要用（商品档案的时间线上，+12 绿、-5 红）。
+   原来只写在 .duo 里面，表格单元格够不着，所以补两条通用的。 */
+.num.in { color: var(--green); }
+.num.out { color: var(--red); }
+
+/* ---------- 表格 ---------- */
+table.tb { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+table.tb th, table.tb td {
+  padding: 8px 12px; border-bottom: 1px solid var(--line-2);
+  text-align: left; vertical-align: middle;
+}
+table.tb thead th {
+  background: #f8fafc; color: var(--ink-2); font-weight: 600; font-size: 12.5px;
+  border-bottom: 1px solid var(--line); position: sticky; top: var(--topbar-h); z-index: 5;
+  white-space: nowrap;
+}
+table.tb tbody tr:hover { background: #fafcff; }
+table.tb tbody tr:last-child td { border-bottom: none; }
+table.tb td.num, table.tb th.num { text-align: right; font-variant-numeric: tabular-nums; }
+table.tb td.mid, table.tb th.mid { text-align: center; }
+table.tb .code { font-family: Consolas, "Courier New", monospace; font-size: 13px; }
+table.tb tr.row-diff td { background: #fffdf5; }
+table.tb tr.row-bad td { background: #fdf6f6; }
+table.tb td.ellip { max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+table.tb tfoot th {
+  border-top: 1px solid var(--line); background: var(--panel-2); font-size: 13px;
+}
+.scroll { overflow: auto; max-height: 70vh; }
+.scroll.nolimit { max-height: none; }
+/* 报表里的横条：用宽度百分比画。不引图表库——一个内部小工具不值得为了一张条形图
+   拖进来几百 KB 的 JS，而且打包成 exe 之后那些库的加载路径是最容易出岔子的地方。 */
+.rbar { display: block; height: 8px; border-radius: 999px; background: var(--line-2); overflow: hidden; min-width: 90px; }
+.rbar i { display: block; height: 100%; background: var(--blue); border-radius: 999px; }
+.rbar i.in { background: var(--green); }
+.rbar i.out { background: var(--red); }
+.rbar i.gray { background: var(--ink-3); }
+
+/* 报表页底部那段口径说明：把它讲清楚比把它写短重要，所以只统一一下加粗的颜色 */
+.note b { color: var(--ink); }
+
+/* 表格在滚动容器里时，表头的 sticky 偏移必须是 0：
+   var(--topbar-h) 是给「整页滚动、表头贴在固定顶栏下面」用的，
+   放在滚动容器里会把表头往下推一整条顶栏的高度，正好压住第一行数据。 */
+.scroll table.tb thead th { top: 0; }
+/* 底部有 sticky 保存条时，给表格留出这段空白，最后一行才滚得上来 */
+.has-savebar { padding-bottom: 78px; }
+
+/* ---------- 标签 ---------- */
+.tag {
+  display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 12px;
+  background: var(--line-2); color: var(--ink-2); white-space: nowrap; line-height: 1.5;
+}
+.tag.surplus { background: var(--green-bg); color: var(--green); }
+.tag.shortage { background: var(--red-bg); color: var(--red); }
+.tag.missing { background: var(--amber-bg); color: var(--amber); }
+.tag.extra { background: var(--violet-bg); color: var(--violet); }
+.tag.match { background: var(--line-2); color: var(--ink-3); }
+.tag.pending { background: var(--amber-bg); color: var(--amber); }
+.tag.approved { background: var(--green-bg); color: var(--green); }
+.tag.rejected { background: var(--red-bg); color: var(--red); }
+.tag.counting { background: var(--blue-bg); color: var(--blue-d); }
+.tag.reviewing { background: var(--amber-bg); color: var(--amber); }
+.tag.done { background: var(--green-bg); color: var(--green); }
+.tag.cancelled { background: var(--line-2); color: var(--ink-3); }
+.tag.applied { background: var(--green-bg); color: var(--green); }
+.tag.draft { background: var(--line-2); color: var(--ink-2); }
+.tag.in { background: var(--green-bg); color: var(--green); }
+.tag.out { background: var(--red-bg); color: var(--red); }
+.tag.admin { background: var(--blue-bg); color: var(--blue-d); }
+.tag.reviewer { background: var(--violet-bg); color: var(--violet); }
+.tag.counter { background: var(--line-2); color: var(--ink-2); }
+/* 退回件：还压在手上（所以不能用「已出库」那种灰），但性质跟在库货不同，
+   给它一个琥珀色，跟在库的绿色并排时一眼能分开。 */
+.tag.ret { background: var(--amber-bg); color: var(--amber); }
+
+/* ---------- 表单 ---------- */
+input[type=text], input[type=password], input[type=number], input[type=search],
+input[type=date], select, textarea {
+  font: inherit; color: var(--ink); background: #fff;
+  border: 1px solid #ccd3dd; border-radius: var(--radius-sm); padding: 7px 10px; width: 100%;
+  transition: border-color .12s, box-shadow .12s;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none; border-color: var(--blue); box-shadow: var(--ring);
+}
+input[type=number] { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ---------- 键盘焦点 ----------
+   上面那条只给输入框做了焦点态；按钮、链接、页签、面包屑这些按 Tab 也能走到的
+   元素原本没有任何指示，纯键盘用户看不出焦点停在哪儿。
+   真实场景：盘点员用扫码枪连着录，偶尔要用 Tab 跳到「保存本页」再回车——
+   不知道焦点在哪就按回车是有风险的。
+
+   用 :focus-visible 而不是 :focus：只在键盘操作时出现，鼠标点一下不会多一个圈。 */
+a:focus-visible,
+button:focus-visible,
+.btn:focus-visible,
+.tabs a:focus-visible,
+.nav a:focus-visible,
+.cats a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--blue-d);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+/* 输入框在键盘聚焦时已有 box-shadow 光环，再套一圈 outline 会显得脏，
+   所以键盘态统一交给上面的 outline，这里把鼠标态的描边让出来。 */
+input:focus-visible, select:focus-visible, textarea:focus-visible {
+  box-shadow: none;
+}
+
+/* 「整张表都能改」的页面（商品主数据）：输入框平时不带边框，
+   看起来就是一张干净的数据表；鼠标扫到那一行才显出「这里能改」。
+   满屏都是带边框的输入框，页面会显得非常吵——这是最容易做得像
+   内部测试工具、而不像正经软件的地方。 */
+.tb.ed input[type=text], .tb.ed select {
+  border-color: transparent; background: transparent; box-shadow: none;
+  padding: 5px 7px; border-radius: var(--radius-xs); color: var(--ink);
+}
+.tb.ed tr:hover input[type=text], .tb.ed tr:hover select {
+  border-color: var(--line); background: #fff;
+}
+.tb.ed input[type=text]:focus, .tb.ed select:focus {
+  border-color: var(--blue); background: #fff; box-shadow: var(--ring);
+}
+/* 还没填的那一格。真实台账里「分类」空缺最多，用琥珀色描边 + 淡底把它挑出来，
+   不然几百行里根本找不到哪一条还没补。 */
+.tb.ed select.need {
+  color: var(--amber); background: #fffaf0;
+  border-color: #f0d9a8;
+}
+.tb.ed select.need:hover { border-color: var(--amber); }
+
+/* 商品主数据顶上的「批量设分类」条。平时是灰的、不抢注意力；
+   一旦勾了行就转成蓝色，因为这时候它才是这一页的主操作。 */
+.catbar {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  padding: 8px 12px; margin-bottom: 10px;
+  background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius-sm);
+}
+.catbar.has { background: var(--blue-bg); border-color: #c7dbff; }
+.catbar .cs { font-size: 13px; color: var(--ink-2); }
+.catbar .cs b { font-size: 15px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.catbar.has .cs b { color: var(--blue-d); }
+.catbar .sp { flex: 1 1 auto; }
+.catbar select { width: 150px; }
+.catbar .btn[disabled] { opacity: .45; cursor: not-allowed; }
+
+/* 操作列：四个按钮必须排成一行。不写 nowrap 的话，中文按钮在窄列里会逐字换行，
+   一行高度涨到三行，「保存」和「标退回」上下错位，整张表看着像坏了。 */
+.tb td.ops { white-space: nowrap; }
+.tb td.ops .btn { margin-left: 4px; }
+.tb td.ops .btn:first-child { margin-left: 0; }
+/* 商品编号格里那个「记录」小链接：平时藏着，鼠标扫过这一行才出现。
+   一页 100 行都挂着链接会非常吵，而平时并不需要点它。
+   输入框留出右边距，免得编号长了被链接盖住。 */
+.tb td.codewrap { position: relative; }
+.tb td.codewrap input { padding-right: 54px; }
+.tb td.codewrap .peek {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  font-size: 12px; line-height: 18px; color: var(--blue);
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: var(--radius-xs); padding: 0 6px;
+  opacity: 0; transition: opacity .12s;
+}
+.tb tr:hover td.codewrap .peek { opacity: 1; }
+/* 常用原因做成小胶囊，点一下就选中（里面的 radio 藏起来，样式做在 label 上）。
+   审核九百多条差异时，每行都去拉一次下拉框太慢；
+   配合旁边三个结论提交按钮，一条差异点两下就落定。 */
+.chips { position: relative; display: flex; flex-wrap: wrap; gap: 4px; }
+.chips input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.chips label {
+  font-size: 12px; line-height: 20px; padding: 0 8px; cursor: pointer;
+  border: 1px solid var(--line); border-radius: 999px;
+  background: var(--panel); color: var(--ink-2); white-space: nowrap;
+}
+.chips label:hover { border-color: var(--blue); color: var(--blue); }
+.chips input:checked + label {
+  background: var(--blue-bg); border-color: var(--blue); color: var(--blue-d); font-weight: 600;
+}
+.chips input:focus-visible + label { box-shadow: var(--ring); }
+textarea {
+  min-height: 120px; resize: vertical;
+  font-family: Consolas, "Courier New", monospace; font-size: 13px;
+}
+label { font-size: 13px; color: var(--ink-2); }
+.field { margin-bottom: 13px; }
+.field > label { display: block; margin-bottom: 5px; font-weight: 600; color: var(--ink); }
+.field .tip { color: var(--ink-3); font-size: 12px; margin-top: 4px; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+.row > * { flex: 0 0 auto; }
+.row .grow { flex: 1 1 160px; }
+.checks { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+.checks label { display: flex; align-items: center; gap: 6px; font-weight: 400; color: var(--ink); }
+input[type=checkbox], input[type=radio] { width: auto; accent-color: var(--blue); }
+
+/* 导入映射页的「只导一部分行」小面板。
+   单独框起来是因为它是个可选的高级动作，混在普通字段里容易被当成必填项。 */
+.filterbox {
+  background: var(--panel-2); border: 1px solid var(--line);
+  border-radius: var(--radius-sm); padding: 12px 13px; margin-bottom: 13px;
+}
+.filterbox .fb-head { font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.filterbox .row { align-items: flex-end; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px; cursor: pointer;
+  border: 1px solid #ccd3dd; background: #fff; color: var(--ink);
+  padding: 7px 14px; border-radius: var(--radius-sm); font: inherit; font-size: 13.5px;
+  white-space: nowrap; transition: background .12s, border-color .12s, box-shadow .12s;
+  box-shadow: var(--shadow-1);
+}
+.btn:hover { background: #f7f9fc; text-decoration: none; border-color: #bcc6d4; }
+.btn:active { box-shadow: none; }
+.btn.primary {
+  background: var(--blue); border-color: var(--blue); color: #fff; font-weight: 600;
+  box-shadow: 0 1px 2px rgba(37, 99, 235, .3);
+}
+.btn.primary:hover { background: var(--blue-d); border-color: var(--blue-d); }
+.btn.danger { border-color: #e8b5bb; color: var(--red); }
+.btn.danger:hover { background: var(--red-bg); border-color: #dda0a7; }
+.btn.ghost { border-color: transparent; color: var(--ink-2); box-shadow: none; }
+.btn.ghost:hover { background: var(--line-2); border-color: transparent; }
+.btn.sm {
+  padding: 4px 10px; font-size: 12.5px; border-radius: var(--radius-xs);
+  /* 小按钮原本约 26px 高，低于可点区域建议值。表格操作列一排并排三四个
+     （保存 / 停用 / 标退回 / 删），是最容易点错的地方。
+     给到 30px：够手指点准，又不破坏密集表格的紧凑感。 */
+  min-height: 30px;
+}
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* 方向切换：入库 / 出库。用 radio + label 做，键盘也能切。 */
+.seg { display: inline-flex; border: 1px solid #ccd3dd; border-radius: var(--radius-sm); overflow: hidden; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg label {
+  padding: 7px 18px; cursor: pointer; font-size: 13.5px; font-weight: 600;
+  color: var(--ink-2); background: #fff; border-right: 1px solid var(--line);
+}
+.seg label:last-of-type { border-right: none; }
+.seg input:checked + label { color: #fff; }
+.seg input#dir-in:checked + label { background: var(--green); }
+.seg input#dir-out:checked + label { background: var(--red); }
+.seg input:focus-visible + label { box-shadow: inset var(--ring); }
+
+/* 录入时实时回显「这个商品现在还剩几件」。
+   放在表单正下方、紧挨着输入框，是因为仓管填数量之前必须先看到它——
+   位置太远就等于没显示。 */
+.stock-hint {
+  margin-top: 10px; padding: 8px 12px; border-radius: var(--radius-sm);
+  background: var(--blue-bg); border: 1px solid #cfdefb; color: var(--ink-2);
+  font-size: 13px; display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline;
+}
+.stock-hint b { color: var(--ink); }
+.stock-hint .left { margin-left: auto; }
+.stock-hint .left b { font-size: 15px; font-variant-numeric: tabular-nums; }
+.stock-hint.warn { background: #fdf3e6; border-color: #f0d9b5; color: #7a5200; }
+
+/* 作者样式里的 display:flex 会盖过浏览器默认的 [hidden]{display:none}，
+   结果就是没查到商品时那条空提示条也照样占着一行——必须显式压回去。 */
+.stock-hint[hidden] { display: none; }
+
+/* ---------- 提示条 ---------- */
+.flashes { margin-bottom: 16px; display: flex; flex-direction: column; gap: 8px; }
+.flash { padding: 10px 15px; border-radius: var(--radius-sm); border: 1px solid; font-size: 13.5px; }
+.flash.ok { background: var(--green-bg); border-color: #b7e0c7; color: #0d6639; }
+.flash.error { background: var(--red-bg); border-color: #f0c2c7; color: #a01e2c; }
+.flash.warn { background: var(--amber-bg); border-color: #f0dca6; color: #7a5200; }
+.flash.info { background: var(--blue-bg); border-color: #c3daff; color: var(--blue-d); }
+
+.note {
+  background: var(--blue-bg); border-left: 3px solid var(--blue); padding: 11px 15px;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: 13px;
+  color: #24405f; margin-bottom: 16px;
+}
+.note.warn { background: var(--amber-bg); border-color: var(--amber); color: #6b4a00; }
+.note b { color: inherit; }
+
+.empty { padding: 38px 16px; text-align: center; color: var(--ink-3); font-size: 13.5px; }
+
+/* ---------- 分页 ---------- */
+.pager {
+  display: flex; gap: 8px; align-items: center; padding: 13px 18px; flex-wrap: wrap;
+  font-size: 13px; color: var(--ink-2); border-top: 1px solid var(--line-2);
+}
+.pager a, .pager span.cur {
+  padding: 5px 11px; border-radius: var(--radius-xs); border: 1px solid var(--line); background: #fff;
+}
+.pager a:hover { background: var(--line-2); text-decoration: none; }
+.pager span.cur { background: var(--blue); border-color: var(--blue); color: #fff; font-weight: 600; }
+.pager span.dis { opacity: .45; padding: 5px 11px; }
+.pager .sp { flex: 1; }
+
+/* ---------- 进度条 ---------- */
+.bar { height: 8px; background: var(--line-2); border-radius: 999px; overflow: hidden; }
+.bar > i {
+  display: block; height: 100%; background: linear-gradient(90deg, var(--blue), #60a5fa);
+  border-radius: 999px; transition: width .25s;
+}
+.bar > i.full { background: linear-gradient(90deg, var(--green), #34d399); }
+
+/* ---------- 速录面板 ---------- */
+.fastbox { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+.fastbox .f-key { flex: 2 1 220px; }
+.fastbox .f-qty { flex: 0 0 130px; }
+.fastbox input.big { font-size: 20px; padding: 10px 12px; height: 50px; font-weight: 600; }
+.fastbox .f-key input.big { font-family: Consolas, "Courier New", monospace; letter-spacing: .5px; }
+.fastbox .f-go { flex: 0 0 auto; }
+.fastbox .f-go .btn { height: 50px; padding: 0 28px; font-size: 15px; }
+
+/* ---------- 标签页 ---------- */
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.tabs a {
+  padding: 10px 18px; color: var(--ink-2); font-size: 14px;
+  border: 1px solid transparent; border-bottom: none; border-radius: 9px 9px 0 0;
+}
+.tabs a:hover { background: var(--line-2); text-decoration: none; }
+.tabs a.on {
+  background: #fff; border-color: var(--line); border-bottom: 1px solid #fff;
+  color: var(--blue-d); font-weight: 600; margin-bottom: -1px;
+}
+.tabs a .cnt { color: var(--ink-3); font-size: 12px; font-weight: 400; }
+
+/* 大分类切换（比如出入库记录下面的「商品 / 物料」）。
+   做成胶囊分段控件，和内层的 .tabs 页签在视觉上明显区分——
+   两层长得一样的话，用户看不出哪个是「换个模块」哪个是「换个视图」。 */
+.cats {
+  display: inline-flex; gap: 4px; background: var(--line-2);
+  border: 1px solid var(--line); border-radius: 999px; padding: 4px; margin-bottom: 14px;
+}
+.cats a {
+  padding: 7px 20px; border-radius: 999px; font-weight: 600; font-size: 14px;
+  color: var(--ink-2); text-decoration: none; white-space: nowrap;
+}
+.cats a:hover { background: #fff; color: var(--ink); text-decoration: none; }
+.cats a.on { background: var(--blue); color: #fff; box-shadow: var(--shadow-1); }
+
+/* 表格底部固定保存条 */
+.savebar {
+  position: sticky; bottom: 0; z-index: 20;
+  background: #fff; border-top: 1px solid var(--line);
+  padding: 12px 18px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  box-shadow: 0 -4px 16px rgba(16, 24, 40, .07);
+}
+.savebar .grow { flex: 1; }
+
+/* 实盘录入表格 */
+table.tb input.qty-input { width: 96px; text-align: right; font-weight: 600; padding: 5px 9px; }
+table.tb input.qty-input.filled { background: #eafaf0; border-color: #9ed4b3; }
+table.tb tr.is-counted td { background: #f6fdf8; }
+table.tb tr.is-diff td { background: #fffdf2; }
+
+/* ---------- 登录页 ---------- */
+.login-page {
+  background: radial-gradient(1200px 600px at 50% -10%, #dbeafe 0%, #f5f6f8 60%);
+  min-height: 100vh; display: flex; flex-direction: column;
+}
+.login-page main.wrap {
+  flex: 1; display: grid; place-items: center; max-width: none; margin: 0; padding: 24px;
+}
+.login-page .foot { margin: 0 0 18px; text-align: center; }
+.login-card {
+  width: 390px; max-width: 100%; background: #fff; border: 1px solid var(--line);
+  border-radius: 16px; padding: 32px 32px 26px; box-shadow: var(--shadow-2);
+}
+.login-card .logo {
+  width: 46px; height: 46px; border-radius: 14px; margin: 0 auto 14px;
+  background: linear-gradient(140deg, var(--blue), #4f8bff); color: #fff;
+  display: grid; place-items: center; font-size: 21px; font-weight: 700;
+  box-shadow: 0 6px 18px rgba(37, 99, 235, .32);
+}
+.login-card h1 { margin: 0 0 5px; font-size: 21px; text-align: center; }
+.login-card .sub { text-align: center; color: var(--ink-3); font-size: 13px; margin-bottom: 24px; }
+.login-card .btn.primary { width: 100%; height: 42px; font-size: 15px; }
+/* 「记住我」：默认勾上。同事在自己的电脑上登一次就不用再输了，
+   这是「一键登录」真正省事的那一半（另一半是启动器生成的同事入口 html）。 */
+.login-card .remember {
+  display: flex; align-items: flex-start; gap: 8px; margin: 2px 0 16px;
+  font-size: 13.5px; color: var(--ink-2); cursor: pointer; user-select: none;
+}
+.login-card .remember input { margin-top: 2px; }
+.login-card .remember em { font-style: normal; color: var(--ink-3); font-size: 12.5px; }
+.login-card .footnote {
+  margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line-2);
+  color: var(--ink-3); font-size: 12.5px; line-height: 1.7;
+}
+
+/* ---------- 明细键值表 ---------- */
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 7px 16px; font-size: 13.5px; }
+.kv dt { color: var(--ink-3); }
+.kv dd { margin: 0; }
+
+/* ---------- 流程步骤（新建任务页 / 空状态引导） ---------- */
+.flow { display: flex; gap: 0; flex-wrap: wrap; counter-reset: s; }
+.flow .step {
+  flex: 1 1 150px; padding: 12px 14px; position: relative;
+  border-left: 2px solid var(--line); color: var(--ink-2); font-size: 13px;
+}
+.flow .step:first-child { border-left-color: var(--blue); }
+.flow .step b { display: block; color: var(--ink); font-size: 13.5px; }
+.flow .step .n {
+  display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 999px;
+  background: var(--blue-bg); color: var(--blue-d); font-size: 11.5px; font-weight: 700;
+  margin-right: 6px;
+}
+
+.muted { color: var(--ink-3); }
+.mono { font-family: Consolas, "Courier New", monospace; }
+.nowrap { white-space: nowrap; }
+.right { text-align: right; }
+.mb0 { margin-bottom: 0; }
+.mt12 { margin-top: 12px; }
+.inline { display: inline; }
+.hr { border: 0; border-top: 1px solid var(--line-2); margin: 16px 0; }
+
+/* 正负数字：.pos / .neg
+   以前这几个位置在模板里写死 #17864a / #c8322b，改主题时不会跟着变，
+   跟「所有颜色都走 :root 变量」这条自定规矩是矛盾的，现在收进 token。
+   另外，光靠红绿区分正负，色觉障碍的用户（约 8% 男性）看不出来——
+   所以模板里一律配上 ↑ / ↓ 或 + / − 的符号，颜色只是辅助。 */
+.pos { color: var(--green); }
+.neg { color: var(--red); }
+
+/* ---------- 打印 ---------- */
+@media print {
+  .topbar, .foot, .no-print, .flashes { display: none !important; }
+  body { background: #fff; }
+  .wrap { margin: 0; padding: 0; max-width: none; }
+  .card { box-shadow: none; border: none; }
+  /* 上面给 .btn.sm 加的 min-height 是给屏幕点的，纸上不需要，
+     显式还原掉，「补丁不影响打印排版」才是可验证的而不是靠推断。 */
+  .btn, .btn.sm { min-height: 0; padding: revert; }
+}
+
+/* 手指操作（手机 / 平板）：30px 不够点，放宽到 40~44px。
+   手机上「手机录数」页用得最多，那边本来就没什么密集表格。 */
+@media (hover: none) and (pointer: coarse) {
+  .btn.sm { min-height: 40px; padding: 8px 12px; }
+  .btn { min-height: 44px; }
+  .tb input[type=checkbox] { min-width: 22px; min-height: 22px; }
+}
+
+/* 系统的「减少动画」偏好。面板有 transition、手机录数页有反馈动画，
+   前庭功能敏感的人会被这些动效影响；关掉只是少了点顺滑，不影响功能。 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Windows 高对比度模式。仓库会计常开这个设置，此时系统会接管语义色，
+   不给边框的话表格和卡片会糊成一片分不出边界。 */
+@media (forced-colors: active) {
+  .card, .tb, .btn, input, select { border: 1px solid CanvasText !important; }
+  .tag, .stat { border: 1px solid CanvasText; }
+  .btn.primary { background: Highlight; color: HighlightText; }
+}
+
+@media (max-width: 900px) {
+  .topbar-inner { height: auto; padding: 9px 13px; flex-wrap: wrap; gap: 8px; }
+  .nav { order: 3; width: 100%; overflow-x: auto; flex-wrap: nowrap; }
+  .wrap { padding: 0 13px; margin-top: 14px; }
+  .page-head h1 { font-size: 18px; }
+  .hero { padding: 16px; }
+  .hero h1 { font-size: 18px; }
+  table.tb thead th { position: static; }
+  .stat .v { font-size: 22px; }
+}

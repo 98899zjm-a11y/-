@@ -1,0 +1,57 @@
+param([Parameter(Mandatory=$true)][string]$PackageRoot)
+$ErrorActionPreference='Stop'
+Set-StrictMode -Version Latest
+Add-Type -AssemblyName System.Windows.Forms
+@@PATH_GUARD@@
+$held=New-Object 'Collections.Generic.List[IDisposable]'
+$dirs=New-Object 'Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+function Hold-Parents([string]$Name){$p=$Name;while($p){if($dirs.Add($p)){$held.Add((Pin-PlainDirectory $p))};$parent=[IO.Directory]::GetParent($p);if(!$parent){break};$p=$parent.FullName}}
+function File-Hash($Stream){$Stream.Position=0;$h=[Security.Cryptography.SHA256]::Create();try{return ([BitConverter]::ToString($h.ComputeHash($Stream))).Replace('-','').ToLowerInvariant()}finally{$h.Dispose()}}
+function Quote-Arg([string]$Value){if($Value.Contains('"') -or $Value.Contains("`r") -or $Value.Contains("`n")){throw '参数含不允许的字符。'};return '"'+$Value+'"'}
+try{
+ $root=[IO.Path]::GetFullPath($PackageRoot).TrimEnd('\')
+ if(!$root.StartsWith([IO.Path]::GetPathRoot($root)) -or $root.StartsWith('\\') -or $root.Substring(2).Contains(':')){throw '请从普通本地目录解压后安装。'}
+ Hold-Parents $root
+ $rows=([Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('@@FILES_BASE64@@')))|ConvertFrom-Json
+ $expected=New-Object 'Collections.Generic.Dictionary[string,object]' ([StringComparer]::OrdinalIgnoreCase)
+ foreach($row in $rows){$expected.Add([string]$row.path,$row)}
+ $seen=New-Object 'Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+ $stack=New-Object 'Collections.Generic.Stack[string]';$stack.Push($root)
+ while($stack.Count){$dir=$stack.Pop();foreach($item in Get-ChildItem -LiteralPath $dir -Force){
+  if(($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0){throw '安装包不能经过链接或重解析点。'}
+  if($item.PSIsContainer){Hold-Parents $item.FullName;$stack.Push($item.FullName);continue}
+  $relative=$item.FullName.Substring($root.Length+1).Replace('\','/')
+  if(!$seen.Add($relative)){throw '安装包含重复名称。'}
+  $pin=Pin-PlainFile $item.FullName;$held.Add($pin)
+  if($relative -in @('安装员工端.cmd','安装组件/fresh-employee-wrapper.ps1')){continue}
+  if(!$expected.ContainsKey($relative)){throw ('安装包含额外文件：'+$relative)}
+  $spec=$expected[$relative]
+  if($pin.Length -ne [long]$spec.size -or (File-Hash $pin) -cne [string]$spec.sha256){throw ('安装文件校验未通过：'+$relative)}
+ }}
+ foreach($name in $expected.Keys){if(!$seen.Contains($name)){throw ('安装文件缺失：'+$name)}}
+ if($seen.Count -ne $expected.Count+2){throw '完整安装包的文件数量不符。'}
+ $local=[Environment]::GetFolderPath([Environment+SpecialFolder]::LocalApplicationData)
+ if(!$local){throw '无法取得当前员工的本机应用目录。'}
+ $default=Join-Path $local '鑫金源珠宝\员工程序'
+ $choice=[Windows.Forms.MessageBox]::Show("安装鑫金源珠宝员工端 1.6.2`n`n默认位置：$default`n`n是：使用默认新目录。`n否：选择其他位置下的新员工目录。`n已有程序请使用软件内一键升级；本安装不会覆盖已有目录。",'安装鑫金源员工端',[Windows.Forms.MessageBoxButtons]::YesNoCancel,[Windows.Forms.MessageBoxIcon]::Information)
+ if($choice -eq [Windows.Forms.DialogResult]::Cancel){exit 0}
+ $selected=$null
+ if($choice -eq [Windows.Forms.DialogResult]::No){$picker=New-Object Windows.Forms.FolderBrowserDialog;$picker.Description='选择父目录，安装器会使用其中新的“鑫金源员工程序-1.6.2”目录';try{if($picker.ShowDialog() -ne [Windows.Forms.DialogResult]::OK){exit 0};$selected=Join-Path $picker.SelectedPath '鑫金源员工程序-1.6.2'}finally{$picker.Dispose()}}
+ $destination=if($selected){$selected}else{$default}
+ if(Test-Path -LiteralPath $destination){throw '所选目录已经存在。原文件未改；请换一个新目录，或在已装员工软件内升级。'}
+ $exe=Join-Path $root '安装文件\engine\鑫金源珠宝报价.exe'
+ $tool=Join-Path $root '安装组件\delivery-tools\fresh-employee-install.cjs'
+ $psi=New-Object Diagnostics.ProcessStartInfo;$psi.FileName=$exe;$psi.Arguments=(Quote-Arg $tool)+' --trust-sha256 @@TRUST_SHA@@'
+ if($selected){$psi.Arguments+=' --install-dir '+(Quote-Arg $selected)}
+ $psi.WorkingDirectory=$root;$psi.UseShellExecute=$false;$psi.CreateNoWindow=$true;$psi.RedirectStandardOutput=$true;$psi.RedirectStandardError=$true;$psi.StandardOutputEncoding=[Text.UTF8Encoding]::new($false);$psi.StandardErrorEncoding=[Text.UTF8Encoding]::new($false)
+ $psi.EnvironmentVariables.Clear()
+ foreach($name in @('SystemRoot','WINDIR','TEMP','TMP','LOCALAPPDATA','APPDATA','USERPROFILE','COMSPEC')){$value=[Environment]::GetEnvironmentVariable($name,'Process');if($value){$psi.EnvironmentVariables[$name]=$value}}
+ $psi.EnvironmentVariables['ELECTRON_RUN_AS_NODE']='1'
+ $p=[Diagnostics.Process]::Start($psi);$stdout=$p.StandardOutput.ReadToEndAsync();$stderr=$p.StandardError.ReadToEndAsync();$p.WaitForExit();$out=$stdout.GetAwaiter().GetResult();$err=$stderr.GetAwaiter().GetResult()
+ if($p.ExitCode -ne 0){throw ('员工安装未完成，原有程序保持不变。'+"`n"+$err)}
+ $result=$out.Trim()|ConvertFrom-Json
+ if($result.installed -ne $true -or $result.role -cne 'employee' -or $result.version -cne '1.6.2' -or $result.launched -ne $true){throw '安装或启动未获确认，请保留输出目录联系管理员。'}
+ [void][Windows.Forms.MessageBox]::Show("员工程序已安装并启动。`n请填写店内主机地址并登录。",'鑫金源员工端',[Windows.Forms.MessageBoxButtons]::OK,[Windows.Forms.MessageBoxIcon]::Information)
+ exit 0
+}catch{[void][Windows.Forms.MessageBox]::Show($_.Exception.Message,'安装未完成',[Windows.Forms.MessageBoxButtons]::OK,[Windows.Forms.MessageBoxIcon]::Error);[Console]::Error.WriteLine($_.Exception.Message);exit 1}
+finally{for($i=$held.Count-1;$i -ge 0;$i--){$held[$i].Dispose()}}

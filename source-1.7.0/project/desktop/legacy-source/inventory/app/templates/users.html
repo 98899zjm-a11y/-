@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% block title %}用户管理{% endblock %}
+
+{% block body %}
+<div class="page-head">
+  <div>
+    <h1>用户管理</h1>
+    <div class="sub">共 {{ users|length }} 个账号。盘点员只能录入实盘，复核员能审核差异、生成调整单。</div>
+  </div>
+</div>
+
+<div class="note">
+  <b>权限怎么分：</b>
+  <b>管理员</b>——导入账面数据、建任务、管账号，什么都能干；
+  <b>复核员</b>——看差异、写审核意见、生成并执行库存调整单；
+  <b>盘点员</b>——只打印盘点表、录实盘数，看不到账面数以外的审核动作。
+  新账号第一次登录会被要求改密码。
+</div>
+
+<div class="card">
+  <h2>已有账号</h2>
+  <div class="card-body tight">
+    <div class="scroll nolimit">
+    <table class="tb">
+      <thead>
+        <tr>
+          <th style="width:130px">账号</th>
+          <th style="width:150px">姓名</th>
+          <th style="width:130px">角色</th>
+          <th style="width:70px" class="mid">启用</th>
+          <th style="width:290px">最近登录 / 创建</th>
+          <th style="width:80px"></th>
+          <th style="width:290px">重置密码</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for x in users %}
+        <tr>
+          <td>
+            <b class="mono">{{ x.username }}</b>
+            {% if x.id == cu.id %}<span class="tag">我自己</span>{% endif %}
+          </td>
+          <td><input form="uf{{ x.id }}" type="text" name="display_name" value="{{ x.display_name }}" placeholder="姓名"></td>
+          <td>
+            <select form="uf{{ x.id }}" name="role">
+              {% for r in roles %}
+                <option value="{{ r }}" {{ 'selected' if x.role == r }}>{{ role_names.get(r, r) }}</option>
+              {% endfor %}
+            </select>
+          </td>
+          <td class="mid">
+            <input form="uf{{ x.id }}" type="checkbox" name="active" value="1" {{ 'checked' if x.active }}>
+          </td>
+          <td class="muted nowrap">
+            登录 {{ x.last_login_at or '从未' }}<br>
+            建于 {{ x.created_at }}
+          </td>
+          <td>
+            <button form="uf{{ x.id }}" class="btn sm primary" type="submit">保存</button>
+          </td>
+          <td>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input form="rf{{ x.id }}" type="text" name="password" placeholder="新密码（≥6位）" style="flex:1">
+              <button form="rf{{ x.id }}" class="btn sm danger" type="submit">重置</button>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+
+    {% for x in users %}
+      <form id="uf{{ x.id }}" method="post" action="{{ url_for('auth.user_update', uid=x.id) }}"></form>
+      <form id="rf{{ x.id }}" method="post" action="{{ url_for('auth.user_reset', uid=x.id) }}"
+            data-confirm="确定把账号「{{ x.username }}」的密码重置为你刚输入的内容？"></form>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="card" style="max-width:620px">
+  <h2>新增账号</h2>
+  <div class="card-body">
+    <form method="post" action="{{ url_for('auth.user_new') }}" autocomplete="off">
+      <div class="row">
+        <div class="grow">
+          <label for="n-username">登录账号</label>
+          <input type="text" id="n-username" name="username" placeholder="拼音或工号，如 zhangsan" required>
+        </div>
+        <div class="grow">
+          <label for="n-name">姓名</label>
+          <input type="text" id="n-name" name="display_name" placeholder="张三">
+        </div>
+      </div>
+      <div class="row mt12">
+        <div class="grow">
+          <label for="n-role">角色</label>
+          <select id="n-role" name="role">
+            {% for r in roles %}
+              <option value="{{ r }}" {{ 'selected' if r == 'counter' }}>{{ role_names.get(r, r) }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="grow">
+          <label for="n-pw">初始密码</label>
+          <input type="text" id="n-pw" name="password" placeholder="≥6 位，交给本人后让他自己改">
+        </div>
+        <div>
+          <button class="btn primary" type="submit">创建账号</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card" style="max-width:620px">
+  <h2>一次建一批账号 <span class="hint">一行一个，写「账号,姓名,角色」，角色可以省（默认盘点员）</span></h2>
+  <div class="card-body">
+    <form method="post" action="{{ url_for('auth.users_bulk_new') }}" autocomplete="off">
+      <label for="b-lines">要建的账号</label>
+      <textarea id="b-lines" name="lines" rows="5" spellcheck="false"
+                placeholder="wangcang,王仓,counter&#10;fuhe,李复核,reviewer&#10;kefu,小周"></textarea>
+      <div class="row mt12">
+        <div class="grow">
+          <label for="b-role">没写角色的那些，算哪种</label>
+          <select id="b-role" name="role">
+            {% for r in roles %}
+              <option value="{{ r }}" {{ 'selected' if r == 'counter' }}>{{ role_names.get(r, r) }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="grow">
+          <label for="b-pw">这一批人共用的初始密码</label>
+          <input type="text" id="b-pw" name="password" placeholder="≥6 位，本人登录后要自己改">
+        </div>
+        <div>
+          <button class="btn primary" type="submit">一次建好</button>
+        </div>
+      </div>
+      <div class="tip mt12">
+        一行写坏了不影响别的行：系统会告诉你哪一行没建成、为什么。
+        从 Excel 里直接复制粘贴也行（用制表符分隔也认）。以 <span class="mono">#</span> 开头的行会被当成注释跳过。
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card" style="max-width:620px">
+  <h2>把所有人的密码统一重置 <span class="hint">你自己那个不会被改</span></h2>
+  <div class="card-body">
+    <form method="post" action="{{ url_for('auth.users_reset_all') }}" autocomplete="off"
+          data-confirm="把除你自己以外所有账号的密码都改成同一个？他们下次登录都要重新设置。">
+      <div class="row">
+        <div class="grow">
+          <label for="ra-pw">统一的新密码</label>
+          <input type="text" id="ra-pw" name="password" placeholder="≥6 位">
+        </div>
+        <div>
+          <button class="btn danger" type="submit">全部重置</button>
+        </div>
+      </div>
+      <div class="tip mt12">
+        有人离职、或者想让大家统一换一次密码的时候用。重置后每个人下次登录都会被要求改成自己的密码。
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card" style="max-width:620px">
+  <h2>让同事也能用</h2>
+  <div class="card-body">
+    <p class="muted" style="margin:0 0 12px">
+      同事的电脑上不用装任何东西。把下面这个文件发给他（微信、QQ 都行），
+      他双击就会自动打开界面，不用记地址、也不用打一个字。
+      第一次打开让他输一次密码，<b>勾上「记住我」</b>，以后就一直登着。
+    </p>
+    <a class="btn primary" href="{{ url_for('auth.entry_page') }}">下载「打开库存核对台.html」</a>
+    <p class="note" style="margin-top:12px">
+      打不开的话：① 看服务器那台电脑的小窗口上有没有绿点写着「正在运行」；
+      ② 确认同事和服务器连的是同一个网络。
+    </p>
+  </div>
+</div>
+{% endblock %}

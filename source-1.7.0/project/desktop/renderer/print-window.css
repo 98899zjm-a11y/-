@@ -1,0 +1,7 @@
+@import '../../app/globals.css';
+@import './warranty-document.css';
+html,body{margin:0;padding:0;background:#fff;color:#000;min-height:0;height:auto;overflow:visible}
+.a4-print-root,.warranty-print-root{display:block;position:static;overflow:visible;background:#fff;min-height:0}
+.a4-preview-scroll,.warranty-preview-scroll{display:block;overflow:visible;padding:0;height:auto}
+.a4-preview-page{margin:0;box-shadow:none}
+@media print{.a4-print-root .a4-preview-scroll{padding:0!important}.a4-preview-page{margin:0!important;padding:0!important;box-shadow:none!important}}

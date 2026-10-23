@@ -1,0 +1,84 @@
+'use strict';
+// Root-only Guest: real public 161/a2 resource bytes, real cache/signature/
+// transaction/recovery. Test signing private key stays in RAM. All OS process
+// facts are explicit DI; no application, service, helper EXE or business runs.
+const fs0=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),assert=require('node:assert/strict');
+const ROOT=path.resolve(__dirname,'..'),sha=b=>crypto.createHash('sha256').update(b).digest('hex');
+if(process.platform!=='win32'||ROOT.toLowerCase()!=='c:\\xjy-work\\xjy-web-stage1')throw Error('Fixed actual Guest required before product import');
+const args=process.argv.slice(2);
+assert(args.length===2&&args[0]==='--source-sha256'&&/^[a-f0-9]{64}$/.test(args[1]),'Only Root-pinned source SHA is accepted');
+function code(relative,pin){const file=path.join(ROOT,...relative.split('/'));for(let p=file;;p=path.dirname(p)){const s=fs0.lstatSync(p);assert(!s.isSymbolicLink()&&(!s.isFile()||s.nlink===1),'Ordinary source required');if(p===path.dirname(p))break;}assert.equal(sha(fs0.readFileSync(file)),pin,'Frozen source changed: '+relative);return file;}
+code('audit-tools/employee-real162-offline.cjs',args[1]);
+code('stage1/guest-candidate-cdp.cjs','59840b638d8797fb55241616cd0b8e4098075a76834a201b0e93c1a748f1bb32');
+code('stage1/sandbox-context.py','09426dfd4d699c51570e1f1b10c2e37c00f6feb699b9a472ca710ae5242bf249');
+code('stage1/validate-sandbox-context.py','867a0117d6bc200960df06a355ffafcf639f24532ece3bc4db34f6e397325207');
+const actualContext=require('../stage1/guest-candidate-cdp.cjs').actualGuard();
+for(const [file,pin]of Object.entries({
+ 'project/desktop/employee-update-cache.cjs':'5cb70079bf161a002a2701694e4774c2a11bf8d54efc6674ccb5c7b2c6729815',
+ 'project/desktop/employee-update-installer.cjs':'96ba3df08a0f706e599da7d452374b1f894d401c0a6ff605fc01255d01445bd0',
+ 'delivery-tools/initial-patch-core.cjs':'0f9de31c8ad8ec7e1b870a92d025909f4606363801a31ee3582b903c5704bbce',
+ 'tests/employee-update-fixtures.cjs':'c8b7b124ea0523257c564161dcea18698ab8a0a00db9f73ebcb4fea333eab572',
+}))code(file,pin);
+const fs=process.versions.electron?require('original-fs').promises:require('node:fs/promises');
+const core=require('../delivery-tools/initial-patch-core.cjs'),u=require('../project/desktop/employee-update-cache.cjs');
+const {createEmployeeUpdateRunner,asarIdentity,programPath}=require('../project/desktop/employee-update-installer.cjs');
+const {zip}=require('../tests/employee-update-fixtures.cjs');
+const INPUT=path.join(ROOT,'release-work/employee-real162-a1');
+const BASE=path.join(INPUT,'public161/安装文件'),TRUST=path.join(INPUT,'public161/安装组件/delivery-tools/fresh-employee-trust.json');
+const BASE_MANIFEST=path.join(INPUT,'baseline161-manifest.json'),TARGET='C:/xjy-results/release-162-artifact-a2';
+const RESULT='C:/xjy-results/employee-real162-offline-a1.json';
+const PINS={baseManifest:'e1ff037d5fdb819561719c44487455c676fb90f8e8c18ff54509fbe155828095',trust:'03e9a804fd6b34af15e267cac159c839bed791ab735a0a2dfb6f56151310d18f',targetManifest:'fe20ea7d83f2e2200624bf81364078ca8b206d1efcc8dbad03b1841d0fab9da2',targetProof:'1a1e0aa79ec55125c847bb6c4151b24e7807c733397ba7d58b526c420ece26c7',sourceAsar:'7e4b04ef51c741f7da66da7e55cd5a280b792f32cd0a0fe8d19606f0996de07d',targetAsar:'02a3dc5128203889fa88205020c39970f08305b4496e64507ca5ec5eab7f7568',engine:'db3ad2066a55546f9b6737da3c7f011370e4856fb36888055b544d45653e4f40'};
+async function pinnedJson(file,pin,root){await u.assertPath(fs,file,{root});const bytes=await u.readSmall(fs,file,2097152);assert.equal(sha(bytes),pin);return JSON.parse(bytes);}
+async function checked(file,spec,root){const actual=await core.fileHash(fs,file,root);assert.equal(actual.size,spec.size,file);assert.equal(actual.sha256,spec.sha256,file);return actual;}
+function resourceList(manifest,version){assert.equal(manifest.programVersion,version);assert.equal(manifest.resourcesOnly,true);assert.equal(manifest.fileCount,1007);assert.equal(manifest.files.length,1007);const seen=new Set();for(const f of manifest.files){assert(programPath(f.path));assert(Number.isSafeInteger(f.size)&&f.size>=0&&/^[a-f0-9]{64}$/.test(f.sha256));assert(!seen.has(f.path.toLowerCase()));seen.add(f.path.toLowerCase());}assert.equal(seen.size,1007);return manifest.files;}
+async function resources(root,files){const tree=await core.inspectArtifactTree({artifactDir:path.join(root,'resources')});assert.equal(tree.files.length,files.length);const expected=new Map(files.map(f=>[f.path,f]));for(const f of tree.files){const match=expected.get('resources/'+f.path);assert(match,'Unlisted resource');assert.equal(f.size,match.size);assert.equal(f.sha256,match.sha256);}return tree.sha256;}
+async function engines(root,files,prefix=''){if(prefix){const tree=await core.inspectArtifactTree({artifactDir:path.join(root,prefix)});assert.equal(tree.files.length,files.length);assert.deepEqual(tree.files.map(f=>f.path).sort(),files.map(f=>f.path).sort());}for(const f of files)await checked(path.join(root,prefix,...f.path.split('/')),f,root);}
+async function put(root,relative,body){const file=path.join(root,...relative.split('/'));await core.mkdirs(fs,root,relative.split('/').slice(0,-1).join('/'));await fs.writeFile(file,body,{flag:'wx'});return file;}
+async function fixture(parent,name,sourceFiles,engineFiles,executableName){const root=path.join(parent,name);await fs.mkdir(root);const install=await core.mkdirs(fs,root,'program'),profile=await core.mkdirs(fs,root,'profile');for(const f of sourceFiles){await core.mkdirs(fs,install,f.path.split('/').slice(0,-1).join('/'));await core.copy(fs,path.join(BASE,...f.path.split('/')),path.join(install,...f.path.split('/')),f,BASE,install);}for(const f of engineFiles){await core.mkdirs(fs,install,f.path.split('/').slice(0,-1).join('/'));await core.copy(fs,path.join(BASE,'engine',...f.path.split('/')),path.join(install,...f.path.split('/')),f,BASE,install);}
+ const activation=Buffer.from(JSON.stringify({version:1,product:'xjy-jewelry-offline',programVersion:'1.6.1',role:'employee',installationDir:install})+'\n');await put(install,'xjy-install-activation.json',activation);
+ const sentinels=[{root:profile,path:'workspace-connection.json',body:Buffer.from('{"mode":"client","fixture":"real162-only-synthetic"}')},{root:profile,path:'settings/sentinel.txt',body:Buffer.from('KEEP SYNTHETIC EMPLOYEE PROFILE')},{root:install,path:'config/sentinel.txt',body:Buffer.from('KEEP SYNTHETIC INSTALL CONFIG')}];for(const s of sentinels)await put(s.root,s.path,s.body);
+ return{root,install,profile,exe:path.join(install,executableName),activation,sentinels};}
+async function preserved(f,engineFiles){await engines(f.install,engineFiles);for(const s of f.sentinels)assert.deepEqual(await fs.readFile(path.join(s.root,s.path)),s.body);}
+async function activation(f,expected){const bytes=await u.readSmall(fs,path.join(f.install,'xjy-install-activation.json'),4096);if(expected==='1.6.1')assert.deepEqual(bytes,f.activation);else assert.deepEqual(JSON.parse(bytes),{version:1,product:'xjy-jewelry-offline',programVersion:expected,role:'employee',installationDir:f.install});}
+async function status(f,phase){const value=await u.authenticatedRead(fs,path.join(f.install,'.xjy-employee-updates/recovery-status.json'),f.profile,4096);assert.equal(value.phase,phase);return value;}
+async function main(){
+ const began=Date.now();await u.assertPath(fs,INPUT,{directory:true,root:ROOT});await u.assertPath(fs,BASE,{directory:true,root:INPUT});await u.assertPath(fs,path.resolve(TARGET),{directory:true});
+ try{await fs.lstat(RESULT);throw Error('CreateNew result already exists');}catch(error){if(error.code!=='ENOENT')throw error;}
+ const base=await pinnedJson(BASE_MANIFEST,PINS.baseManifest,INPUT),trust=await pinnedJson(TRUST,PINS.trust,INPUT),target=await pinnedJson(path.join(TARGET,'release-manifest.json'),PINS.targetManifest,path.resolve(TARGET)),proof=await pinnedJson(path.join(TARGET,'data-free-proof.json'),PINS.targetProof,path.resolve(TARGET));
+ const sourceFiles=resourceList(base,'1.6.1'),targetFiles=resourceList(target,'1.6.2');assert.equal(base.asar.sha256,PINS.sourceAsar);assert.equal(target.asar.sha256,PINS.targetAsar);assert.deepEqual(proof.files,targetFiles);assert.equal(proof.dataIncluded,false);assert.equal(proof.signed,false);assert.equal(proof.installed,false);assert.equal(proof.fileCount,1007);
+ assert.equal(trust.targetVersion,'1.6.1');assert.equal(trust.engineVersion,'44.7.0');assert.equal(trust.executableName,'鑫金源珠宝报价.exe');assert.equal(trust.engineFiles.length,72);assert.equal(trust.publisherPublicKeySha256,'6e8b9cadb59aeb53f30d41f4471f70f644f0dfc7376ffb9d8a4c62defb98458c');assert.deepEqual([...trust.allowedResourceFiles].sort(),sourceFiles.map(f=>f.path).sort());assert.deepEqual(sourceFiles.map(f=>f.path).sort(),targetFiles.map(f=>f.path).sort());
+ const engineFiles=trust.engineFiles;assert.equal(new Set(engineFiles.map(f=>f.path.toLowerCase())).size,72);for(const f of engineFiles)assert(u.safeRelative(f.path)&&Number.isSafeInteger(f.size)&&f.size>=0&&/^[a-f0-9]{64}$/.test(f.sha256));const engine=engineFiles.find(f=>f.path===trust.executableName);assert.equal(engine.size,246302720);assert.equal(engine.sha256,PINS.engine);
+ await resources(BASE,sourceFiles);await engines(BASE,engineFiles,'engine');await resources(TARGET,targetFiles);assert.equal((await asarIdentity(fs,path.join(BASE,'resources/app.asar'),BASE)).version,'1.6.1');assert.equal((await asarIdentity(fs,path.join(TARGET,'resources/app.asar'),path.resolve(TARGET))).version,'1.6.2');
+ // The ZIP/catalog are test publication data, not a production update or signer.
+ const entries=[];for(const f of targetFiles){const body=await u.readSmall(fs,path.join(TARGET,...f.path.split('/')),Math.max(1,f.size));assert.equal(body.length,f.size);assert.equal(sha(body),f.sha256);entries.push({path:f.path,body});}const archive=zip(entries);entries.length=0;
+ const keys=crypto.generateKeyPairSync('ed25519'),now=Date.now(),catalog={schemaVersion:1,app:'xjy-jewelry-offline',channel:'stable',version:'1.6.2',sourceVersions:['1.6.1'],platform:'win32',arch:'x64',sequence:8,publishedAt:new Date(now-1000).toISOString(),expiresAt:new Date(now+86400000).toISOString(),archive:{size:archive.length,sha256:sha(archive)},files:targetFiles},raw=JSON.stringify(catalog),envelope={catalog:raw,signature:crypto.sign(null,Buffer.from(raw),keys.privateKey).toString('base64')};
+ const policy={trustedPublicKey:keys.publicKey,allowedFiles:sourceFiles.map(f=>f.path),currentVersion:'1.6.1',platform:'win32',arch:'x64',now:()=>now};assert.deepEqual(u.verifySignedCatalog(envelope,u.createTrustedUpdatePolicy(policy)),catalog);
+ const parent=await core.mkdirs(fs,ROOT,'runtime/employee-update-tests'),run=path.join(parent,'real162-'+crypto.randomUUID());await fs.mkdir(run);await put(run,'owner.json',JSON.stringify({purpose:'real161-to-real162-resource-component',syntheticProfile:true,sourceSha256:args[1]}));const results=[];
+ for(const name of ['success','replacement-failure','cold-recovery']){
+  console.log(JSON.stringify({scenario:name,stage:'copying-public161',fixtureRoot:run}));const f=await fixture(run,name,sourceFiles,engineFiles,trust.executableName);let cache,stage,renamed=false,powerLoss=false,replaced=0;const restarts=[];
+  const current={pid:4123,creationMarker:'di-employee-already-exited'},helperPid=6123,processAdapter={inspect:async pid=>pid===helperPid?{pid,creationMarker:'di-owned-helper',executablePath:f.exe,args:[]}:null,listForInstallation:async()=>[],restart:async input=>{assert.deepEqual(input,{executablePath:f.exe,args:['--employee-client'],role:'employee'});restarts.push(input);return{started:true};}};
+  try{
+   cache=u.createEmployeeUpdateCache({...policy,profileDir:f.profile,resolveCatalogEnvelope:async()=>envelope});const id=await cache.begin(catalog);for(let offset=0;offset<archive.length;offset+=u.CHUNK)await cache.write(id,offset,archive.subarray(offset,Math.min(offset+u.CHUNK,archive.length)));await cache.seal(id,{archiveSha256:catalog.archive.sha256,sequence:catalog.sequence,version:catalog.version,fileCount:targetFiles.length});stage=await cache.getInstallStage(id);
+   await resources(f.install,sourceFiles);await activation(f,'1.6.1');await preserved(f,engineFiles);
+   assert.equal(targetFiles[0].path,'resources/app.asar');const failPath=path.join(f.install,...targetFiles[1].path.split('/'));assert.notEqual(targetFiles[1].path,'resources/app.asar');
+   const fileSystem=name==='replacement-failure'?{...fs,rename:async(from,to)=>{if(!renamed&&path.resolve(to)===failPath){assert.equal(replaced,1);await checked(path.join(f.install,'resources/app.asar'),targetFiles[0],f.install);renamed=true;throw Object.assign(Error('controlled replacement failure'),{code:'EACCES'});}return fs.rename(from,to);}}:fs;
+   const options={...policy,fileSystem,installDir:f.install,profileDir:f.profile,executablePath:f.exe,clientRole:'employee',helperPid,processAdapter,checkpoint:async phase=>{if(phase==='file-replaced')replaced++;if(name==='cold-recovery'&&phase==='activation-replaced'){powerLoss=true;throw Object.assign(Error('controlled uncommitted interruption'),{code:'SIMULATED_POWER_LOSS'});}}};
+   const runner=createEmployeeUpdateRunner(options),request={stage,expectedVersion:'1.6.1',currentProcess:current,employee:true};let transaction,backups;
+   if(name==='success'){
+    transaction=await runner.run(request);assert.equal(transaction.installed,true);assert.equal(transaction.version,'1.6.2');assert.equal(transaction.restarted,true);assert.equal(restarts.length,1);await resources(f.install,targetFiles);await activation(f,'1.6.2');await status(f,'committed');backups=transaction.backupDir;
+   }else if(name==='replacement-failure'){
+    await assert.rejects(runner.run(request),error=>error.code==='EACCES');assert.equal(renamed,true);await resources(f.install,sourceFiles);await activation(f,'1.6.1');const value=await status(f,'rolledback');assert.equal(restarts.length,1);backups=path.join(f.install,'.xjy-employee-updates',value.transactionId,'backup');
+   }else{
+    await assert.rejects(runner.run(request),error=>error.code==='SIMULATED_POWER_LOSS');assert.equal(powerLoss,true);assert.equal(restarts.length,0);await resources(f.install,targetFiles);await activation(f,'1.6.2');await status(f,'mutating');
+    const recovery=createEmployeeUpdateRunner({...options,fileSystem:fs,currentVersion:'1.6.2',checkpoint:undefined}),result=await recovery.recover();assert.equal(result.recovered,true);assert.equal(restarts.length,0);backups=result.backupDir;await resources(f.install,sourceFiles);await activation(f,'1.6.1');await status(f,'rolledback');
+   }
+   await resources(backups,sourceFiles);await preserved(f,engineFiles);assert.equal((await asarIdentity(fs,path.join(f.install,'resources/app.asar'),f.install)).version,name==='success'?'1.6.2':'1.6.1');
+   results.push({scenario:name,passed:true,verifiedSourceResourceFiles:1007,verifiedTargetInputResourceFiles:1007,verifiedBackupResourceFiles:1007,targetFilesReplacedBeforeFault:replaced,engineFilesPreserved:72,syntheticProfileAndConfigPreserved:true,finalVersion:name==='success'?'1.6.2':'1.6.1',restartRequestsDI:restarts.length,processExitDI:true,exeExecuted:false});
+  }finally{if(cache)await cache.close();}
+ }
+ // Recheck both immutable input trees after all transactions and recovery.
+ await pinnedJson(BASE_MANIFEST,PINS.baseManifest,INPUT);await pinnedJson(TRUST,PINS.trust,INPUT);await pinnedJson(path.join(TARGET,'release-manifest.json'),PINS.targetManifest,path.resolve(TARGET));await pinnedJson(path.join(TARGET,'data-free-proof.json'),PINS.targetProof,path.resolve(TARGET));await resources(BASE,sourceFiles);await engines(BASE,engineFiles,'engine');await resources(TARGET,targetFiles);
+ const report={passed:true,purpose:'real161-to-real162-resource-component',actualContext,sourceSha256:args[1],fixtureRoot:run,sourceVersion:'1.6.1',targetVersion:'1.6.2',inputPins:PINS,scenarios:results,scenarioCount:3,temporarySigningKeyRamOnly:true,testTrustInjected:true,productionPublisherTrustVerified:false,archiveSha256:catalog.archive.sha256,archiveBytes:archive.length,sourceAndTargetInputsUnchanged:true,exeExecuted:false,helperProcessExecuted:false,processHandoffExercised:false,processExitDI:true,nativeSchedulerRun:false,nativeGuiVerified:false,businessDatabaseOpened:false,installedOnProduction:false,elapsedMs:Date.now()-began};
+ await u.assertPath(fs,RESULT,{missing:true});await fs.writeFile(RESULT,JSON.stringify(report,null,2)+'\n',{flag:'wx'});console.log(JSON.stringify(report));
+}
+main().catch(error=>{console.error(JSON.stringify({purpose:'real161-to-real162-resource-component',passed:false,code:error.code||'ASSERTION_OR_INPUT_FAILURE',message:error.message,exeExecuted:false,installedOnProduction:false}));process.exitCode=1;});

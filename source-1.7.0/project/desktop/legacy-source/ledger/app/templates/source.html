@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}原始 Excel{% endblock %}
+{% block body %}
+<div class="page-head">
+  <div>
+    <h1>原始 Excel　<span class="note" style="font-weight:400">对照用</span></h1>
+    <div class="sub">
+      把你发我的那份《工作簿2》原样摆在这儿，**一个字都不改**。
+      拿它跟系统里的数一面一面看，就能知道系统有没有算错。
+    </div>
+  </div>
+  <div class="page-actions">
+    {% if m.there %}<a class="btn primary" href="{{ url_for('source.compare') }}">逐行对照（原表 vs 系统）</a>{% endif %}
+  </div>
+</div>
+
+<div class="card">
+  <h2>① 原表文件</h2>
+  <div class="card-body">
+    {% if m.there %}
+      <div class="tip">
+        现在存着的是：<b>{{ m.name }}</b>{% if m.at %}（{{ m.at }} 上传）{% endif %}
+        ｜共 {{ m.sheets|length }} 张工作表：{{ m.sheets|join('、') }}
+        <br><span class="note">文件放在 {{ m.path }}</span>
+      </div>
+    {% else %}
+      <div class="tip">还没有原表。把《工作簿2.xlsx》传上来，这里就能跟系统对账了。</div>
+    {% endif %}
+    <form method="post" action="{{ url_for('source.upload') }}" enctype="multipart/form-data" class="filter">
+      <div class="field wide"><label>选一个 .xlsx / .csv</label><input type="file" name="file" accept=".xlsx,.xlsm,.csv,.txt"></div>
+      <div class="field"><button class="btn primary" type="submit">上传／替换</button></div>
+    </form>
+    <div class="note">老的 .xls 先在 Excel 里「另存为 → Excel 工作簿(.xlsx)」再传。</div>
+  </div>
+</div>
+
+{% if m.sheets %}
+<div class="card">
+  <h2>② 原表内容
+    <span class="hint">{{ sheet }}{% if kind_zh %}（系统认成：{{ kind_zh }}）{% endif %}
+      ｜共 {{ total }} 行，本页第 {{ (page-1)*250 + 1 }} ~ {{ [page*250, total]|min }} 行</span>
+  </h2>
+  <div class="card-body tight">
+    <div class="xl-tabs" style="padding:8px 10px 0">
+      {% for s in m.sheets %}
+        <a href="{{ url_for('source.index', sheet=s) }}" class="{{ 'on' if s == sheet }}">{{ s }}</a>
+      {% endfor %}
+    </div>
+    <div class="xl-scroll" style="max-height:64vh">
+      <table class="xl">
+        <thead>
+          <tr class="xl-name">
+            <th class="xl-rn">行</th>
+            {% for i in range(head|length) %}<th>{{ head[i] if head[i] else '第%d列' % (i+1) }}</th>{% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in rows %}
+          <tr>
+            <td class="xl-rn">{{ (page-1)*250 + loop.index }}</td>
+            {% for c in r %}
+              <td class="xl-calc" style="text-align:left;background:#fff;color:#171a1f">
+                {{ '' if c is none else c }}
+              </td>
+            {% endfor %}
+          </tr>
+          {% else %}
+          <tr><td class="xl-rn">1</td><td class="empty" colspan="{{ head|length + 1 }}">这张表是空的</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if pages > 1 %}
+    <div class="xl-bar" style="border-top:1px solid #b9c2cd">
+      {% for p in range(1, pages + 1) %}
+        {% if p <= 3 or p > pages - 3 or (p >= page - 2 and p <= page + 2) %}
+          <a class="btn {{ 'primary' if p == page }}" href="{{ url_for('source.index', sheet=sheet, page=p) }}">第 {{ p }} 页</a>
+        {% elif p == 4 or p == pages - 3 %}
+          <span class="xl-hint">…</span>
+        {% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card">
+  <h2>③ 系统里现在有多少</h2>
+  <div class="card-body">
+    <div class="grid c3">
+      {% for zh, c in db_rows %}
+        <div class="stat blue"><div class="k">{{ zh }}</div><div class="v">{{ c }} 条</div></div>
+      {% endfor %}
+    </div>
+    <div class="page-actions" style="margin-top:12px">
+      <a class="btn primary" href="{{ url_for('source.compare') }}">开始逐行对照 →</a>
+    </div>
+    <div class="note" style="margin-top:8px">
+      对照是拿「单号+商品」配对的（存料费按「日期+供货商」）。对不上的、缺的、多的，都会一条条列出来。
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

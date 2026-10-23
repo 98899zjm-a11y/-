@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block body %}
+<div class="card" style="max-width:680px">
+  <h2>{{ code }} · {{ title }}</h2>
+  <div class="card-body">
+    <p>{{ msg }}</p>
+    {% if detail %}<pre style="white-space:pre-wrap;font-size:12px;color:#4a5260;background:#f7f9fc;padding:12px;border-radius:8px;overflow:auto">{{ detail }}</pre>{% endif %}
+    <div class="page-actions" style="margin-top:12px">
+      <a class="btn primary" href="{{ url_for('home.index') }}">回首页</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

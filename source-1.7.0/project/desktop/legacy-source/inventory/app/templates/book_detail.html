@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}账面明细 · {{ b.label }}{% endblock %}
+
+{% block body %}
+<div class="page-head">
+  <div>
+    <h1>{{ b.label }}
+      {% if b.is_active %}<span class="tag approved">当前账面</span>{% endif %}
+    </h1>
+    <div class="sub">
+      共 {{ b.row_count }} 个商品编号 · 账面总量 {{ b.total_qty|qty }} ·
+      来源 {{ b.source_file or '—' }} · 导入于 {{ b.created_at }}
+      {% if b.note %} · {{ b.note }}{% endif %}
+    </div>
+  </div>
+  <div class="page-actions">
+    <a class="btn" href="{{ url_for('stock.book_list') }}">← 返回批次列表</a>
+    <a class="btn" href="{{ url_for('stock.book_export', bid=b.id) }}">导出这张表</a>
+    {% if not b.is_active %}
+      <form class="inline" method="post" action="{{ url_for('stock.book_activate', bid=b.id) }}"
+            data-confirm="把「{{ b.label }}」设为当前账面？">
+        <button class="btn primary" type="submit">设为当前账面</button>
+      </form>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card">
+  <h2>
+    <span>账面货品清单</span>
+    <form method="get" class="row" style="gap:6px">
+      <input type="search" name="q" value="{{ q or '' }}" placeholder="搜商品编号 / 名称" style="width:220px">
+      <button class="btn sm" type="submit">搜索</button>
+      {% if q %}<a class="btn sm ghost" href="{{ url_for('stock.book_detail', bid=b.id) }}">清空</a>{% endif %}
+    </form>
+  </h2>
+  <div class="card-body tight">
+    {% if rows %}
+    <div class="scroll">
+    <table class="tb">
+      <thead>
+        <tr>
+          <th style="width:56px" class="num">#</th>
+          <th style="width:120px">库位</th>
+          <th style="width:170px">商品编号</th>
+          <th>商品名称</th>
+          <th style="width:170px">克重</th>
+          <th style="width:70px">单位</th>
+          <th style="width:100px" class="num">账面数量</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for r in rows %}
+        <tr>
+          <td class="num muted">{{ (page - 1) * size + loop.index }}</td>
+          <td>{{ r.location or '—' }}</td>
+          <td class="mono"><b>{{ r.code }}</b></td>
+          <td>{{ r.name or '—' }}</td>
+          <td class="muted">{{ r.spec or '—' }}</td>
+          <td class="muted">{{ r.unit or '—' }}</td>
+          <td class="num"><b>{{ r.qty|qty }}</b></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+
+    {% if pages > 1 %}
+    <div class="pager">
+      <span>第 {{ page }} / {{ pages }} 页 · 匹配 {{ total }} 行</span>
+      <span class="sp"></span>
+      {% if page > 1 %}
+        <a href="{{ url_for('stock.book_detail', bid=b.id, q=q, page=1, size=size) }}">首页</a>
+        <a href="{{ url_for('stock.book_detail', bid=b.id, q=q, page=page-1, size=size) }}">上一页</a>
+      {% endif %}
+      {% if page < pages %}
+        <a href="{{ url_for('stock.book_detail', bid=b.id, q=q, page=page+1, size=size) }}">下一页</a>
+        <a href="{{ url_for('stock.book_detail', bid=b.id, q=q, page=pages, size=size) }}">末页</a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+      <div class="empty">{% if q %}没有商品编号或名称匹配「{{ q }}」。{% else %}这张批次里没有数据。{% endif %}</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}盘点任务{% endblock %}
+
+{% block body %}
+<div class="page-head">
+  <div>
+    <h1>盘点任务</h1>
+    <div class="sub">一次盘点 = 一个任务。任务里记录这一轮所有商品编号的实盘数，账面数来自任务绑定的那张账面表。</div>
+  </div>
+  <div class="page-actions">
+    {% if cu.role in ('admin', 'counter') %}
+      <a class="btn primary" href="{{ url_for('count.session_new_form') }}">新建盘点任务</a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body tight">
+    {% if rows %}
+    <div class="scroll nolimit">
+    <table class="tb">
+      <thead>
+        <tr>
+          <th style="width:230px">任务名称</th>
+          <th style="width:90px">状态</th>
+          <th style="width:200px">账面批次</th>
+          <th style="width:110px">盘点范围</th>
+          <th class="num" style="width:80px">已录</th>
+          <th style="width:150px">创建</th>
+          <th style="width:340px">操作</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for r in rows %}
+        <tr>
+          <td>
+            <a href="{{ url_for('count.session_detail', sid=r.id) }}"><b>{{ r.name }}</b></a>
+            {% if r.blind %}<span class="tag" title="打印时隐藏账面数">盲盘</span>{% endif %}
+          </td>
+          <td><span class="tag {{ r.status }}">{{ status_names.get(r.status, r.status) }}</span></td>
+          <td class="muted ellip" title="{{ r.batch_label }}">{{ r.batch_label or '—' }}</td>
+          <td>{{ r.scope_location or '<全部>' }}</td>
+          <td class="num">{{ r.counted }}</td>
+          <td class="muted nowrap">{{ r.creator or '—' }}<br>{{ r.created_at }}</td>
+          <td>
+            <a class="btn sm" href="{{ url_for('count.session_detail', sid=r.id) }}">详情</a>
+            {% if r.status in ('counting', 'reviewing') %}
+              <a class="btn sm primary" href="{{ url_for('count.session_entry', sid=r.id) }}">录入实盘</a>
+            {% else %}
+              <a class="btn sm" href="{{ url_for('count.session_entry', sid=r.id, filter='all') }}">查看数据</a>
+            {% endif %}
+            <a class="btn sm" href="{{ url_for('count.session_print', sid=r.id) }}" target="_blank">打印盘点表</a>
+            {% if cu.role in ('admin', 'reviewer') %}
+              <a class="btn sm" href="{{ url_for('review.diff_list', sid=r.id) }}">差异</a>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% else %}
+      <div class="empty">
+        还没有盘点任务。
+        {% if cu.role in ('admin', 'counter') %}
+          <div style="margin-top:12px"><a class="btn primary" href="{{ url_for('count.session_new_form') }}">新建一个</a></div>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

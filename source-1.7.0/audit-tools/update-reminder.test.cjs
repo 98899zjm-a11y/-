@@ -1,0 +1,26 @@
+'use strict';
+// Pure UI controller checks. No product service, database, process or network.
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
+const ROOT=path.resolve(__dirname,'..');
+function factory(){
+ const file=path.join(ROOT,'project/desktop/renderer/update-reminder.ts');
+ assert.ok(fs.existsSync(file),'UPDATE_REMINDER_NOT_IMPLEMENTED');
+ const ts=require(path.join(ROOT,'audit-tools/dependencies/node_modules/typescript'));
+ const source=fs.readFileSync(file,'utf8'),result=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.CommonJS},reportDiagnostics:true});
+ assert.equal(result.diagnostics?.length||0,0);
+ const exports={};vm.runInNewContext(result.outputText,{exports},{filename:file});
+ assert.equal(typeof exports.createUpdateReminder,'function');return exports.createUpdateReminder;
+}
+function harness(overrides={}){
+ const calls=[],seen=[];
+ const bridge={getEmployeeUpdateCapability:async()=>{calls.push('capability');return{supported:true,canInstall:true,currentVersion:'1.6.1'};},employeeUpdate:async input=>{calls.push(input.intent);return{ok:true,state:{phase:'available',currentVersion:'1.6.1',targetVersion:'1.6.2',message:'发现新版本'}};},...overrides};
+ return{calls,seen,bridge,model:factory()({bridge,onChange:value=>seen.push(value)})};
+}
+test('R01 a capable authenticated device checks only, without downloading or installing',async()=>{const h=harness();await h.model.check();assert.deepEqual(h.calls,['capability','check']);assert.deepEqual(JSON.parse(JSON.stringify(h.seen)),[{version:'1.6.2',message:'发现新版本'}]);});
+test('R02 unavailable or missing native bridge is silent and never requests an update',async()=>{const h=harness({getEmployeeUpdateCapability:async()=>({supported:true,canInstall:false,currentVersion:'1.6.1'})});await h.model.check();assert.deepEqual(h.calls,[]);assert.equal(h.seen.length,0);const changes=[];await factory()({onChange:value=>changes.push(value)}).check();assert.equal(changes.length,0);});
+test('R03 concurrent checks coalesce and an identical version does not repeat the announcement',async()=>{let release;const wait=new Promise(resolve=>{release=resolve;});const h=harness({employeeUpdate:async input=>{h.calls.push(input.intent);await wait;return{ok:true,state:{phase:'available',currentVersion:'1.6.1',targetVersion:'1.6.2',message:'发现新版本'}};}});const first=h.model.check();await Promise.resolve();await Promise.resolve();await h.model.check();release();await first;await h.model.check();assert.deepEqual(h.calls,['capability','check','capability','check']);assert.equal(h.seen.length,1);});
+test('R04 disposing an old employee session ignores its late results',async()=>{let release;const wait=new Promise(resolve=>{release=resolve;});const h=harness({employeeUpdate:async()=>{await wait;return{ok:true,state:{phase:'available',currentVersion:'1.6.1',targetVersion:'1.6.2',message:'发现新版本'}};}});const first=h.model.check();await Promise.resolve();await Promise.resolve();h.model.dispose();release();await first;await h.model.check();assert.equal(h.seen.length,0);assert.equal(h.calls.length,1);});
+test('R05 network errors do not break editing and a later check retries successfully',async()=>{let attempts=0;const h=harness({employeeUpdate:async()=>{if(++attempts===1)throw Error('offline');return{ok:true,state:{phase:'available',currentVersion:'1.6.1',targetVersion:'1.6.2',message:'发现新版本'}};}});await assert.doesNotReject(()=>h.model.check());await h.model.check();assert.equal(attempts,2);assert.equal(h.seen.length,1);});
+test('R06 latest, malformed, older and failed replies never announce a new version',async()=>{for(const state of[{phase:'latest',currentVersion:'1.6.1',targetVersion:'1.6.2'},{phase:'available',currentVersion:'1.6.1',targetVersion:'1.6.1'},{phase:'available',currentVersion:'1.6.1',targetVersion:'1.5.9'},{phase:'available',currentVersion:'1.6.1',targetVersion:'https://bad.invalid/'},{phase:'available',currentVersion:'1.6.1',targetVersion:'01.6.2'}]){const h=harness({employeeUpdate:async()=>({ok:true,state})});await h.model.check();assert.equal(h.seen.length,0,JSON.stringify(state));}const h=harness({employeeUpdate:async()=>({ok:false,state:{phase:'available',currentVersion:'1.6.1',targetVersion:'1.6.2'}})});await h.model.check();assert.equal(h.seen.length,0);});
+test('R07 real workspace uses the reminder under employee session lifetime, with timer cleanup and visible upgrade action',()=>{const source=fs.readFileSync(path.join(ROOT,'project/desktop/renderer/workspace.tsx'),'utf8');assert.match(source,/createUpdateReminder/);assert.match(source,/updateReminder/);assert.match(source,/clearInterval\(timer\)/);assert.match(source,/reminder\.dispose\(\)/);assert.match(source,/setEmployeeUpdateOpen\(true\)/);assert.match(source,/发现新版本/);});
+test('R08 the visible update action opens its panel without navigating away from a business form',()=>{const source=fs.readFileSync(path.join(ROOT,'project/desktop/renderer/workspace.tsx'),'utf8');assert.doesNotMatch(source,/employeeUpdateOpen\s*&&\s*activePage\s*===\s*["']home["']/,'A global update action must not be gated by the home page');assert.match(source,/employeeUpdateOpen\s*&&\s*<EmployeeUpdate/);});

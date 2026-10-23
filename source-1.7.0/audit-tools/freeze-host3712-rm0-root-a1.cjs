@@ -1,0 +1,16 @@
+'use strict';
+// Fixed offline synthetic Host maintenance only. Data preparation, no RM here.
+const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),assert=require('node:assert/strict');
+const W='E:/codex/2026-10-15/work/xjy-v16-deep-audit',D=path.join(W,'release-work/deepseek-stage1-development-a1'),B=path.join(W,'release-work/native160-host3712-rm0-check-bound-a2'),O=path.join(W,'release-work/native160-host3712-rm0-root-bound-a1'),hash=b=>crypto.createHash('sha256').update(b).digest('hex');
+function read(file,pin){const b=fs.readFileSync(file);assert.equal(hash(b),pin);return b;}
+read(path.join(W,'reports/2026-10-20-autonomous-delivery-user-authorization.md'),'7dfc073888846668db2be629a35a23a6db8a52fbcfbb9b934a67b4579cbbc9e0');
+const source=read(path.join(B,'GuestRmCloseHost3712.cs'),'1aba844c4f8d298760ddd4f83c25bd7377b134bd982b2e0518732e6cd787a4dc'),controller=read(path.join(B,'run-host3712-rm0-close.cjs'),'468caa12ebb8f0efdc59968d5d1fdb1d2bc4b1aca30dc05fe1f61d1520a29ce9');
+const ro=read(path.join(D,'results/guest-runs/c46a5bbe-d3b8-41bd-b300-3b5aa5440d79/stdout.log'),'4098f1962ef8e57dfb8de135036d63a0a7339ac171b0d9c1496aa8dca5b349a8');
+const result=JSON.parse(ro);assert.equal(result.original3712.exactExpectedIdentity,true);assert.equal(result.protectedOwner6520.exactExpectedIdentity,true);assert.equal(result.secondary3908.command.printWorkerFlag,true);
+const a=JSON.parse(read(path.join(B,'root-host3712-rm0-approval.TEMPLATE.json'),'739810b91c25f51878a4f71d2b2aaf9a40eb669655ea1b9b1a66bae80d02f98e'));assert.equal(a.approved,false);a.approved=true;a.creator='Root';a.approvedAt=new Date().toISOString();a.expiresAt=new Date(Date.now()+90*60000).toISOString();a.rootDecision='Under 7dfc current test preparation delegation, only exact synthetic C6 Host3712 nonforced RM0 maintenance. No formal process, force, database, F, ACL, production, wrapper or employee shutdown. Held real exit and independent quiet observation required; not tray or business flush acceptance.';
+const raw=Buffer.from(JSON.stringify(a,null,2)+'\n'),pin=hash(raw);
+let cs=source.toString('utf8');assert.equal(cs.split('ApplyBound=false').length,2);assert.equal(cs.split('UNBOUND_ROOT_APPROVED_3712_RM0_RAW_SHA').length,2);cs=cs.replace('ApplyBound=false','ApplyBound=true').replace('UNBOUND_ROOT_APPROVED_3712_RM0_RAW_SHA',pin);
+let js=controller.toString('utf8');const old="need(mode==='--check','CHECK_ONLY_DRAFT','No apply until Root separately binds actual 9c83 evidence and exact approval');";assert.equal(js.split(old).length,2);js=js.replace(old,"need(mode==='--check'||mode==='--apply-reviewed','EXACT_MODE','Only fixed reviewed-plan RM0');");
+assert(!fs.existsSync(O));fs.mkdirSync(O);for(const [name,b]of[['GuestRmCloseHost3712.cs',cs],['run-host3712-rm0-close.UNBOUND.cjs',js],['root-host3712-rm0-approval.json',raw]])fs.writeFileSync(path.join(O,name),b,{flag:'wx'});
+fs.writeFileSync(path.join(W,'reports/native160-host3712-rm0-root-approval-a1.json'),raw,{flag:'wx'});fs.writeFileSync(path.join(D,'control/root-host3712-rm0-approval.json'),raw,{flag:'wx'});
+console.log(JSON.stringify({out:O,approvalSha256:pin,sourceSha256:hash(Buffer.from(cs)),controllerUnboundSha256:hash(Buffer.from(js)),approvedAt:a.approvedAt,expiresAt:a.expiresAt,rmExecuted:false,productionAccess:false}));

@@ -1,0 +1,174 @@
+/* 鑫金源珠宝内帐记账管理 —— 全站样式（一个文件，没有前端构建工具） */
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+:root{
+  --ink:#171a1f; --ink-2:#4a5260; --ink-3:#636b78;
+  --line:#e4e7ec; --line-2:#eef1f5; --bg:#f5f6f8; --panel:#fff;
+  --blue:#2563eb; --blue-d:#1d4ed8; --blue-bg:#eef4ff;
+  --green:#0d7d45; --green-bg:#e8f6ee;
+  --red:#c62336; --red-bg:#fdecef;
+  --amber:#9a6700; --amber-bg:#fdf5e3;
+  --radius:12px; --radius-sm:8px;
+}
+body{
+  font:15px/1.6 "Microsoft YaHei UI","Microsoft YaHei",system-ui,sans-serif;
+  background:var(--bg); color:var(--ink);
+}
+a{color:var(--blue-d);text-decoration:none}
+a:hover{text-decoration:underline}
+.mono,td.num,th.num,.v{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-variant-numeric:tabular-nums}
+
+/* 顶栏 */
+.topbar{background:linear-gradient(180deg,#1f2937,#111827);color:#eef1f5;position:sticky;top:0;z-index:30}
+.topbar-inner{max-width:1680px;margin:0 auto;display:flex;align-items:center;gap:18px;padding:10px 20px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:9px;color:#f3e6c8;font-weight:700;font-size:18px;letter-spacing:.5px}
+.brand:hover{text-decoration:none}
+.brand-mark{width:28px;height:28px;border-radius:8px;background:#c8a45c;color:#2b3641;display:grid;place-items:center;font-size:16px;font-weight:700}
+.nav{display:flex;gap:2px;flex-wrap:wrap;flex:1}
+.nav a{padding:7px 13px;border-radius:var(--radius-sm);color:#c7d1dc;font-size:14.5px}
+.nav a:hover{background:rgba(255,255,255,.10);text-decoration:none}
+.nav a.on{background:#c8a45c;color:#23303c;font-weight:700}
+.userbox{display:flex;align-items:center;gap:10px;font-size:13.5px;color:#aab6c4}
+.userbox .who{color:#eef1f5;font-weight:600}
+.mini{color:#aab6c4;font-size:12.5px}
+
+/* 布局 */
+.wrap{max-width:1680px;margin:18px auto 46px;padding:0 20px}
+.page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.page-head h1{margin:0;font-size:21px;font-weight:700}
+.page-head .sub{color:var(--ink-3);font-size:13px;margin-top:3px}
+.page-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* 卡片 */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:16px;box-shadow:0 1px 3px rgba(24,36,50,.05);overflow:hidden}
+.card>h2{margin:0;padding:14px 18px;font-size:16px;border-bottom:1px solid var(--line-2);background:#fbfcfe}
+.card>h2 .hint{font-weight:400;color:var(--ink-3);font-size:12.5px}
+.card-body{padding:18px}
+.card-body.tight{padding:0}
+
+/* 数字卡 */
+.grid{display:grid;gap:14px}
+.grid.c2{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+.grid.c3{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.grid.c4{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+.stat{background:#fbfcfe;border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px 13px;position:relative;overflow:hidden}
+.stat::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--line)}
+.stat.blue::before{background:var(--blue)}
+.stat.good::before{background:var(--green)}
+.stat.bad::before{background:var(--red)}
+.stat.warn::before{background:var(--amber)}
+.stat .k{color:var(--ink-3);font-size:12.5px}
+.stat .v{font-size:21px;font-weight:700;margin-top:2px;word-break:break-all}
+.stat.good .v{color:var(--green)}
+.stat.bad .v{color:var(--red)}
+.stat.warn .v{color:var(--amber)}
+.stat.blue .v{color:var(--blue-d)}
+.stat .n{color:var(--ink-3);font-size:12px;margin-top:2px}
+
+/* 表单 */
+.field{margin-bottom:12px}
+.field>label{display:block;margin-bottom:4px;font-weight:600;font-size:13.5px}
+.field .tip{color:var(--ink-3);font-size:12px;margin-top:3px}
+input,select,textarea{font-family:inherit;font-size:15px;padding:8px 10px;border:1px solid #c9d1db;border-radius:var(--radius-sm);background:#fff;color:var(--ink);width:100%}
+input[type=number]{font-family:ui-monospace,Consolas,monospace;text-align:right}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--blue);border-color:var(--blue)}
+input[type=checkbox]{width:auto}
+.form-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.form-grid .wide{grid-column:1/-1}
+
+/* 按钮 */
+.btn{display:inline-block;font-family:inherit;font-size:14.5px;padding:8px 15px;border:1px solid #c9d1db;background:#fff;border-radius:var(--radius-sm);color:var(--ink-2);cursor:pointer}
+.btn:hover{background:#f7f9fc;text-decoration:none}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600}
+.btn.primary:hover{background:var(--blue-d);border-color:var(--blue-d)}
+.btn.danger{border-color:#e8b5bb;color:var(--red)}
+.btn.danger:hover{background:var(--red-bg)}
+.btn.sm{font-size:13px;padding:4px 10px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* 表格 */
+.table-wrap{overflow:auto;max-height:640px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{border-bottom:1px solid var(--line-2);padding:7px 9px;text-align:left;white-space:nowrap}
+th{background:#f2f5f9;color:var(--ink-2);font-weight:700;position:sticky;top:0;z-index:2}
+td.num,th.num{text-align:right}
+tbody tr:hover td{background:#fdf9ef}
+tfoot td{background:#fbfcfe;font-weight:700;border-top:2px solid var(--line)}
+.empty{text-align:center;color:var(--ink-3);padding:22px}
+.pos{color:var(--green)}
+.neg{color:var(--red)}
+
+/* 提示条 */
+.flashes{margin-bottom:14px}
+.flash{padding:9px 14px;border-radius:var(--radius-sm);border:1px solid;font-size:13.5px;margin-bottom:8px}
+.flash.ok{background:var(--green-bg);border-color:#b7e0c7;color:#0d6639}
+.flash.error{background:var(--red-bg);border-color:#f0c2c7;color:#a01e2c}
+.flash.warn{background:var(--amber-bg);border-color:#f0dca6;color:#7a5200}
+.tip{background:#fffbeb;border:1px solid #f0dca6;border-radius:var(--radius-sm);padding:10px 13px;color:#6f5a22;font-size:13.5px;margin-bottom:12px}
+.note{color:var(--ink-3);font-size:12.5px}
+.cls-tag{display:inline-block;font-size:12.5px;padding:1px 8px;border-radius:6px;background:#f2f5f9;
+  border:1px solid var(--line);color:var(--ink-2);font-family:ui-monospace,Consolas,monospace}
+
+/* 筛选条 */
+.filter{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.filter .field{margin:0;min-width:130px}
+.filter .field.wide{min-width:200px;flex:1}
+
+/* 登录页 */
+.login-page{display:grid;place-items:center;min-height:100vh;background:linear-gradient(160deg,#1f2937,#111827)}
+.login-card{width:min(400px,92vw);background:#fff;border-radius:16px;padding:34px 30px 26px;box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.login-card h1{margin:0 0 4px;font-size:23px;letter-spacing:2px}
+.login-card .sub{color:var(--ink-3);font-size:13px;margin-bottom:20px}
+.login-card .btn{width:100%;padding:11px;font-size:16px}
+.remember{display:flex;gap:8px;align-items:center;font-size:13.5px;color:var(--ink-2);margin:6px 0 14px}
+.remember em{color:var(--ink-3);font-style:normal;font-size:12px}
+
+/* 页脚 */
+.foot{max-width:1680px;margin:0 auto;padding:14px 20px 30px;color:var(--ink-3);font-size:12.5px}
+
+/* ================= 电子表格（传统 Excel 那套样子） ================= */
+.xl-tabs{display:flex;gap:2px;margin-bottom:0;flex-wrap:wrap}
+.xl-tabs a{padding:7px 16px;border:1px solid #b9c2cd;border-bottom:none;border-radius:8px 8px 0 0;background:#eef1f5;color:#4a5260;font-size:14px}
+.xl-tabs a:hover{background:#e4e9f0;text-decoration:none}
+.xl-tabs a.on{background:#fff;color:#171a1f;font-weight:700}
+.xl-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 12px;background:#f8fafc;border:1px solid #b9c2cd;border-bottom:none}
+.xl-bar .sp{flex:1}
+.xl-hint{color:var(--ink-3);font-size:12.5px}
+.xl-scroll{overflow:auto;max-height:68vh;border:1px solid #b9c2cd;background:#fff}
+table.xl{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%;
+  font:13px/1.35 ui-monospace,"Cascadia Mono",Consolas,monospace}
+table.xl th,table.xl td{border-right:1px solid #d7dde5;border-bottom:1px solid #e6eaef;
+  padding:0;white-space:nowrap;height:27px;background:#fff}
+table.xl thead th{background:#eef2f7;color:#33465c;font-weight:700;font-size:12px;
+  text-align:center;padding:4px 8px;position:sticky;top:0;z-index:5}
+table.xl thead tr.xl-letter th{top:0;background:#e3e9f1;color:#7a8697;font-size:10.5px;
+  padding:1px 6px;z-index:6;font-weight:400}
+table.xl thead tr.xl-name th{top:24px}
+table.xl td.xl-rn,table.xl th.xl-rn{background:#eef2f7;color:#7a8697;text-align:center;
+  font-size:11px;padding:2px 6px;position:sticky;left:0;z-index:4;min-width:44px;font-weight:400}
+table.xl thead th.xl-rn{z-index:7}
+table.xl td.xl-c{padding:0}
+table.xl td.xl-c input,table.xl td.xl-c select{border:0;border-radius:0;background:transparent;
+  width:100%;height:27px;font:inherit;padding:2px 7px;color:var(--ink);text-align:left}
+table.xl td.xl-c input[type=number],table.xl td.num input{text-align:right}
+table.xl td.xl-c input:focus,table.xl td.xl-c select:focus{outline:2px solid var(--blue);
+  outline-offset:-2px;background:#fff;position:relative;z-index:8}
+table.xl td.xl-calc{background:#f5f8fb;color:#3f4a58;text-align:right;padding:2px 8px}
+table.xl td.xl-calc.p{color:var(--green)}
+table.xl td.xl-calc.neg{color:var(--red)}
+table.xl td.xl-del{text-align:center;padding:0 4px;background:#fbfcfe}
+table.xl td.xl-del input{width:auto}
+table.xl tbody tr:hover td{background:#fdf9ef}
+table.xl tbody tr:hover td.xl-calc{background:#f6f1e3}
+table.xl tbody tr:hover td.xl-rn,table.xl tbody tr:hover td.xl-del{background:#eef2f7}
+.xl-foot{display:flex;gap:22px;flex-wrap:wrap;background:#e3e9f1;border:1px solid #b9c2cd;
+  border-top:none;padding:6px 14px;font-size:13px;color:#33465c}
+.xl-foot b{font-family:ui-monospace,Consolas,monospace;color:#171a1f}
+.xl-new{background:#fffdf5 !important}
+.xl-new td{background:#fffdf5}
+.xl-new td.xl-rn{background:#f3efe0 !important}
+
+@media print{
+  .topbar,.page-actions,.btn,.filter,.xl-bar{display:none}
+  .card{break-inside:avoid}
+}

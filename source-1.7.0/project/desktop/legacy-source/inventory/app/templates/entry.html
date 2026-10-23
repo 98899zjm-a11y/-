@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+{% block title %}录入实盘 · {{ s.name }}{% endblock %}
+
+{% block body %}
+<div class="page-head">
+  <div>
+    <h1>录入实盘数 · {{ s.name }}</h1>
+    <div class="sub">
+      已录 <b>{{ st.counted }}</b> / {{ st.total }} 个商品编号（{{ (st.counted * 100 // st.total) if st.total else 0 }}%）
+      · 还没录 {{ st.not_counted }} 个
+      {% if s.blind %} · <span class="tag">盲盘任务</span>{% endif %}
+    </div>
+  </div>
+  <div class="page-actions">
+    <a class="btn" href="{{ url_for('count.session_detail', sid=s.id) }}">← 任务详情</a>
+    <a class="btn primary" href="{{ url_for('count.session_mobile', sid=s.id) }}"
+       title="手机上打开这一页：一个大输入框，敲编号后几位或扫一下就能录">手机录数</a>
+    <a class="btn" href="{{ url_for('count.session_print', sid=s.id) }}" target="_blank">打印盘点表</a>
+  </div>
+</div>
+
+<div class="bar" style="margin-bottom:14px">
+  <i class="{{ 'full' if st.total and st.counted >= st.total else '' }}"
+     style="width:{{ (st.counted * 100 // st.total) if st.total else 0 }}%"></i>
+</div>
+
+<div class="tabs">
+  <a class="{{ 'on' if tab == 'fast' }}" href="{{ url_for('count.session_entry', sid=s.id, tab='fast', filter=filt) }}">
+    速录 <span class="cnt">扫码枪 / 键盘逐条录</span>
+  </a>
+  <a class="{{ 'on' if tab == 'grid' }}" href="{{ url_for('count.session_entry', sid=s.id, tab='grid', filter=filt) }}">
+    表格回录 <span class="cnt">对着纸质盘点表整页填</span>
+  </a>
+  <a class="{{ 'on' if tab == 'bulk' }}" href="{{ url_for('count.session_entry', sid=s.id, tab='bulk') }}">
+    批量粘贴 <span class="cnt">从 Excel 复制两列贴进来</span>
+  </a>
+</div>
+
+{% if tab == 'fast' %}
+<div class="card" style="border-top-left-radius:0">
+  <div class="card-body">
+    <form method="post" action="{{ url_for('count.session_entry_one', sid=s.id) }}" autocomplete="off">
+      <input type="hidden" name="filter" value="{{ filt }}">
+      <div class="fastbox">
+        <div class="f-key">
+          <label for="key">商品编号</label>
+          <input class="big" type="text" id="key" name="key" autocomplete="off" spellcheck="false"
+                 placeholder="扫码枪直接扫，或手输商品编号">
+        </div>
+        <div class="f-qty">
+          <label for="qty">实盘数量</label>
+          <input class="big qty-input" type="text" id="qty" name="qty" inputmode="decimal"
+                 autocomplete="off" placeholder="0">
+        </div>
+        <div class="f-go">
+          <button class="btn primary" type="submit">记录</button>
+        </div>
+      </div>
+      <div class="tip" style="margin-top:10px">
+        全程只用键盘：输完商品编号按 <b>回车</b> 跳到数量，输完数量按 <b>回车</b> 直接存，
+        焦点自动回到商品编号框，接着录下一条。数量框按 <b>Esc</b> 退回商品编号框。<br>
+        同一个商品编号重复录入会<b>覆盖</b>上一次的数，不会累加。录错了在下面「最近录入」里点「清除」。
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <h2>最近录入 <span class="hint">最新 30 条，倒序</span></h2>
+  <div class="card-body tight">
+    {% if recent %}
+    <table class="tb">
+      <thead>
+        <tr>
+          <th style="width:170px">商品编号</th>
+          <th>商品名称</th>
+          <th class="num" style="width:110px">实盘数</th>
+          <th style="width:70px">单位</th>
+          <th style="width:110px">录入人</th>
+          <th style="width:160px">时间</th>
+          <th style="width:90px"></th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for r in recent %}
+        <tr>
+          <td class="mono"><b>{{ r.code }}</b></td>
+          <td class="ellip">{{ r.name or '—' }}</td>
+          <td class="num"><b>{{ r.qty|qty }}</b></td>
+          <td class="muted">{{ r.unit or '—' }}</td>
+          <td>{{ r.counted_by_name or '—' }}</td>
+          <td class="muted nowrap">{{ r.updated_at or r.counted_at }}</td>
+          <td>
+            <form class="inline" method="post" action="{{ url_for('count.session_entry_delete', sid=s.id) }}"
+                  data-confirm="清除 {{ r.code }} 的实盘记录？">
+              <input type="hidden" name="sku_id" value="{{ r.sku_id }}">
+              <button class="btn sm danger" type="submit">清除</button>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <div class="empty">这个任务还没有录入任何实盘数。</div>
+    {% endif %}
+  </div>
+</div>
+
+{% elif tab == 'grid' %}
+<div class="card" style="border-top-left-radius:0">
+  <h2>
+    <span>
+      表格回录
+      <span class="hint">只保存你填了数字的行，没填的保持原样</span>
+    </span>
+    <form method="get" class="row" style="gap:6px">
+      <input type="hidden" name="tab" value="grid">
+      <select name="filter" onchange="this.form.submit()" style="width:170px">
+        <option value="uncounted" {{ 'selected' if filt == 'uncounted' }}>只显示还没盘的</option>
+        <option value="counted" {{ 'selected' if filt == 'counted' }}>只显示已盘的</option>
+        <option value="diff" {{ 'selected' if filt == 'diff' }}>只显示有差异的</option>
+        <option value="all" {{ 'selected' if filt == 'all' }}>全部</option>
+      </select>
+      <input type="search" name="q" value="{{ q or '' }}" placeholder="搜商品编号 / 名称 / 库位" style="width:200px">
+      <button class="btn sm" type="submit">筛选</button>
+    </form>
+  </h2>
+
+  <form method="post" action="{{ url_for('count.session_entry_grid', sid=s.id) }}" data-grid="1">
+    <input type="hidden" name="q" value="{{ q or '' }}">
+    <input type="hidden" name="filter" value="{{ filt }}">
+    <input type="hidden" name="page" value="{{ page }}">
+    <input type="hidden" name="size" value="{{ size }}">
+
+    <div class="scroll has-savebar" style="max-height:66vh">
+    <table class="tb">
+      <thead>
+        <tr>
+          <th style="width:46px" class="num">#</th>
+          <th style="width:90px">库位</th>
+          <th style="width:140px">商品编号</th>
+          <th>商品名称 / 克重</th>
+          <th style="width:60px">单位</th>
+          <th class="num" style="width:80px">账面数</th>
+          <th class="num" style="width:120px">实盘数</th>
+          <th class="num" style="width:80px">上次差异</th>
+          <th class="mid" style="width:70px" title="勾上后保存时会清除这一行的实盘记录">清除</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for r in rows %}
+        <tr class="{{ 'is-diff' if r.has_diff else ('is-counted' if r.counted_qty is not none else '') }}">
+          <td class="num muted">{{ (page - 1) * size + loop.index }}</td>
+          <td>{{ r.location or '' }}</td>
+          <td class="mono"><b>{{ r.code }}</b></td>
+          <td>
+            {{ r.name or '' }}
+            {% if r.spec %}<span class="muted" style="font-size:12px"> / {{ r.spec }}</span>{% endif %}
+          </td>
+          <td class="muted">{{ r.unit or '' }}</td>
+          <td class="num">{{ r.book_qty|qty if r.book_qty is not none else '—' }}</td>
+          <td class="num">
+            <input class="qty-input {{ 'filled' if r.counted_qty is not none }}"
+                   type="text" inputmode="decimal" name="q_{{ r.sku_id }}"
+                   value="{{ r.counted_qty|qty if r.counted_qty is not none else '' }}"
+                   placeholder="未盘">
+          </td>
+          <td class="num">
+            {% if r.counted_qty is not none and r.book_qty is not none and r.diff_qty %}
+              {# 正负靠 ↑ / ↓ 说，不只靠红绿——色觉障碍的人分不出这两种颜色 #}
+              {% if r.diff_qty > 0 %}
+                <span class="pos">↑ {{ r.diff_qty|signed }}</span>
+              {% else %}
+                <span class="neg">↓ {{ r.diff_qty|signed }}</span>
+              {% endif %}
+            {% else %}
+              <span class="muted">—</span>
+            {% endif %}
+          </td>
+          <td class="mid"><input type="checkbox" name="d_{{ r.sku_id }}" value="1"></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+
+    {% if not rows %}<div class="empty">没有符合筛选条件的商品编号。</div>{% endif %}
+
+    {% if pages > 1 %}
+    <div class="pager">
+      <span>第 {{ page }} / {{ pages }} 页 · 共 {{ total }} 行</span>
+      <span class="sp"></span>
+      {% if page > 1 %}
+        <a href="{{ url_for('count.session_entry', sid=s.id, tab='grid', filter=filt, q=q, page=page-1, size=size) }}">上一页</a>
+      {% endif %}
+      {% if page < pages %}
+        <a href="{{ url_for('count.session_entry', sid=s.id, tab='grid', filter=filt, q=q, page=page+1, size=size) }}">下一页</a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="savebar">
+      <div class="grow">
+        <b>填完这一页记得点保存。</b>
+        <span class="muted">数量框里按回车跳到下一行；离开页面前如果没保存，浏览器会提醒你。</span>
+      </div>
+      <button class="btn primary" type="submit">保存本页</button>
+    </div>
+  </form>
+</div>
+
+{% else %}
+<div class="card" style="border-top-left-radius:0">
+  <h2>批量粘贴 <span class="hint">从 Excel 或纸质记录整理好的两列贴进来</span></h2>
+  <div class="card-body">
+    <form method="post" action="{{ url_for('count.session_entry_bulk', sid=s.id) }}">
+      <div class="field">
+        <label for="bulk">每行一条：<b>商品编号 数量</b>（空格 / Tab / 逗号分隔都行）</label>
+        <textarea id="bulk" name="bulk" rows="14" spellcheck="false"
+placeholder="SKU001 12
+SKU002,3
+6901234567890	8
+SKU005"></textarea>
+        <div class="tip">
+          当前识别到 <b id="bulk-count">0 行</b>。
+          没有数量的行会按 0 处理（等于「账上有、实物没找到」）。
+          商品编号不存在的行会被跳过并单独列出来告诉你。
+        </div>
+      </div>
+      <div class="note">
+        <b>典型的用法：</b>盘点员在纸上记的是「商品编号 + 数量」两列，让文员把它们敲进 Excel，
+        再从 Excel 复制、粘到这个框里，一次提交整批。
+        粘贴时不用担心格式——<span class="mono">SKU001,12</span>、<span class="mono">SKU001 12</span>、
+        <span class="mono">SKU001&nbsp;&nbsp;&nbsp;12</span> 都能认。
+      </div>
+      <button class="btn primary" type="submit">提交这一批</button>
+      <a class="btn ghost" href="{{ url_for('count.session_entry', sid=s.id, tab='fast') }}">改用速录</a>
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

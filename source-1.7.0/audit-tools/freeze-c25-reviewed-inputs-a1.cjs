@@ -1,0 +1,21 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
+const W=String.raw`E:\codex\2026-10-15\work\xjy-v16-deep-audit`,D=path.join(W,'release-work/deepseek-stage1-development-a1'),S=path.join(W,'release-work/native170-c25-catalog-compat-source-a1');
+const hash=b=>crypto.createHash('sha256').update(b).digest('hex'),need=(v,m)=>{if(!v)throw Error(m);},read=(f,p)=>{const b=fs.readFileSync(f);need(hash(b)===p,'Pinned source changed: '+f);return b;};
+const before=read(path.join(D,'handoff-input/c25-catalog-review-task-a1/approval-core-170-original.cjs'),'ccffaeb45d01ef88971df8eb19e8483d01b7af05a44802e40cee4e52e159a299');
+const after=read(path.join(D,'handoff-output/c25-catalog-fix-a1/approval-core-170-fixed.cjs'),'1777784d93f9403d95484db70e13ee6db71362de8637e6941869840e7b9df497');
+const a=before.toString('utf8'),b=after.toString('utf8'),fn=/^function validCatalogSourceVersions\(versions\)\{[^\r\n]+\}/m,addition=/^const CATALOG_SOURCE_VERSIONS=Object\.freeze\(\[\.\.\.SOURCE_VERSIONS,TARGET_VERSION\]\);\r?\n/m;
+need(a.match(fn)&&b.match(fn)&&addition.test(b),'Two exact changed code locations required');
+need(Buffer.from(b.replace(addition,'').replace(fn,a.match(fn)[0])).equals(before),'Other original bytes must be exact');
+const red=fs.readFileSync(path.join(W,'reports/native170-c25-catalog-RED-a1.txt'),'utf8'),green=fs.readFileSync(path.join(W,'reports/native170-c25-catalog-GREEN-a1.txt'),'utf8');
+need(red.includes('pass 5')&&red.includes('fail 3')&&red.includes('BAD_CATALOG')&&red.includes('ExitCode=1'),'Actual RED missing');need(green.includes('pass 8')&&green.includes('fail 0')&&green.includes('ExitCode=0'),'Actual GREEN missing');
+const coreFile=path.join(S,'approval-core-170.cjs');fs.writeFileSync(coreFile,after,{flag:'wx'});
+const input=JSON.parse(read(path.join(W,'release-work/native170-known14-and19-target20-worker24-candidate-a1/reviewed-inputs-ROOT.json'),'4a0a3bc0196fcdc3ebcba1c17741a16ed62d987bffe0867c27f1341bf33edd59'));
+input.purpose='native170-known14-and19-target20-worker25';input.files=[{path:'worker-draft/delivery-approval/approval-core-170.cjs',source:coreFile,size:after.length,sha256:hash(after)}];input.reviewerCatalogCompatibilityAccepted=true;
+const inputBytes=Buffer.from(JSON.stringify(input,null,2)+'\n'),inputSha=hash(inputBytes);fs.writeFileSync(path.join(S,'reviewed-inputs-ROOT.json'),inputBytes,{flag:'wx'});
+let source=read(path.join(S,'prepare-native170-known14-and19-target20-worker25-DRAFT-a1.cjs'),'a6e6e72b05d7ede9a6272c9454b5c0ffb13f47d05d8c735bcdd84c603f559c84').toString('utf8');
+function one(old,value){need(source.split(old).length===2,'Exactly one binding: '+old);source=source.replace(old,value);}
+one('reviewed:false,executable:false,dataOnly:true','reviewed:true,executable:true,dataOnly:true');one("FIXED_INPUTS_PIN='UNBOUND'","FIXED_INPUTS_PIN='"+inputSha+"'");one("size:0,sha256:'UNBOUND'","size:"+after.length+",sha256:'"+hash(after)+"'");
+const final=path.join(S,'prepare-native170-known14-and19-target20-worker25-final-a1.cjs');fs.writeFileSync(final,source,{flag:'wx'});
+const proof={rootReviewed:true,onlyTwoCodeLocations:true,inverseExact:true,coreSha256:hash(after),coreSize:after.length,inputSha256:inputSha,builderSha256:hash(Buffer.from(source)),redSha256:hash(Buffer.from(red)),greenSha256:hash(Buffer.from(green)),red:{exitCode:1,pass:5,fail:3},green:{exitCode:0,pass:8,fail:0},deepseekIndependentSourceReview:'tab7 2026-10-21 12:57 no new P0/P1 in this exact two-location compatibility diff; whole install remains unaccepted',formalTouched:false};
+fs.writeFileSync(path.join(S,'root-review.json'),JSON.stringify(proof,null,2),{flag:'wx'});console.log(JSON.stringify({...proof,final}));

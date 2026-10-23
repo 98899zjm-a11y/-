@@ -1,0 +1,61 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path'),http=require('node:http'),crypto=require('node:crypto'),{spawn}=require('node:child_process');
+const LIMIT=2*1024*1024,MAX_PIXELS=16000000,MAX_SIDE=10000;
+function fail(code,message,status=400){return Object.assign(new Error(message),{code,status});}
+const hash=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
+function exact(v,keys){if(!v||typeof v!=='object'||Array.isArray(v)||![Object.prototype,null].includes(Object.getPrototypeOf(v))||Object.keys(v).some(k=>!keys.includes(k)))throw fail('OCR_INPUT_INVALID','OCR input contains unsupported fields');}
+function jpegSize(bytes){let pos=2;while(pos+4<=bytes.length){if(bytes[pos++]!==255)break;while(bytes[pos]===255)pos++;const marker=bytes[pos++];if(marker===217||marker===218)break;const size=bytes.readUInt16BE(pos);if(size<2||pos+size>bytes.length)break;if([192,193,194,195,197,198,199,201,202,203,205,206,207].includes(marker)&&size>=8)return{height:bytes.readUInt16BE(pos+3),width:bytes.readUInt16BE(pos+5)};pos+=size;}throw fail('OCR_IMAGE_INVALID','JPEG image dimensions cannot be verified');}
+function validateOcrInput(value){exact(value,['version','op','mime','sha256','bodyBase64']);if(value.version!==1||!['probe','recognize'].includes(value.op))throw fail('OCR_INPUT_INVALID','OCR operation invalid');if(value.op==='probe'){exact(value,['version','op']);return{version:1,op:'probe'};}
+ if(!['image/png','image/jpeg'].includes(value.mime)||typeof value.bodyBase64!=='string'||value.bodyBase64.length>4*Math.ceil(LIMIT/3)||!/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(value.bodyBase64)||!/^[a-f0-9]{64}$/.test(value.sha256))throw fail('OCR_IMAGE_INVALID','OCR requires bounded original PNG/JPEG image bytes');
+ const bytes=Buffer.from(value.bodyBase64,'base64');if(!bytes.length||bytes.length>LIMIT||bytes.toString('base64')!==value.bodyBase64||hash(bytes)!==value.sha256)throw fail('OCR_IMAGE_CHANGED','Original image hash or size differs');let size;
+ if(value.mime==='image/png'){if(bytes.length<33||!bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10]))||bytes.subarray(12,16).toString()!=='IHDR')throw fail('OCR_IMAGE_INVALID','PNG image header invalid');size={width:bytes.readUInt32BE(16),height:bytes.readUInt32BE(20)};}
+ else{if(bytes.length<12||bytes[0]!==255||bytes[1]!==216||bytes.at(-2)!==255||bytes.at(-1)!==217)throw fail('OCR_IMAGE_INVALID','JPEG image header invalid');size=jpegSize(bytes);}
+ if(!size.width||!size.height||size.width>MAX_SIDE||size.height>MAX_SIDE||size.width*size.height>MAX_PIXELS)throw fail('OCR_IMAGE_LIMIT','图片超出识别尺寸，请裁切清晰单据后上传',413);return{...value,bytes,...size};
+}
+function validateOcrResult(value){if(Buffer.byteLength(JSON.stringify(value))>1024*1024)throw fail('OCR_RESULT_LIMIT','OCR result too large',413);exact(value,['version','engine','language','osBuild','width','height','text','angle','lines']);if(value.version!==1||value.engine!=='windows.media.ocr'||value.language!=='zh-Hans-CN'||typeof value.osBuild!=='string'||value.osBuild.length>100||!Number.isInteger(value.width)||!Number.isInteger(value.height)||value.width<1||value.height<1||value.width>MAX_SIDE||value.height>MAX_SIDE||value.width*value.height>MAX_PIXELS||typeof value.text!=='string'||value.text.length>200000||value.angle!==null&&(!Number.isFinite(value.angle)||Math.abs(value.angle)>360)||!Array.isArray(value.lines)||value.lines.length>1000)throw fail('OCR_RESULT_INVALID','OCR result metadata invalid');let words=0;
+ for(const line of value.lines){exact(line,['text','words']);if(typeof line.text!=='string'||line.text.length>10000||!Array.isArray(line.words)||(words+=line.words.length)>2000)throw fail('OCR_RESULT_INVALID','OCR result text limit invalid');for(const word of line.words){exact(word,['text','x','y','width','height']);if(typeof word.text!=='string'||word.text.length>10000||['x','y','width','height'].some(k=>!Number.isFinite(word[k])||word[k]<0)||word.x+word.width>value.width+1||word.y+word.height>value.height+1)throw fail('OCR_RESULT_INVALID','OCR word box boundary invalid');}}
+ return{...value,confidence:null};
+}
+function createWinRtRunner({program=path.join(process.env.SystemRoot||'C:/Windows','System32/WindowsPowerShell/v1.0/powershell.exe'),script=path.join(__dirname,'ocr.winrt.ps1'),timeoutMs=25000}={}){
+ if(!path.isAbsolute(program)||!path.isAbsolute(script)||!fs.existsSync(program)||!fs.existsSync(script))throw fail('OCR_UNAVAILABLE','本机Windows中文识别处理器未配置',503);
+ const children=new Set();
+ const invoke=(input,{signal}={})=>new Promise((resolve,reject)=>{validateOcrInput(input);const env={};for(const name of ['SystemRoot','WINDIR','TEMP','TMP'])if(process.env[name])env[name]=process.env[name];const child=spawn(program,['-NoLogo','-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',script],{windowsHide:true,cwd:path.dirname(script),env,stdio:['pipe','pipe','pipe']});children.add(child);child.once('close',()=>children.delete(child));let done=false,size=0,out=[],stderr='';const timer=setTimeout(()=>finish(fail('OCR_TIMEOUT','本机图片识别超时，请使用更清晰的小图',504)),timeoutMs);const abort=()=>finish(fail('OCR_CANCELLED','本机图片识别已取消',503));signal?.addEventListener('abort',abort,{once:true});
+  function finish(error,value){if(done)return;done=true;clearTimeout(timer);signal?.removeEventListener('abort',abort);if(error){child.kill();if(child.exitCode!==null)reject(error);else{const cleanupTimer=setTimeout(()=>reject(error),1000);child.once('close',()=>{clearTimeout(cleanupTimer);reject(error);});}}else resolve(value);}
+  child.on('error',()=>finish(fail('OCR_UNAVAILABLE','本机识别进程不可用',503)));child.stdout.on('data',chunk=>{size+=chunk.length;if(size>1024*1024)finish(fail('OCR_RESULT_LIMIT','识别结果过多，请裁切单据',413));else out.push(chunk);});child.stderr.on('data',chunk=>{if(stderr.length<800)stderr+=chunk.toString('utf8').slice(0,800-stderr.length);});child.stdin.on('error',()=>{});
+  child.on('close',code=>{if(done)return;if(code!==0){finish(fail(stderr.includes('OCR_LANGUAGE_UNAVAILABLE')?'OCR_LANGUAGE_UNAVAILABLE':'OCR_FAILED',stderr.includes('OCR_LANGUAGE_UNAVAILABLE')?'主机尚无简体中文识别语言，本次不安装系统组件':'主机未能识别此图片，请核对图片格式',503));return;}try{const result=JSON.parse(Buffer.concat(out,size).toString('utf8'));finish(null,result);}catch{finish(fail('OCR_RESULT_INVALID','本机识别结果格式无效',503));}});child.stdin.end(JSON.stringify(input));if(signal?.aborted)abort();
+ });
+ invoke.close=async()=>{await Promise.all([...children].map(child=>new Promise((resolve,reject)=>{child.kill();if(child.exitCode!==null){resolve();return;}const timer=setTimeout(()=>reject(fail('OCR_CLOSE_UNCERTAIN','识别进程未确认退出，请核对主机后再启用',503)),1500);child.once('close',()=>{clearTimeout(timer);resolve();});})));};
+ return invoke;
+}
+function createOcrController({run,timeoutMs=25000}={}){if(typeof run!=='function'||!Number.isInteger(timeoutMs)||timeoutMs<1||timeoutMs>30000)throw TypeError('Bounded controlled OCR provider required');let active=null,closed=false;
+ async function perform(input){if(closed)throw fail('OCR_CLOSED','识别服务已关闭',503);if(active)throw fail('OCR_BUSY','主机正在识别另一张单据，请稍后重试',429);validateOcrInput(input);const controller=new AbortController();active=controller;let timer,providerDone=false;const pending=Promise.resolve().then(()=>run(input,{signal:controller.signal})).then(value=>{providerDone=true;return value;},error=>{providerDone=true;throw error;});try{const result=await Promise.race([pending,new Promise((_r,reject)=>{timer=setTimeout(()=>{controller.abort();reject(fail('OCR_TIMEOUT','识别超时，未自动重试',504));},timeoutMs);})]);if(input.op==='probe'){if(!result||result.available!==true||result.language!=='zh-Hans-CN')throw fail('OCR_LANGUAGE_UNAVAILABLE','主机尚无简体中文识别能力',503);return result;}return validateOcrResult(result);}finally{clearTimeout(timer);if(providerDone){if(active===controller)active=null;}else pending.finally(()=>{if(active===controller)active=null;}).catch(()=>{});}}
+ return{recognize:perform,probe:()=>perform({version:1,op:'probe'}),close:async()=>{closed=true;active?.abort();if(typeof run.close==='function')await run.close();}};
+}
+function signature(token,time,nonce,id,bytes,prefix='xjy-local-ocr-v1\0'){return crypto.createHmac('sha256',token).update(prefix+time+'\n'+nonce+'\n'+id+'\n'+hash(bytes)).digest('hex');}
+function createOcrBroker({controller,token}){
+ if(typeof token!=='string'||token.length<32||token.length>256)throw TypeError('Private OCR broker token required');
+ const nonces=new Map(),sockets=new Set();
+ const server=http.createServer(async(req,res)=>{
+  let chunks=[],size=0,authenticated=null;
+  function reply(status,value){if(res.destroyed)return;const body=Buffer.from(JSON.stringify(value)),headers={'Content-Type':'application/json; charset=utf-8','Content-Length':body.length};if(authenticated)headers['x-xjy-ocr-response']=signature(token,authenticated.time,authenticated.nonce,authenticated.id,body,'xjy-local-ocr-result-v1\0');res.writeHead(status,headers);res.end(body);}
+  try{
+   if(req.method!=='POST'||req.url!=='/recognize')throw fail('OCR_ROUTE_INVALID','OCR fixed route required',404);
+   for await(const chunk of req){size+=chunk.length;if(size>3*1024*1024)throw fail('OCR_IMAGE_LIMIT','OCR payload too large',413);chunks.push(chunk);}
+   const bytes=Buffer.concat(chunks,size),time=req.headers['x-xjy-ocr-time'],nonce=req.headers['x-xjy-ocr-nonce'],id=req.headers['x-xjy-ocr-request'],mac=req.headers['x-xjy-ocr-signature'];
+   if(!/^\d{13}$/.test(time||'')||Math.abs(Date.now()-Number(time))>30000||!/^[A-Za-z0-9_-]{16,128}$/.test(nonce||'')||!/^[a-f0-9-]{36}$/.test(id||'')||!/^[a-f0-9]{64}$/.test(mac||'')||!crypto.timingSafeEqual(Buffer.from(signature(token,time,nonce,id,bytes),'hex'),Buffer.from(mac,'hex')))throw fail('OCR_AUTH_FAILED','OCR authentication failed',401);
+   authenticated={time,nonce,id};const now=Date.now();for(const [n,until]of nonces)if(until<now)nonces.delete(n);if(nonces.has(nonce)||nonces.size>=2048)throw fail('OCR_REPLAY','OCR request already used',409);nonces.set(nonce,Number(time)+30001);
+   const input=JSON.parse(bytes.toString('utf8'));validateOcrInput(input);reply(200,{ok:true,result:await controller.recognize(input)});
+  }catch(e){reply(e.status||400,{ok:false,error:String(e.message||'OCR request refused').slice(0,800),code:e.code||'OCR_ERROR'});}
+ });
+ server.on('connection',socket=>{sockets.add(socket);socket.on('close',()=>sockets.delete(socket));});server.requestTimeout=35000;server.headersTimeout=10000;
+ return{listen:()=>new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',()=>{server.removeListener('error',reject);resolve(server.address());});}),async close(){await controller.close();for(const socket of sockets)socket.destroy();await new Promise(resolve=>server.listening?server.close(resolve):resolve());}};
+}
+async function callOcrBroker({port,token,input}){
+ if(!Number.isInteger(port)||port<1024||port>65535||port===31831)throw TypeError('Private loopback OCR port required');
+ const bytes=Buffer.from(JSON.stringify(input)),time=String(Date.now()),nonce=crypto.randomBytes(24).toString('base64url'),id=crypto.randomUUID();
+ const response=await fetch('http://127.0.0.1:'+port+'/recognize',{method:'POST',headers:{'Content-Type':'application/json','x-xjy-ocr-time':time,'x-xjy-ocr-nonce':nonce,'x-xjy-ocr-request':id,'x-xjy-ocr-signature':signature(token,time,nonce,id,bytes)},body:bytes,signal:AbortSignal.timeout(30000)});
+ let chunks=[],size=0;for await(const chunk of response.body){size+=chunk.length;if(size>1048576)throw fail('OCR_RESULT_LIMIT','OCR broker result too large',413);chunks.push(Buffer.from(chunk));}
+ const raw=Buffer.concat(chunks,size),mac=response.headers.get('x-xjy-ocr-response');if(!/^[a-f0-9]{64}$/.test(mac||'')||!crypto.timingSafeEqual(Buffer.from(signature(token,time,nonce,id,raw,'xjy-local-ocr-result-v1\0'),'hex'),Buffer.from(mac,'hex')))throw fail('OCR_AUTH_FAILED','OCR reply authentication failed',401);
+ const data=JSON.parse(raw.toString('utf8'));if(!response.ok||!data.ok)throw fail(data.code||'OCR_ERROR',data.error||'OCR failed',response.status);return data.result;
+}
+module.exports={validateOcrInput,validateOcrResult,createWinRtRunner,createOcrController,createOcrBroker,callOcrBroker};

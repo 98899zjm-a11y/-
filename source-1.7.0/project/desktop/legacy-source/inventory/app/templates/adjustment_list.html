@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}库存调整单{% endblock %}
+
+{% block body %}
+<div class="page-head">
+  <div>
+    <h1>库存调整单</h1>
+    <div class="sub">
+      盘点差异审核通过后，在这里汇总成调整单。执行一次，账面就更新一次，并留下单号和痕迹。
+    </div>
+  </div>
+  <div class="page-actions">
+    <a class="btn" href="{{ url_for('count.session_list') }}">盘点任务</a>
+  </div>
+</div>
+
+<div class="note">
+  <b>为什么要有「调整单」这一步：</b>盘点本身不该直接改账面。差异要先被人看过、标了原因、
+  点了「通过」，才允许进调整单；调整单执行后系统会按实盘数生成<b>新的一批账面</b>，
+  旧账面自动变成历史批次。任何一次账面变动都能追到具体哪张单、哪个人、什么时候。
+</div>
+
+<div class="card">
+  <div class="card-body tight">
+    {% if rows %}
+    <table class="tb">
+      <thead>
+        <tr>
+          <th style="width:170px">单号</th>
+          <th style="width:110px">状态</th>
+          <th>来源盘点任务</th>
+          <th class="num" style="width:90px">条目数</th>
+          <th class="num" style="width:120px">调整量合计</th>
+          <th style="width:170px">生成人 / 时间</th>
+          <th style="width:200px">执行时间</th>
+          <th style="width:200px">操作</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for a in rows %}
+        <tr>
+          <td><a class="mono" href="{{ url_for('review.adjustment_detail', aid=a.id) }}"><b>{{ a.code }}</b></a></td>
+          <td>
+            <span class="tag {{ a.status }}">{{ '已执行' if a.status == 'applied' else '草稿（未执行）' }}</span>
+          </td>
+          <td>
+            {% if a.session_id %}
+              <a href="{{ url_for('count.session_detail', sid=a.session_id) }}">{{ a.session_name or '（任务已删除）' }}</a>
+            {% else %}
+              <span class="muted">—</span>
+            {% endif %}
+            {% if a.note %}<div class="muted" style="font-size:12px">{{ a.note }}</div>{% endif %}
+          </td>
+          <td class="num">{{ a.items }}</td>
+          <td class="num">{{ a.total_abs|qty }}</td>
+          <td class="muted nowrap">{{ a.creator or '—' }}<br>{{ a.created_at }}</td>
+          <td class="muted nowrap">{{ a.confirmed_at or '—' }}</td>
+          <td>
+            <a class="btn sm" href="{{ url_for('review.adjustment_detail', aid=a.id) }}">查看</a>
+            <a class="btn sm" href="{{ url_for('review.adjustment_export', aid=a.id) }}">导出</a>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <div class="empty">
+        还没有任何调整单。<br>
+        <span class="muted">先做完一轮盘点、把差异审核掉，然后在差异页面点「生成调整单」。</span>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

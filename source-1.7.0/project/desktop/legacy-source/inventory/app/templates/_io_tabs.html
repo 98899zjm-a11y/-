@@ -1,0 +1,8 @@
+{# 出入库大分类下的两个分类切换。商品和物料是两套独立清单（互不影响盘点），
+   但业务上都是「东西进出仓库」，所以并排放在一个分类里，靠这里切换，
+   而不是在顶栏占两个位置。
+   用法：调用方先 {% set io_tab = 'goods' %} 或 'material'，再 include 本文件。 #}
+<div class="cats">
+  <a class="{{ 'on' if io_tab == 'goods' }}" href="{{ url_for('moves.move_list') }}">商品出入库</a>
+  <a class="{{ 'on' if io_tab == 'material' }}" href="{{ url_for('materials.material_list') }}">物料出入库</a>
+</div>

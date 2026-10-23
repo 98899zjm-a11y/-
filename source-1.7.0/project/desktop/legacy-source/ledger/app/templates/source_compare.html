@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}原表对照{% endblock %}
+{% block body %}
+<div class="page-head">
+  <div>
+    <h1>原表对照　<span class="note" style="font-weight:400">原表 vs 系统</span></h1>
+    <div class="sub">
+      拿你那份 <b>{{ m.name }}</b> 一行一行跟系统里的数比。**只列对不上的**，对得上的只报个数。
+      配对键：销售/台账用「单号+商品」，存料费用「日期+供货商」。
+    </div>
+  </div>
+  <div class="page-actions">
+    <a class="btn" href="{{ url_for('source.index') }}">回原表</a>
+  </div>
+</div>
+
+{% for r in report %}
+  {% if r %}
+  <div class="card">
+    <h2>{{ r.title }}　<span class="hint">系统认成：{{ r.zh }}</span></h2>
+    <div class="card-body">
+      <div class="grid c4">
+        <div class="stat blue"><div class="k">原表行数</div><div class="v">{{ r.src_n }}</div></div>
+        <div class="stat"><div class="k">系统条数</div><div class="v">{{ r.db_n }}</div></div>
+        <div class="stat good"><div class="k">逐列都对得上</div><div class="v">{{ r.same }}</div></div>
+        <div class="stat {{ 'bad' if r.diff_n else 'good' }}"><div class="k">有列对不上</div><div class="v">{{ r.diff_n }}</div></div>
+      </div>
+
+      {% if r.diff_n == 0 and r.only_sys_n == 0 and r.only_src_n == 0 %}
+        <div class="flash ok" style="margin-top:12px">
+          这张表完全一致：原表 {{ r.src_n }} 行，系统 {{ r.db_n }} 条，每一列都对得上 ✓
+        </div>
+      {% endif %}
+
+      {% if r.diff_n %}
+      <h3 style="margin-top:16px">对不上的（前 {{ r.diffs|length }} 条 / 共 {{ r.diff_n }} 条）</h3>
+      <div class="table-wrap" style="max-height:420px">
+        <table>
+          <thead><tr><th>配对键</th><th>列</th><th class="num">原表写的</th><th class="num">系统里的</th><th class="num">差</th></tr></thead>
+          <tbody>
+          {% for k, bad in r.diffs %}
+            {% for zh, sv, dv in bad %}
+            <tr>
+              {% if loop.first %}<td rowspan="{{ bad|length }}">{{ k|join(' / ') }}</td>{% endif %}
+              <td>{{ zh }}</td>
+              <td class="num">{{ '%.4f'|format(sv) if sv is number else sv }}</td>
+              <td class="num">{{ '%.4f'|format(dv) if dv is number else dv }}</td>
+              <td class="num neg">{{ '%.4f'|format(dv - sv) if (sv is number and dv is number) else '—' }}</td>
+            </tr>
+            {% endfor %}
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+
+      {% if r.only_src_n %}
+      <h3 style="margin-top:16px">原表有、系统里没找到（{{ r.only_src_n }} 条）</h3>
+      <div class="note">
+        {% for k in r.only_src %}<span class="cls-tag" style="margin-right:6px">{{ k|join(' / ') }}</span>{% endfor %}
+        {% if r.only_src_n > r.only_src|length %}……还有 {{ r.only_src_n - r.only_src|length }} 条{% endif %}
+      </div>
+      {% endif %}
+
+      {% if r.only_sys_n %}
+      <h3 style="margin-top:16px">系统里有、原表里没找到（{{ r.only_sys_n }} 条）</h3>
+      <div class="note">
+        {% for k in r.only_sys %}<span class="cls-tag" style="margin-right:6px">{{ k|join(' / ') }}</span>{% endfor %}
+        {% if r.only_sys_n > r.only_sys|length %}……还有 {{ r.only_sys_n - r.only_sys|length }} 条{% endif %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+{% endfor %}
+
+<div class="card">
+  <h2>怎么读这一页</h2>
+  <div class="card-body">
+    <div class="tip">
+      <b>「有列对不上」是正常的。</b>你那张表里本来就不止一种算法——工费有 0 元也有 10 元的，
+      点差有 40 的也有别的。导入的时候是**照搬你表里的数**，系统不会去改它；<br>
+      但如果某一格**系统存的和你表里写的真的不一样**，那才是要查的问题，这一页会把它们全列出来。
+    </div>
+    <div class="note">
+      差 = 系统里的 − 原表写的。正数说明系统这边多算了，负数说明少算了。
+    </div>
+  </div>
+</div>
+{% endblock %}

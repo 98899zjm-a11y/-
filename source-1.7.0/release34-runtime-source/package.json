@@ -1,0 +1,8 @@
+{
+  "name": "xjy-jewelry-offline",
+  "version": "1.7.0",
+  "description": "鑫金源珠宝离线报价工作室",
+  "author": "鑫金源",
+  "private": true,
+  "main": "release-entry.cjs"
+}

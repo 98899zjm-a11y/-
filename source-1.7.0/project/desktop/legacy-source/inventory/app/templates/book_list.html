@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}账面数据{% endblock %}
+
+{% block body %}
+<div class="page-head">
+  <div>
+    <h1>账面数据</h1>
+    <div class="sub">
+      从电商后台（旺店通 / 聚水潭 / 抖店 / 手工台账）导出的库存表，整张导进来当「账面」。
+      {% if active %}当前生效的是：<b>{{ active.label }}</b>{% else %}<span class="neg">当前没有生效的账面</span>{% endif %}
+    </div>
+  </div>
+  <div class="page-actions">
+    <a class="btn" href="{{ url_for('stock.sku_template') }}">下载导入模板</a>
+    <a class="btn" href="{{ url_for('stock.sku_list') }}">商品主数据</a>
+  </div>
+</div>
+
+<div class="card">
+  <h2>导入一张新的账面表 <span class="hint">支持 .xlsx / .xlsm / .csv，单个文件 ≤48MB</span></h2>
+  <div class="card-body">
+    <form method="post" action="{{ url_for('stock.book_import_upload') }}" enctype="multipart/form-data" class="row">
+      <div class="grow">
+        <input type="file" name="file" accept=".xlsx,.xlsm,.csv,.txt" required
+               style="border:1px dashed #ccd4de;border-radius:6px;padding:12px;background:#fbfcfe;width:100%">
+        <div class="tip">
+          下一步会让你确认「哪一列是商品编号、哪一列是数量」，系统会自动猜，猜错手动改。
+          同一商品编号出现多行会自动合并相加。
+        </div>
+      </div>
+      <div>
+        <button class="btn primary" type="submit">上传并继续</button>
+      </div>
+    </form>
+    <div class="note" style="margin:14px 0 0">
+      <b>导入不会覆盖你的商品资料。</b>商品编号已存在时只补空字段（名称/克重/库位），不会改掉你手工维护过的内容；
+      商品编号不存在则自动新建商品。导入完成后这张表会成为一个独立「批次」，历史批次保留，随时可以切回去。
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>历史账面批次 <span class="hint">共 {{ batches|length }} 个</span></h2>
+  <div class="card-body tight">
+    {% if batches %}
+    <div class="scroll nolimit">
+    <table class="tb">
+      <thead>
+        <tr>
+          <th style="width:230px">批次名称</th>
+          <th style="width:60px" class="mid">当前</th>
+          <th class="num" style="width:90px">商品编号数</th>
+          <th class="num" style="width:110px">账面总量</th>
+          <th class="num" style="width:90px">新建商品</th>
+          <th style="width:220px">来源文件</th>
+          <th style="width:150px">导入人 / 时间</th>
+          <th style="width:90px" class="mid">被盘点</th>
+          <th style="width:260px">操作</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for b in batches %}
+        <tr class="{{ 'row-diff' if b.is_active }}">
+          <td>
+            <a href="{{ url_for('stock.book_detail', bid=b.id) }}"><b>{{ b.label }}</b></a>
+            {% if b.note %}<div class="muted" style="font-size:12px">{{ b.note }}</div>{% endif %}
+          </td>
+          <td class="mid">
+            {% if b.is_active %}<span class="tag approved">当前</span>{% endif %}
+          </td>
+          <td class="num">{{ b.row_count }}</td>
+          <td class="num">{{ b.total_qty|qty }}</td>
+          <td class="num">{{ b.new_skus or 0 }}</td>
+          <td class="muted ellip" title="{{ b.source_file }}">{{ b.source_file or '—' }}</td>
+          <td class="muted nowrap">{{ b.creator or '—' }}<br>{{ b.created_at }}</td>
+          <td class="mid">
+            {% if b.session_count %}
+              <span class="tag">{{ b.session_count }} 次</span>
+            {% else %}
+              <span class="muted">—</span>
+            {% endif %}
+          </td>
+          <td>
+            <a class="btn sm" href="{{ url_for('stock.book_detail', bid=b.id) }}">看明细</a>
+            <a class="btn sm" href="{{ url_for('stock.book_export', bid=b.id) }}">导出</a>
+            {% if not b.is_active %}
+              <form class="inline" method="post" action="{{ url_for('stock.book_activate', bid=b.id) }}"
+                    data-confirm="把「{{ b.label }}」设为当前账面？之后新建的盘点任务都用这张表做对比基准。">
+                <button class="btn sm" type="submit">设为当前</button>
+              </form>
+              {% if not b.session_count %}
+                <form class="inline" method="post" action="{{ url_for('stock.book_delete', bid=b.id) }}"
+                      data-confirm="删除批次「{{ b.label }}」？此操作不可撤销。">
+                  <button class="btn sm danger" type="submit">删除</button>
+                </form>
+              {% endif %}
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% else %}
+      <div class="empty">还没有导入过账面数据。用上面的上传框导一张库存表进来。</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

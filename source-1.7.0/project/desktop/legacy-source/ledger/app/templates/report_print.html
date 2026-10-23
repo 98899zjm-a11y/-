@@ -1,0 +1,12 @@
+{% macro report_content(report) %}
+<header class="report-document-head"><p class="report-brand">鑫金源珠宝</p><h1>{{ report.title }}</h1><p>统计范围：{{ report.period }} <span>生成时间：{{ report.generated_at }}</span></p><p class="report-note">{{ report.note }}</p>{% if report.payment_note %}<p class="report-note">{{ report.payment_note }}</p>{% endif %}</header>
+{% for section in report.sections %}
+<section class="report-section"><div class="report-section-heading"><h2>{{ section.title }}</h2><span>{{ section.record_count }} 条记录</span></div><p class="report-note">{{ section.note }}</p>
+<div class="report-summary-grid">{% for metric in section.metrics %}<div><span>{{ metric.label }}</span><strong>{{ metric.value|fmt2 }}<small>{{ metric.unit }}</small></strong></div>{% endfor %}</div>
+{% if section.alert %}<div class="report-alert"><strong>{{ section.alert }}</strong><span>{{ section.threshold_text }}</span></div>{% endif %}
+{% for table in section.tables %}<div class="report-table-block"><h3>{{ table.title }}</h3>{% if table.rows %}<div class="report-table-wrap"><table><thead><tr>{% for header in table.headers %}<th>{{ header }}</th>{% endfor %}</tr></thead><tbody>{% for row in table.rows %}<tr>{% for value in row %}<td class="{{ 'report-number' if loop.index0 >= table.identity_columns }}">{{ value }}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div>{% else %}<p class="report-note">当前范围没有记录。</p>{% endif %}</div>{% endfor %}
+</section>
+{% endfor %}
+<footer class="report-document-foot">鑫金源珠宝 · 本地账目汇报</footer>
+{% endmacro %}
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{{ report.title }}</title><link rel="stylesheet" href="{{ url_for('static', filename='reports.css') }}"></head><body class="report-print-page"><div class="report-print-controls"><button onclick="window.print()">打印汇报</button><span>纸张建议 A4，打印窗口可选择打印机。</span></div><main class="report-paper">{{ report_content(report) }}</main></body></html>

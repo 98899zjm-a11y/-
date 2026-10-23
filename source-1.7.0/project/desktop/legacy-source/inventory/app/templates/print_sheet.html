@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block title %}盘点表 · {{ s.name }}{% endblock %}
+
+{% block scripts %}
+<style>
+  /* 盘点表专用：A4 纵向，行列给手写留足高度 */
+  @page { size: A4 portrait; margin: 12mm 10mm; }
+  .sheet-head { border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 10px; }
+  .sheet-title { font-size: 20px; font-weight: 700; letter-spacing: 2px; text-align: center; margin: 0 0 8px; }
+  .sheet-meta { display: flex; flex-wrap: wrap; gap: 4px 26px; font-size: 12px; line-height: 1.7; }
+  .sheet-meta b { font-weight: 600; }
+  .sign { display: flex; gap: 40px; font-size: 12.5px; margin: 10px 0 12px; }
+  .sign .line { display: inline-block; min-width: 130px; border-bottom: 1px solid #000; }
+
+  table.sheet { width: 100%; border-collapse: collapse; font-size: 12px; }
+  table.sheet th, table.sheet td { border: 1px solid #666; padding: 4px 5px; }
+  table.sheet thead th { background: #eee; font-weight: 600; text-align: center; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  table.sheet tbody tr { height: 26px; }
+  table.sheet thead { display: table-header-group; }
+  table.sheet tr { break-inside: avoid; page-break-inside: avoid; }
+  table.sheet td.mid, table.sheet th.mid { text-align: center; }
+  table.sheet td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  table.sheet td.code { font-family: Consolas, "Courier New", monospace; font-size: 12.5px; font-weight: 600; }
+  table.sheet td.write { background: #fff; }        /* 手写格：留白 */
+  table.sheet .loc { color: #333; }
+
+  .toolbar { background: #fff; border: 1px solid #dfe4ea; border-radius: 8px; padding: 12px 14px; margin-bottom: 14px; }
+  .toolbar .row { align-items: flex-end; }
+
+  @media print {
+    .sheet-head { border-bottom-width: 2px; }
+    body { font-size: 12px; }
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="toolbar no-print">
+  <form method="get" class="row">
+    <div style="flex:0 0 200px">
+      <label for="p-filter">打哪些行</label>
+      <select id="p-filter" name="filter">
+        <option value="all" {{ 'selected' if filt == 'all' }}>全部商品编号</option>
+        <option value="uncounted" {{ 'selected' if filt == 'uncounted' }}>只打还没盘过的</option>
+        <option value="counted" {{ 'selected' if filt == 'counted' }}>只打已经盘过的</option>
+        <option value="diff" {{ 'selected' if filt == 'diff' }}>只打有差异的</option>
+      </select>
+    </div>
+    <div style="flex:0 0 170px">
+      <label for="p-sort">排序</label>
+      <select id="p-sort" name="sort">
+        <option value="location" {{ 'selected' if sort == 'location' }}>按库位（推荐，走仓库顺路）</option>
+        <option value="code" {{ 'selected' if sort == 'code' }}>按商品编号</option>
+      </select>
+    </div>
+    <div style="flex:0 0 230px">
+      <label for="p-mode">打印内容</label>
+      <select id="p-mode" name="mode">
+        <option value="blank" {{ 'selected' if mode == 'blank' }}>空白盘点表（拿去手写）</option>
+        <option value="filled" {{ 'selected' if mode == 'filled' }}>带已录实盘数（核对用）</option>
+      </select>
+    </div>
+    <div style="flex:0 0 150px">
+      <label for="p-blind">账面数</label>
+      <select id="p-blind" name="blind">
+        <option value="1" {{ 'selected' if blind }}>隐藏（盲盘）</option>
+        <option value="0" {{ 'selected' if not blind }}>显示在表上</option>
+      </select>
+    </div>
+    <div>
+      <button class="btn" type="submit">应用</button>
+    </div>
+    <div>
+      <button class="btn primary" type="button" onclick="window.print()">打印 / 存 PDF</button>
+    </div>
+    <div>
+      <a class="btn" href="{{ url_for('count.session_sheet_xlsx', sid=s.id) }}">导出 Excel</a>
+    </div>
+    <div>
+      <a class="btn ghost" href="{{ url_for('count.session_detail', sid=s.id) }}">← 回任务</a>
+    </div>
+  </form>
+  <div class="tip" style="margin-top:10px">
+    本页共 <b>{{ rows|length }}</b> 行。
+    {% if blind %}
+      当前是<b>盲盘</b>：纸上不印账面数，盘点员不会照着抄。
+    {% else %}
+      当前<b>印了账面数</b>——盘点员可能照抄，只在复核时用。
+    {% endif %}
+    打印时记得在浏览器里关掉「页眉页脚」，纸张选 A4、纵向。
+  </div>
+</div>
+
+<div class="sheet-head">
+  <div class="sheet-title">库 存 盘 点 表</div>
+  <div class="sheet-meta">
+    <span><b>任务：</b>{{ s.name }}</span>
+    <span><b>账面基准：</b>{{ batch.label if batch else '—' }}</span>
+    <span><b>盘点范围：</b>{{ s.scope_location or '全部库位' }}</span>
+    <span><b>本页行数：</b>{{ rows|length }}</span>
+    <span><b>打印时间：</b>{{ now }}</span>
+    <span><b>打印人：</b>{{ cu.display_name or cu.username }}</span>
+  </div>
+</div>
+
+<div class="sign">
+  <span>盘点人：<span class="line"></span></span>
+  <span>复盘人：<span class="line"></span></span>
+  <span>盘点日期：<span class="line"></span></span>
+  <span>第 <span class="line" style="min-width:50px"></span> 页</span>
+</div>
+
+{% if rows %}
+<table class="sheet">
+  <thead>
+    <tr>
+      <th class="mid" style="width:38px">序号</th>
+      <th class="mid" style="width:70px">库位</th>
+      <th class="mid" style="width:110px">商品编号</th>
+      <th>商品名称 / 克重</th>
+      <th class="mid" style="width:44px">单位</th>
+      {% if not blind %}
+        <th class="mid" style="width:60px">账面数</th>
+      {% endif %}
+      <th class="mid" style="width:70px">实盘数</th>
+      {% if mode == 'filled' %}
+        <th class="mid" style="width:60px">已录数</th>
+      {% endif %}
+      <th class="mid" style="width:90px">备注</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for r in rows %}
+    <tr>
+      <td class="mid">{{ loop.index }}</td>
+      <td class="mid loc">{{ r.location or '' }}</td>
+      <td class="code">{{ r.code }}</td>
+      <td>
+        {{ r.name or '' }}
+        {% if r.spec %}<span class="loc" style="font-size:11px"> / {{ r.spec }}</span>{% endif %}
+      </td>
+      <td class="mid loc">{{ r.unit or '' }}</td>
+      {% if not blind %}
+        <td class="num">{{ r.book_qty|qty }}</td>
+      {% endif %}
+      <td class="write"></td>
+      {% if mode == 'filled' %}
+        <td class="num">{{ r.counted_qty|qty if r.counted_qty is not none else '' }}</td>
+      {% endif %}
+      <td class="write"></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<div style="font-size:11.5px;color:#555;margin-top:10px">
+  填写说明：实盘数以最小单位计。账上没有但盘点发现的货品，请在表格末尾手工补一行，
+  并在备注里写「账外」。找不到的货品实盘数填 0。
+</div>
+{% else %}
+<div class="empty">没有符合条件的行，换个筛选条件试试。</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Excel 实时对照{% endblock %}
+{% block body %}
+<div class="page-head"><div><div class="page-eyebrow">表格同步</div><h1>Excel 实时对照</h1><div class="sub">按原始表格列顺序查看最新库存，入库和出库后自动同步。</div></div><div class="page-actions">{% if cu.role == 'admin' %}<a class="btn" href="{{ url_for('stock.book_list') }}">导入原始 Excel</a>{% endif %}<a class="btn primary" href="{{ url_for('stock.excel_download') }}">下载同步 Excel</a></div></div>
+<div class="card excel-full" aria-label="Excel 实时对照表格"><div class="excel-toolbar"><div><h2>原始表格 · 同步视图</h2><div class="excel-meta" id="excel-meta">正在检查同步状态…</div></div><div class="excel-tools"><input id="excel-q" type="search" placeholder="搜索商品编号、名称或原表内容"><button type="button" class="btn" id="excel-refresh">刷新同步</button></div></div><div class="excel-grid" id="excel-grid"><div class="excel-status">正在读取表格…</div></div><div class="excel-pager"><button type="button" class="btn sm" id="excel-prev">上一页</button><span id="excel-page"></span><button type="button" class="btn sm" id="excel-next">下一页</button></div></div>
+<div class="note">本页每 3 秒检查最新库存。点击商品编号可进入入库页面。同步写入软件内保存的 Excel，可从右上角下载；原始上传文件保留作备份。</div>
+{% endblock %}
+{% block scripts %}<script>
+(function(){
+ var grid=document.getElementById('excel-grid'),meta=document.getElementById('excel-meta'),search=document.getElementById('excel-q'),page=1,pages=1,busy=false,revision='',serial=0;
+ function el(tag,text){var node=document.createElement(tag);if(text!==undefined)node.textContent=text;return node;}
+ function refresh(force){
+  if(busy)return;busy=true;var current=++serial,key=search.value,requestedPage=page;
+  fetch('{{ url_for("stock.excel_preview") }}?page='+page+'&q='+encodeURIComponent(key),{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
+   if(current!==serial||search.value!==key||page!==requestedPage)return;
+   if(!d.ok)throw Error(d.msg||'请刷新页面后重试同步');pages=d.pages;
+   if(page>pages){page=pages;revision='';return;}
+   meta.textContent=d.source+' · '+d.sheet+' · 同步时间 '+(d.at||'—');
+   document.getElementById('excel-page').textContent='第 '+page+' / '+pages+' 页 · '+d.total+' 行';document.getElementById('excel-prev').disabled=page<=1;document.getElementById('excel-next').disabled=page>=pages;
+   if(!force&&revision===d.revision)return;revision=d.revision;grid.replaceChildren();
+   if(!d.rows.length){grid.appendChild(el('div','暂无数据。先录入商品，或导入原始 Excel。'));return;}
+   var table=el('table'),head=el('thead'),hr=el('tr');hr.appendChild(el('th','行'));d.headers.forEach(function(h,i){hr.appendChild(el('th',h||('第 '+(i+1)+' 列')));});head.appendChild(hr);table.appendChild(head);var body=el('tbody');
+   d.rows.forEach(function(row){var tr=el('tr');tr.appendChild(el('td',row.row));row.values.forEach(function(value,i){var cell=el('td',value);cell.title=String(value);if(/商品编号|商品编码/.test(String(d.headers[i]))){var button=el('button',value);button.type='button';button.className='btn sm ghost';button.addEventListener('click',function(){location.href='{{ url_for('moves.move_list') }}?mode=in&code='+encodeURIComponent(String(value));});cell.replaceChildren(button);}tr.appendChild(cell);});body.appendChild(tr);});table.appendChild(body);grid.appendChild(table);
+  }).catch(function(error){revision='';grid.replaceChildren(el('div',error.message||'Excel 暂未同步，请点击刷新同步重试。'));meta.textContent='同步失败，库存记录仍保存在系统中。';}).finally(function(){busy=false;});
+ }
+ document.getElementById('excel-refresh').addEventListener('click',function(){refresh(true);});document.getElementById('excel-prev').addEventListener('click',function(){if(page>1){page--;refresh(true);}});document.getElementById('excel-next').addEventListener('click',function(){if(page<pages){page++;refresh(true);}});var timer;search.addEventListener('input',function(){page=1;revision='';clearTimeout(timer);timer=setTimeout(function(){refresh(true);},250);});setInterval(function(){if(!document.hidden)refresh(false);},3000);refresh(true);
+})();
+</script>{% endblock %}

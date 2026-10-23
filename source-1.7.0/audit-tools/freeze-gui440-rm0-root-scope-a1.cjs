@@ -1,0 +1,25 @@
+'use strict';
+// Host data preparation only. No RM/native/product execution or production IO.
+const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),assert=require('node:assert/strict');
+const W='E:/codex/2026-10-15/work/xjy-v16-deep-audit',D=path.join(W,'release-work/deepseek-stage1-development-a1'),base=path.join(W,'release-work/native170-gui440-rm0-close-draft-a1'),out=path.join(W,'release-work/native170-gui440-rm0-root-bound-a1');
+const hash=b=>crypto.createHash('sha256').update(b).digest('hex');
+const authority=fs.readFileSync(path.join(W,'reports/2026-10-20-autonomous-delivery-user-authorization.md'));
+assert.equal(hash(authority),'7dfc073888846668db2be629a35a23a6db8a52fbcfbb9b934a67b4579cbbc9e0');
+const source=fs.readFileSync(path.join(base,'GuestRmCloseGui440.cs'));
+assert.equal(hash(source),'9080bfc0ba17c1956e56622d3647851279e467767557da0e4cab134e2a223691');
+const transport=fs.readFileSync(path.join(base,'run-gui440-rm0-close.cjs'));
+assert.equal(hash(transport),'fd76cd8e2fe1783259e233549b71720f2f0165951124545d4a1102c6fdf55551');
+const approval=JSON.parse(fs.readFileSync(path.join(base,'root-gui440-rm0-approval.DRAFT.json')));
+assert.equal(approval.approved,false);assert.equal(approval.nativeSourceBeforeApprovalBindingSha256,hash(source));
+assert.equal(approval.readOnlyPlanSha256,'6535db4af54ad0011d7ec6aa61a8c4b04b6541693417249af9aac80fb460feef');
+assert.equal(approval.pid,440);assert.equal(approval.nativeFileTime,'134369989428074635');
+approval.approved=true;approval.approvedAt=new Date().toISOString();approval.expiresAt=new Date(Date.now()+90*60*1000).toISOString();
+approval.authorityRecordSha256=hash(authority);approval.permission='Only exact synthetic employee GUI440, RM_UNIQUE_PROCESS/flags0/no force, genuine held exit0. No formal process, SQL, F, ACL, configuration, wrapper4984/cmd5016, restart or deployment.';
+const bytes=Buffer.from(JSON.stringify(approval,null,2)+'\n'),approvalSha=hash(bytes),token='UNBOUND_ROOT_APPROVED_440_RM0_RAW_SHA';
+assert.equal(source.toString('utf8').split(token).length,2);
+fs.mkdirSync(out);fs.writeFileSync(path.join(out,'root-gui440-rm0-approval.json'),bytes,{flag:'wx'});
+const bound=source.toString('utf8').replace(token,approvalSha);fs.writeFileSync(path.join(out,'GuestRmCloseGui440.cs'),bound,{flag:'wx'});
+fs.writeFileSync(path.join(out,'run-gui440-rm0-close.UNBOUND.cjs'),transport,{flag:'wx'});
+fs.writeFileSync(path.join(W,'reports/native170-gui440-rm0-root-approval-a1.json'),bytes,{flag:'wx'});
+const control=path.join(D,'control');fs.mkdirSync(control,{recursive:true});fs.writeFileSync(path.join(control,'root-gui440-rm0-approval.json'),bytes,{flag:'wx'});
+console.log(JSON.stringify({out,rootApprovalSha256:approvalSha,sourceSha256:hash(Buffer.from(bound)),approvedAt:approval.approvedAt,expiresAt:approval.expiresAt,compiled:false,rmExecuted:false,productionAccess:false}));

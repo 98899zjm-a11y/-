@@ -1,0 +1,43 @@
+'use strict';
+// Operator-only admission for the user's explicit formal Host upgrade.
+// check is read-only; prepare may create only the original external approval.
+// It never installs, starts business services, opens SQLite or changes F files.
+const fs=require('node:fs'),io=fs.promises,path=require('node:path'),crypto=require('node:crypto'),assert=require('node:assert/strict');
+const ROOT=path.resolve(__dirname,'..'),ART=path.join(ROOT,'release-work/initial-162-host-sealed-a4');
+const INSTALL='F:\\自制软件\\xjy-jewelry-offline',DATA='F:\\鑫金源珠宝资料';
+const CATALOG='898e15209abeddd038eeb353a27dd1cb3526148419558ea6f1d53c298a3aa9a8',PUB='6e8b9cadb59aeb53f30d41f4471f70f644f0dfc7376ffb9d8a4c62defb98458c';
+const POLICY='2d1bd5ed113ca0bff2e1d3ddea9a40e1fde82ffd1d22c35709cf52f1b4e7e439',TREE='27eef1fe6d4bef6149fd76251d9779022aba918da69b3461d28f9962d46e633d';
+const ZIP='56d9b6c04212a6d0967b71c995fb5797773a7d5a2699def5e5a6245d30aab39b',SEAL='36497298eef0853e7adfcb4881dd969d691cfc496a4e7070cae4e871b5b9a232';
+const ENGINE={size:246302720,sha256:'db3ad2066a55546f9b6737da3c7f011370e4856fb36888055b544d45653e4f40',electronRunAsNode:true,nodeSqliteBackup:true};
+const PINS={'delivery-tools/initial-patch-core.cjs':'0f9de31c8ad8ec7e1b870a92d025909f4606363801a31ee3582b903c5704bbce','delivery-tools/initial-patch-entry.cjs':'4c0008c6f070c22255f3a2819ac82e9be774fbaf631030bb414c95bbcac6b161','delivery-tools/initial-patch-backup.cjs':'f2d7262eae5ba3b3048e42753f96e49cd53746940ea22bbe32b0b1f93f3de8e0','project/desktop/employee-update-cache.cjs':'5cb70079bf161a002a2701694e4774c2a11bf8d54efc6674ccb5c7b2c6729815','project/desktop/employee-update-installer.cjs':'96ba3df08a0f706e599da7d452374b1f894d401c0a6ff605fc01255d01445bd0','project/desktop/initial-upgrade-gate.cjs':'b74a80b83dfaf78f493671bf4bc339f68eeec4f2f89a71410e6cd7d7f78a1980'};
+const sha=b=>crypto.createHash('sha256').update(b).digest('hex');
+function plain(file){for(let p=file;;p=path.dirname(p)){const s=fs.lstatSync(p);assert(!s.isSymbolicLink()&&(!s.isFile()||s.nlink===1));assert.equal(fs.realpathSync.native(p).toLowerCase(),p.toLowerCase());if(p===path.dirname(p))break;}return file;}
+async function main(){
+ assert.equal(process.platform,'win32');assert.equal(process.arch,'x64');assert.equal(ROOT.toLowerCase(),'e:\\codex\\2026-10-15\\work\\xjy-v16-deep-audit');
+ assert(!process.env.NODE_OPTIONS&&!process.env.NODE_PATH&&!process.env.ELECTRON_RUN_AS_NODE);
+ const args=process.argv.slice(2);assert(args.length===3&&['check','prepare'].includes(args[0])&&args[1]==='--source-sha256'&&/^[a-f0-9]{64}$/.test(args[2]));assert.equal(sha(fs.readFileSync(plain(__filename))),args[2]);
+ for(const [name,pin]of Object.entries(PINS))assert.equal(sha(fs.readFileSync(plain(path.join(ROOT,name)))),pin);
+ const u=require('../project/desktop/employee-update-cache.cjs'),core=require('../delivery-tools/initial-patch-core.cjs'),entry=require('../delivery-tools/initial-patch-entry.cjs');
+ const sealBytes=await u.readSmall(io,path.join(ROOT,'reports/release-162-host-seal-a4.json'),1048576);assert.equal(sha(sealBytes),SEAL);const seal=JSON.parse(sealBytes);assert(seal.sealed&&!seal.published&&!seal.installed&&seal.artifactSha256===ZIP&&seal.treeSha256===TREE);
+ const zip=await core.fileHash(io,path.join(ROOT,'release/initial-162-host-internal-a4.zip'),ROOT);assert.equal(zip.sha256,ZIP);assert.equal(zip.size,seal.artifactSize);
+ const key=crypto.createPublicKey(await u.readSmall(io,path.join(ART,'publisher-public.pem'),4096));assert.equal(key.asymmetricKeyType,'ed25519');assert.equal(sha(key.export({type:'spki',format:'der'})),PUB);
+ const pe=JSON.parse(await u.readSmall(io,path.join(ART,'source-policy-envelope.json'),2097152));assert.equal(sha(Buffer.from(pe.policy)),POLICY);const policy=core.verifySourcePolicy(pe,key,{upgradeMode:'repeat'});assert.equal(policy.catalogSha256,CATALOG);assert.deepEqual(policy.engine,ENGINE);
+ const ce=JSON.parse(await u.readSmall(io,path.join(ART,'catalog-envelope.json'),2097152));assert.equal(sha(Buffer.from(ce.catalog)),CATALOG);const parsed=JSON.parse(ce.catalog),catalog=u.verifySignedCatalog(ce,u.createTrustedUpdatePolicy({trustedPublicKey:key,allowedFiles:parsed.files.map(r=>r.path),currentVersion:'1.6.1',platform:'win32',arch:'x64'}));assert.equal(catalog.version,'1.6.2');assert.equal(catalog.sequence,10);assert.equal(catalog.files.length,1007);
+ const tree=await core.inspectArtifactTree({artifactDir:ART});assert.equal(tree.sha256,TREE);assert.equal(tree.files.length,1020);
+ const exe=path.join(INSTALL,'鑫金源珠宝报价.exe'),source=path.join(INSTALL,'resources/app.asar');for(const [file,pin]of [[exe,ENGINE],[source,{size:12541824,sha256:'7e4b04ef51c741f7da66da7e55cd5a280b792f32cd0a0fe8d19606f0996de07d'}]]){const actual=await core.fileHash(io,file,INSTALL);assert.equal(actual.size,pin.size);assert.equal(actual.sha256,pin.sha256);}
+ const pkg=await core.packageIdentity(io,source,INSTALL);assert.equal(pkg.version,'1.6.1');assert.equal(pkg.main,'release-entry.cjs');
+ const activation=JSON.parse(await u.readSmall(io,path.join(INSTALL,'xjy-install-activation.json'),4096));assert.deepEqual(activation,{version:1,product:'xjy-jewelry-offline',programVersion:'1.6.1',role:'host',installationDir:INSTALL});
+ const gate=require('../project/desktop/initial-upgrade-gate.cjs').readInitialUpgradeGate({installDir:INSTALL,installedRole:'host'});assert.equal(gate.blocked,false);assert.equal(gate.phase,'committed');
+ const authority=await entry.resolveRepeatNativeAuthority({artifactDir:ART});assert.equal(authority.publicationId,CATALOG);
+ const barrier=entry.createInitialProcessBarrier({installationDir:INSTALL,executablePath:exe,role:'host',helperPid:process.pid,artifactDir:ART,environment:process.env});try{await barrier.assertClosed();}finally{await barrier.close();}
+ const layout=require('../delivery-tools/initial-patch-backup.cjs').deriveInitialHostLayout({fixedRoot:DATA});assert.equal(layout.databases.length,3);
+ const approvalFile=path.join(authority.approvalRoot,'initial-upgrade-approval.json');let approvalWritten=false;
+ if(args[0]==='prepare'){
+  await core.mkdirs(io,path.dirname(path.dirname(authority.approvalRoot)),path.basename(path.dirname(authority.approvalRoot))+'/'+CATALOG);
+  if(fs.existsSync(approvalFile)){const old=core.validateApproval(JSON.parse(await u.readSmall(io,approvalFile,8192)),{osUser:authority.osUser,now:Date.now,upgradeMode:'repeat'});assert.equal(old.role,'host');assert(u.samePath(old.installationDir,INSTALL));for(const [k,v]of Object.entries({artifactSha256:ZIP,treeSha256:TREE,publisherPublicKeySha256:PUB,sourcePolicySha256:POLICY}))assert.equal(old[k],v);assert.deepEqual(old.engine,ENGINE);}
+  else{const at=Date.now(),record={schemaVersion:1,purpose:'xjy-repeat-program-patch',approvalId:crypto.randomUUID(),artifactSha256:ZIP,treeSha256:TREE,publisherPublicKeySha256:PUB,sourcePolicySha256:POLICY,verifiedPublisherName:'鑫金源原发行者 Ed25519 6e8b9cad；用户明确授权正式主机1.6.2升级',role:'host',installationDir:INSTALL,osUser:authority.osUser,engine:{...ENGINE},approvedAt:new Date(at).toISOString(),expiresAt:new Date(at+86400000).toISOString()};core.validateApproval(record,{osUser:authority.osUser,now:Date.now,upgradeMode:'repeat'});const bytes=Buffer.from(JSON.stringify(record)+'\n'),o=await u.openChecked(io,approvalFile,'wx+',{missing:true,root:authority.approvalRoot});try{await u.writeExactly(o.handle,0,bytes);await o.handle.sync();await u.assertHandle(io,o,{snapshot:false,root:authority.approvalRoot});}finally{await o.handle.close();}assert((await u.readSmall(io,approvalFile,8192)).equals(bytes));approvalWritten=true;}
+  const b=entry.createInitialProcessBarrier({installationDir:INSTALL,executablePath:exe,role:'host',helperPid:process.pid,artifactDir:ART,environment:process.env});try{const admitted=await core.createInitialPatchInstaller({upgradeMode:'repeat',artifactDir:ART,approvalRoot:authority.approvalRoot,approvalFile,osUser:authority.osUser,osUserNamespace:entry.osNamespace(),confirmRole:async()=> 'host',processBarrier:b}).inspect({recovery:true});assert.equal(admitted.upgrade.phase,'none');assert.equal(admitted.catalog.sequence,10);await b.assertClosed();}finally{await b.close();}
+ }
+ console.log(JSON.stringify({admitted:true,phase:args[0],sourceVersion:'1.6.1',targetVersion:'1.6.2',role:'host',publicationId:CATALOG,artifactFilesVerified:1020,databaseDependencies:3,backupLayoutAccepted:true,formalStartupGate:'committed',approvalWritten,formalProgramWritten:false,sqliteOpened:false}));
+}
+main().catch(error=>{console.error(JSON.stringify({admitted:false,code:error.code||'ADMISSION_FAILED',message:error.message,formalProgramWritten:false,sqliteOpened:false}));process.exitCode=1;});

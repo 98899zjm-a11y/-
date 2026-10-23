@@ -1,0 +1,31 @@
+.history-page .history-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
+  align-items: end;
+  gap: 16px;
+}
+.history-page .history-filters > .history-search {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  order: 0;
+}
+.history-page .history-filters .field { min-width: 0; }
+.history-page .history-filters input,
+.history-page .history-filters select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  font-size: 16px;
+}
+.history-page .history-filters > .button { min-height: 44px; }
+.history-page .history-filter-note {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+@media (max-width: 700px) {
+  .history-page .history-filters { grid-template-columns: 1fr; gap: 14px; }
+}

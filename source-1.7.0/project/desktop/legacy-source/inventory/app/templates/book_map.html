@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}确认列对应关系{% endblock %}
+
+{% block body %}
+<div class="page-head">
+  <div>
+    <h1>第 2 步：确认哪一列是什么</h1>
+    <div class="sub">
+      文件：<b>{{ original }}</b> · 共 {{ info.total_rows }} 行数据，下表预览前 {{ info.rows|length }} 行
+    </div>
+  </div>
+  <div class="page-actions">
+    <a class="btn" href="{{ url_for('stock.book_list') }}">放弃，重新上传</a>
+  </div>
+</div>
+
+{% if info.sheets|length > 1 %}
+<div class="card">
+  <div class="card-body" style="padding-bottom:6px">
+    <form method="get" class="row">
+      <div>
+        <label for="sheet">这张文件里有多个工作表，选一个：</label>
+      </div>
+      <div style="flex:0 0 260px">
+        <select id="sheet" name="sheet" onchange="this.form.submit()">
+          {% for sh in info.sheets %}
+            <option value="{{ sh }}" {{ 'selected' if sh == info.sheet }}>{{ sh }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div><button class="btn" type="submit">切换</button></div>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+<div class="note">
+  <b>怎么确认：</b>看下面的预览表。系统已经根据表头自动猜了一版，猜错的在右边下拉框改一下就行。
+  只有<b>商品编号</b>必填；<b>数量</b>留空就是「每行算 1 件」（一个编号对应一件货的台账选这个），其余留空意味着不从这张表更新。
+</div>
+
+<div class="card">
+  <h2>原始数据预览 <span class="hint">第 {{ info.header_index + 1 }} 行被当成表头</span></h2>
+  <div class="card-body tight">
+    <div class="scroll">
+    <table class="tb">
+      <thead>
+        <tr>
+          <th style="width:52px" class="num">列</th>
+          {% for h in info.headers %}
+            <th>
+              {{ h or '（空表头）' }}
+              <div class="muted mono" style="font-weight:400;font-size:11.5px">第 {{ loop.index }} 列</div>
+            </th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in info.rows %}
+        <tr>
+          <td class="num muted">{{ loop.index }}</td>
+          {% for h in info.headers %}
+            <td class="ellip" style="max-width:220px" title="{{ r[loop.index0] if loop.index0 < r|length else '' }}">
+              {{ r[loop.index0] if loop.index0 < r|length else '' }}
+            </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+<form method="post" action="{{ url_for('stock.book_import_map', token=token, sheet=info.sheet) }}">
+<div class="grid c2">
+  <div class="card">
+    <h2>列对应关系</h2>
+    <div class="card-body">
+      {% for key, text in fields %}
+        <div class="field">
+          <label for="m-{{ key }}">{{ text }}</label>
+          <select id="m-{{ key }}" name="{{ key }}">
+            <option value="">— 不使用这一列 —</option>
+            {% for h in info.headers %}
+              <option value="{{ loop.index0 }}" {{ 'selected' if mapping.get(key) == loop.index0 }}>
+                第 {{ loop.index }} 列：{{ h or '（空表头）' }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+      {% endfor %}
+      <div class="field"><label for="m-material-type">材质分类</label><select id="m-material-type" name="material_type"><option value="">— 不使用这一列 —</option>{% for h in info.headers %}<option value="{{ loop.index0 }}" {{ 'selected' if h in ('材质','材质分类') }}>第 {{ loop.index }} 列：{{ h }}</option>{% endfor %}</select><div class="tip">可选：{{ MATERIAL_TYPES|join('、') }}。</div></div>
+      <div class="field"><label for="m-gram_price">克单价（元/克）</label><select id="m-gram_price" name="gram_price"><option value="">— 不使用这一列 —</option>{% for h in info.headers %}<option value="{{ loop.index0 }}" {{ 'selected' if h in ('克单价','克单价（元/克）','克单价(元/克)') }}>第 {{ loop.index }} 列：{{ h }}</option>{% endfor %}</select></div>
+      <div class="tip">
+        「退回标记」指的那一列，<b>只要格子里有字就算退回件</b>（不用管写的是「退回」还是别的）。
+        导入只会给这些编号<b>加上</b>标记，不会取消已有的标记——万一以后哪次忘了指这一列，
+        几百个标记不会被静默清空。要取消就到「商品主数据」上点「取消退回」。
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>批次信息</h2>
+    <div class="card-body">
+      <div class="field">
+        <label for="label">这批数据叫什么</label>
+        <input type="text" id="label" name="label" value="{{ default_label }}">
+        <div class="tip">建议写清来源和时间，例如「旺店通 6 月月末结存」。以后在盘点任务里会显示这个名字。</div>
+      </div>
+
+      <div class="filterbox">
+        <div class="fb-head">只要一部分行？（选填）</div>
+        <div class="tip" style="margin:0 0 8px">
+          台账里如果混着已经卖掉的货（比如有一列写着「在库 / 出库」），在这里挑那一列、填上要保留的值，
+          只有匹配的行会进账面。留空 = 整张表都导。
+        </div>
+        <div class="row">
+          <div style="flex:1 1 200px">
+            <label for="filter_col">看哪一列</label>
+            <select id="filter_col" name="filter_col">
+              <option value="">— 不筛选，整张表都导 —</option>
+              {% for h in info.headers %}
+                <option value="{{ loop.index0 }}">
+                  第 {{ loop.index }} 列：{{ h or '（空表头）' }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div style="flex:1 1 160px">
+            <label for="filter_value">这一列要等于</label>
+            <input type="text" id="filter_value" name="filter_value" placeholder="例如：在库">
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="note">备注（选填）</label>
+        <input type="text" id="note" name="note" placeholder="例如：导入前已扣除在途">
+      </div>
+      <div class="field">
+        <div class="checks">
+          <label><input type="checkbox" name="make_active" value="1" checked> 导入后设为当前账面</label>
+        </div>
+        <div class="tip">勾上之后，新建的盘点任务默认拿这张表做对比基准。</div>
+      </div>
+      <button class="btn primary" type="submit"
+              data-confirm-click="确认导入 {{ info.total_rows }} 行数据？">确认导入</button>
+      <a class="btn ghost" href="{{ url_for('stock.book_list') }}">取消</a>
+    </div>
+  </div>
+</div>
+</form>
+{% endblock %}

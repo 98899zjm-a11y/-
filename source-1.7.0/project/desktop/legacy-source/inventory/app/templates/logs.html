@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}操作日志{% endblock %}
+
+{% block body %}
+<div class="page-head">
+  <div>
+    <h1>操作日志</h1>
+    <div class="sub">共 {{ total }} 条记录。谁在什么时候导了数据、改了实盘、审了差异、执行了调整，都在这。</div>
+  </div>
+  <div class="page-actions">
+    <form method="get" class="row" style="gap:6px">
+      <input type="search" name="q" value="{{ q or '' }}" placeholder="搜操作人 / 动作 / 对象" style="width:240px">
+      <button class="btn" type="submit">搜索</button>
+      {% if q %}<a class="btn ghost" href="{{ url_for('auth.logs') }}">清空</a>{% endif %}
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body tight">
+    {% if rows %}
+    <div class="scroll">
+    <table class="tb">
+      <thead>
+        <tr>
+          <th style="width:60px" class="num">#</th>
+          <th style="width:155px">时间</th>
+          <th style="width:110px">操作人</th>
+          <th style="width:130px">动作</th>
+          <th style="width:200px">对象</th>
+          <th>详情</th>
+          <th style="width:130px">来源 IP</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for l in rows %}
+        <tr>
+          <td class="num muted">{{ l.id }}</td>
+          <td class="muted nowrap">{{ l.at }}</td>
+          <td>{{ l.username }}</td>
+          <td>{{ l.action }}</td>
+          <td class="mono ellip" title="{{ l.target }}">{{ l.target or '—' }}</td>
+          <td class="ellip" title="{{ l.detail }}">{{ l.detail or '—' }}</td>
+          <td class="muted mono">{{ l.ip or '—' }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+
+    {% if pages > 1 %}
+    <div class="pager">
+      <span>第 {{ page }} / {{ pages }} 页，共 {{ total }} 条</span>
+      <span class="sp"></span>
+      {% if page > 1 %}
+        <a href="{{ url_for('auth.logs', q=q, page=1, size=size) }}">首页</a>
+        <a href="{{ url_for('auth.logs', q=q, page=page-1, size=size) }}">上一页</a>
+      {% endif %}
+      {% if page < pages %}
+        <a href="{{ url_for('auth.logs', q=q, page=page+1, size=size) }}">下一页</a>
+        <a href="{{ url_for('auth.logs', q=q, page=pages, size=size) }}">末页</a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+      <div class="empty">{% if q %}没有匹配「{{ q }}」的记录。{% else %}还没有操作记录。{% endif %}</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

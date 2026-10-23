@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>出纳</title><link rel="stylesheet" href="/cashier/static/cashier.css"></head>
+<body><main>
+<header><div><h1>出纳</h1><p>账户资金、收付款与银行对账</p></div><button id="refresh" type="button">刷新</button></header>
+<p id="notice" role="status" aria-live="polite"></p>
+<nav aria-label="出纳功能"><button data-panel="funds">账户流水</button><button data-panel="documents">资金凭证</button><button data-panel="statements">银行对账</button><button data-panel="accounts" data-cap="cashier.accounts.manage">账户管理</button></nav>
+<section class="toolbar"><label>当前账户<select id="account"></select></label><label>起始日期<input id="from" type="date"></label><label>截止日期<input id="to" type="date"></label></section>
+<section id="funds" class="panel"><div id="balances" class="cards"></div><div class="section-title"><h2>资金流水</h2><button id="export" data-cap="cashier.reports.export">导出流水</button></div><div id="flows" class="table-wrap"></div></section>
+<section id="documents" class="panel" hidden>
+<div class="section-title"><h2>资金凭证</h2><button id="new-document" data-cap="cashier.documents.prepare">新增凭证</button></div><div id="document-list" class="table-wrap"></div>
+<form id="document-form" hidden><h3 id="document-title">新增资金凭证</h3><div class="form-grid">
+<label>类型<select name="kind"><option value="receive">收款</option><option value="pay">付款</option><option value="transfer">账户调拨</option><option value="opening">期初余额</option><option value="refund">退款</option><option value="reversal">误记冲销</option></select></label>
+<label>业务日期<input name="businessDate" type="date" required></label><label>金额（元）<input name="amount" inputmode="decimal" required placeholder="0.00"></label>
+<label class="kind-transfer">转入账户<select name="toAccountId"></select></label>
+<label class="kind-original">原资金凭证<select name="originalId"></select></label>
+<label class="kind-evidence">依据<textarea name="evidence" maxlength="2000" placeholder="填写人工盘点依据或已批准退款依据"></textarea></label>
+<label class="wide">备注<textarea name="note" maxlength="500" required></textarea></label></div>
+<div class="kind-sources"><h4>分配已审核财务来源</h4><p>选同一往来单位的来源，分配合计须等于收付款金额。</p><div id="source-list" class="table-wrap"></div></div>
+<div class="actions"><button type="submit">保存草稿</button><button type="button" id="cancel-document">取消</button></div></form>
+<div id="document-detail"></div></section>
+<section id="statements" class="panel" hidden><h2>银行账单</h2>
+<form id="statement-form" data-cap="cashier.reconcile.import"><div class="form-grid"><label>CSV原件<input name="file" type="file" accept=".csv,text/csv" required></label><label>编码<select name="encoding"><option value="utf-8">UTF-8</option><option value="gb18030">GB18030</option></select></label><label>日期列名<input name="dateColumn" value="date" required></label><label>金额列名<input name="amountColumn" value="amount" required></label><label>外部流水号列名<input name="externalColumn" value="reference"></label><label>摘要列名<input name="descriptionColumn"></label></div><p>金额列：收入为正、支出为负。预览和导入均保留原资金余额。</p><div class="actions"><button type="submit">预览账单</button><button type="button" id="commit-statement" hidden>确认导入原件</button></div></form>
+<div id="statement-preview" class="table-wrap"></div><div id="statement-list" class="table-wrap"></div><div id="statement-detail"></div>
+<form id="match-form" data-cap="cashier.reconcile.match" hidden><h3>建立核对</h3><div class="form-grid"><label>银行账单行<select name="statementRowId"></select></label><label>对应资金流水<select name="postingId"></select></label><label>核对说明<input name="note" required maxlength="500"></label></div><button type="submit">提交另一人复核</button></form><h3>核对记录</h3><div id="reconciliation-list" class="table-wrap"></div></section>
+<section id="accounts" class="panel" hidden><h2>账户管理</h2><p>建立账户后，由另一位有账户权限的人员审核期初；人员账户范围在管理员授权入口管理。</p>
+<form id="account-form" data-cap="cashier.accounts.manage"><div class="form-grid"><label>账户代码<input name="code" maxlength="80" required></label><label>账户名称<input name="name" maxlength="100" required></label><label>账户类型<select name="kind"><option value="cash">现金</option><option value="bank">银行</option></select></label><label>账号提示<input name="maskedReference" maxlength="80" placeholder="只填写尾号等识别信息"></label><label class="wide">备注<input name="note" maxlength="500"></label></div><button type="submit">建立人民币账户</button></form><div id="account-list" class="table-wrap"></div></section>
+</main><script src="/cashier/static/cashier.js" defer></script></body></html>

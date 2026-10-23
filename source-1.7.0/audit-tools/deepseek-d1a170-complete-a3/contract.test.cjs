@@ -1,0 +1,242 @@
+// tests/a4-sameversion-contract.test.cjs
+// 运行：node tests/a4-sameversion-contract.test.cjs [a4树根]
+// 前置：reference-source/employee-update.cjs（SHA c7d97d1a...，19467B）必须存在，否则 exit 2。
+// 未打补丁：G1-G4 PASS；F1 F2 F3 F6 F9 F13 FAIL（真实失败基线）。
+// 打完补丁：全部 PASS（共 17 项）。
+// v1 失败版本保留说明：原 treeFor 从 {raw,bytes} 信封对象读 .tools 导致 TypeError，未进入任何断言；
+// 本版从 policy.raw 解析 tools，断言未删除、未放宽。
+'use strict';
+const crypto = require('node:crypto');
+const fs = require('node:fs');
+const path = require('node:path');
+
+function findRoot(start) {
+  let dir = path.resolve(start);
+  for (let i = 0; i < 10; i++) {
+    if (fs.existsSync(path.join(dir, 'worker-draft/delivery-approval/approval-core-170.cjs')) &&
+        fs.existsSync(path.join(dir, 'worker-draft/delivery-tools/initial-patch-core.cjs'))) return dir;
+    const up = path.dirname(dir);
+    if (up === dir) break;
+    dir = up;
+  }
+  return null;
+}
+const ROOT = findRoot(process.argv[2] || __dirname);
+if (!ROOT) { console.error('[BLOCKED] 未找到 a4 树根（需 worker-draft/...）'); process.exit(2); }
+
+const REFERENCE = path.join(ROOT, 'reference-source/employee-update.cjs');
+const REFERENCE_SHA = 'c7d97d1a411395da8b7f379768ca9f921c43ddaa171932bac4d7b3d92a607e1b';
+const REFERENCE_SIZE = 19467;
+if (!fs.existsSync(REFERENCE)) {
+  console.error('[BLOCKED] 缺 reference-source/employee-update.cjs（从原冻结 ASAR 20b597c6... 提取后放入）');
+  process.exit(2);
+}
+const referenceBytes = fs.readFileSync(REFERENCE);
+const referenceSha = crypto.createHash('sha256').update(referenceBytes).digest('hex');
+if (referenceSha !== REFERENCE_SHA || referenceBytes.length !== REFERENCE_SIZE) {
+  console.error('[BLOCKED] reference-source 摘要或大小不符：sha=' + referenceSha + ' size=' + referenceBytes.length);
+  process.exit(2);
+}
+
+const approval = require(path.join(ROOT, 'worker-draft/delivery-approval/approval-core-170.cjs'));
+const core = require(path.join(ROOT, 'worker-draft/delivery-tools/initial-patch-core.cjs'));
+const cache = require(path.join(ROOT, 'worker-draft/project/desktop/employee-update-cache.cjs'));
+const { ENGINE, SOURCE_VERSIONS } = approval;
+
+let pass = 0;
+const failed = [];
+function t(id, ok, detail) {
+  if (ok) { pass++; console.log('[PASS] ' + id + (detail ? ' ' + detail : '')); }
+  else { failed.push(id); console.log('[FAIL] ' + id + (detail ? ' ' + detail : '')); }
+}
+function expectCode(id, fn, codes) {
+  try { fn(); t(id, false, '未拒绝'); }
+  catch (e) {
+    const list = [].concat(codes);
+    t(id, list.includes(e.code), 'code=' + e.code + (list.includes(e.code) ? '' : ' 期望 ' + list.join('/')));
+  }
+}
+
+const { publicKey, privateKey } = crypto.generateKeyPairSync('ed25519');
+const PEM = publicKey.export({ type: 'spki', format: 'pem' });
+const PUB_SHA = crypto.createHash('sha256').update(publicKey.export({ type: 'spki', format: 'der' })).digest('hex');
+const sha = b => crypto.createHash('sha256').update(b).digest('hex');
+const sign = s => crypto.sign(null, Buffer.from(s, 'utf8'), privateKey).toString('base64');
+const hex = c => c.repeat(64);
+const APP170 = { size: 247184896, sha256: 'c99a56d653220a8bf209b0b9ae2424ec1f1580946d1bf3395a968eb211a4f1b5' };
+const PROD = 'xjy-jewelry-offline';
+const EXE = '鑫金源珠宝报价.exe';
+const INSTALL = 'C:\\XjyFixture\\Employee';
+const SID = 'S-1-5-21-1111111111-2222222222-3333333333-1001';
+const NOW = Date.UTC(2026, 9, 20, 0, 0, 0);
+const TOOLS = [
+  { path: 'delivery-tools/initial-patch-entry.cjs', size: 11, sha256: hex('1') },
+  { path: 'delivery-tools/initial-patch-core.cjs', size: 12, sha256: hex('2') },
+  { path: 'project/desktop/employee-update-cache.cjs', size: 13, sha256: hex('3') },
+  { path: 'project/desktop/employee-update-installer.cjs', size: 14, sha256: hex('4') }
+];
+const ASAR_OLD = { size: 12582052, sha256: '20b597c6405ecb92592eb11a7db5ad8a3fe3a0a9d7ac83e430f25afd9040e375' };
+const OLD_PROGRAMS = [
+  { version: '1.6.0', main: 'release-entry.cjs', asarSize: 1000, asarSha256: hex('a') },
+  { version: '1.6.1', main: 'release-entry.cjs', asarSize: 1001, asarSha256: hex('b') },
+  { version: '1.6.2', main: 'release-entry.cjs', asarSize: 1002, asarSha256: hex('c') }
+];
+const NEW_PROGRAM = { version: '1.7.0', main: 'release-entry.cjs', asarSize: ASAR_OLD.size, asarSha256: ASAR_OLD.sha256 };
+
+function signed(field, object) {
+  const raw = JSON.stringify(object);
+  const signature = sign(raw);
+  return { raw, signature, bytes: Buffer.from(JSON.stringify({ [field]: raw, signature })) };
+}
+function catalogOf(program, over) {
+  return signed('catalog', Object.assign({
+    schemaVersion: 1, app: PROD, channel: 'stable', version: '1.7.0',
+    sourceVersions: SOURCE_VERSIONS.slice(), platform: 'win32', arch: 'x64', sequence: 21,
+    publishedAt: new Date(NOW - 3600000).toISOString(),
+    expiresAt: new Date(NOW + 86400000).toISOString(),
+    archive: { size: 4096, sha256: hex('d') },
+    files: [{ path: 'resources/app.asar', size: program.asarSize, sha256: program.asarSha256 }]
+  }, over || {}));
+}
+function v1Policy(cat, over) {
+  return signed('policy', Object.assign({
+    schemaVersion: 1, purpose: core.REPEAT_PURPOSE, app: PROD, targetVersion: '1.7.0',
+    catalogSha256: sha(Buffer.from(cat.raw)), publisherPublicKeySha256: PUB_SHA,
+    executableName: EXE, engine: { ...ENGINE }, sourcePrograms: OLD_PROGRAMS.slice(), tools: TOOLS
+  }, over || {}));
+}
+function v2Policy(cat, over) {
+  const rows = OLD_PROGRAMS.map(p => ({ ...p, applicationEngine: { ...ENGINE } }))
+    .concat([{ ...NEW_PROGRAM, applicationEngine: { ...APP170 } }]);
+  return signed('policy', Object.assign({
+    schemaVersion: 2, purpose: core.REPEAT_PURPOSE, app: PROD, targetVersion: '1.7.0',
+    catalogSha256: sha(Buffer.from(cat.raw)), publisherPublicKeySha256: PUB_SHA,
+    executableName: EXE, workerEngine: { ...ENGINE }, sourcePrograms: rows, tools: TOOLS
+  }, over || {}));
+}
+function treeFor(program, cat, pol) {
+  const policy = JSON.parse(pol.raw);
+  if (!Array.isArray(policy.tools)) throw new Error('fixture: policy.tools 必须为数组');
+  const files = [
+    { path: 'publisher-public.pem', size: PEM.length, sha256: sha(PEM) },
+    { path: 'catalog-envelope.json', size: cat.bytes.length, sha256: sha(cat.bytes) },
+    { path: 'source-policy-envelope.json', size: pol.bytes.length, sha256: sha(pol.bytes) },
+    ...policy.tools.map(x => ({ path: x.path, size: x.size, sha256: x.sha256 })),
+    { path: 'payload/resources/app.asar', size: program.asarSize, sha256: program.asarSha256 }
+  ];
+  return { files, metadata: { publicKeyPem: Buffer.from(PEM), catalogBytes: cat.bytes, policyBytes: pol.bytes } };
+}
+function reviewArgs(program, tree, installedEngine) {
+  return {
+    operation: 'initial', now: NOW, approvalId: crypto.randomUUID(),
+    independent: { artifactSha256: hex('e'), publisherPublicKeySha256: PUB_SHA, verifiedPublisherName: 'Fixture Publisher' },
+    archive: { sha256: hex('e'), files: tree.files },
+    treeFiles: tree.files, metadata: tree.metadata,
+    installation: {
+      installationDir: INSTALL, executableName: EXE, osUser: SID, role: 'employee',
+      engine: installedEngine,
+      source: { name: PROD, version: program.version, main: program.main, size: program.asarSize, sha256: program.asarSha256 },
+      activationMissing: false, transactionState: 'none',
+      target: { name: PROD, version: '1.7.0', main: 'release-entry.cjs' }
+    }
+  };
+}
+function runReview(args) { return approval.review170PublicationApproval(args); }
+
+// ---------------- G 组：旧语义回归（补丁前后都必须通过） ----------------
+const catV1 = catalogOf(OLD_PROGRAMS[1]);
+const polV1 = v1Policy(catV1);
+const treeV1 = treeFor(OLD_PROGRAMS[1], catV1, polV1);
+let g1 = null;
+try { g1 = runReview(reviewArgs(OLD_PROGRAMS[1], treeV1, { ...ENGINE })); } catch (e) { g1 = { error: e }; }
+t('G1 v1 旧版来源(1.6.1)合同仍通过', !!g1 && !g1.error && g1.record.role === 'employee',
+  g1.error ? g1.error.code + ' ' + g1.error.message : g1.record.purpose);
+expectCode('G2 v1 策略在 initial 模式仍被拒',
+  () => core.verifySourcePolicy({ policy: polV1.raw, signature: polV1.signature }, publicKey, { upgradeMode: 'initial' }),
+  'BAD_SOURCE_POLICY');
+expectCode('G3 降级目录仍被拒', () => cache.verifySignedCatalog(
+  JSON.parse(catalogOf(NEW_PROGRAM, { version: '1.6.2' }).bytes),
+  cache.createTrustedUpdatePolicy({ trustedPublicKey: publicKey, currentVersion: '1.7.0', allowedFiles: ['resources/app.asar'], platform: 'win32', arch: 'x64', now: () => NOW })),
+  'DOWNGRADE_REJECTED');
+const referenceText = referenceBytes.toString('utf8');
+t('G4 参考产品源固定 SHA 且鉴权/同版 latest 语义未变',
+  referenceText.includes('actor.active !== true || actor.authenticated !== true') &&
+  referenceText.includes('version === currentVersion'),
+  'sha=' + referenceSha.slice(0, 12) + ' size=' + referenceBytes.length);
+
+// ---------------- F 组：同版 1.7.0 合同（未打补丁必须失败） ----------------
+const catSame = catalogOf(NEW_PROGRAM, { sourceVersions: ['1.6.0', '1.6.1', '1.6.2', '1.7.0'] });
+const polV2 = v2Policy(catSame);
+const treeSame = treeFor(NEW_PROGRAM, catSame, polV2);
+
+let f1 = null;
+try { f1 = runReview(reviewArgs(NEW_PROGRAM, treeSame, { ...APP170 })); } catch (e) { f1 = { error: e }; }
+t('F1 同版 1.7.0 可获独立审定记录', !!f1 && !f1.error && f1.record.purpose === core.REPEAT_PURPOSE,
+  f1.error ? f1.error.code + ' ' + f1.error.message : f1.mode);
+t('F2 审定记录绑定 44.7.0 维护引擎与发布身份',
+  !!f1 && !f1.error && f1.record.engine.size === ENGINE.size && f1.record.engine.sha256 === ENGINE.sha256 &&
+  f1.publicationId === sha(Buffer.from(catSame.raw)), f1.error ? f1.error.code : '');
+expectCode('F3 同版来源但已装 EXE 不是 44.9.0 目标引擎必须 ENGINE_MISMATCH',
+  () => runReview(reviewArgs(NEW_PROGRAM, treeSame, { ...ENGINE })), 'ENGINE_MISMATCH');
+expectCode('F13 v2 目录未声明 1.7.0 为来源必须 BAD_CATALOG',
+  () => runReview(reviewArgs(NEW_PROGRAM, treeFor(NEW_PROGRAM, catalogOf(NEW_PROGRAM), polV2), { ...APP170 })),
+  'BAD_CATALOG');
+
+let f6 = null;
+try { f6 = core.verifySourcePolicy({ policy: polV2.raw, signature: polV2.signature }, publicKey, { upgradeMode: 'repeat' }); }
+catch (e) { f6 = { error: e }; }
+const apps = f6 && !f6.error ? f6.applicationEngines : null;
+t('F6 core 接受 v2 策略并保留逐源应用引擎', !!apps && !!apps['1.7.0'] && apps['1.7.0'].sha256 === APP170.sha256 &&
+  apps['1.6.2'].sha256 === ENGINE.sha256 && f6.engine.sha256 === ENGINE.sha256,
+  f6.error ? f6.error.code + ' ' + f6.error.message : 'ok');
+
+let tamperOk = false, tamperDetail = 'no-record';
+if (apps) {
+  const before = apps['1.7.0'].sha256;
+  try { apps['1.7.0'].sha256 = hex('0'); } catch (e) { /* 冻结对象赋值抛错属预期 */ }
+  try { apps['1.7.0'] = { size: 1, sha256: hex('0') }; } catch (e) { /* 同上 */ }
+  delete apps['1.7.0'];
+  tamperOk = Object.isFrozen(apps) && Object.isFrozen(apps['1.7.0']) && Object.isFrozen(f6) &&
+    apps['1.7.0'].sha256 === before && apps['1.7.0'].size === APP170.size;
+  tamperDetail = 'frozen=' + Object.isFrozen(apps) + ' inner=' + Object.isFrozen(apps['1.7.0']) + ' 篡改后=' + apps['1.7.0'].sha256.slice(0, 12);
+} else {
+  tamperDetail = 'applicationEngines 未暴露（未打补丁）';
+}
+t('F9 逐源应用引擎记录深冻结，篡改不生效', tamperOk, tamperDetail);
+
+const polV1With170 = v1Policy(catSame, { sourcePrograms: OLD_PROGRAMS.concat([NEW_PROGRAM]) });
+expectCode('F5 v1 策略混入 1.7.0 来源仍必须拒绝（旧语义不变）',
+  () => runReview(reviewArgs(NEW_PROGRAM, treeFor(NEW_PROGRAM, catSame, polV1With170), { ...APP170 })),
+  'BAD_SOURCE_POLICY');
+const polBadWorker = v2Policy(catSame, { workerEngine: { ...APP170 } });
+expectCode('F4 v2 workerEngine 非 44.7.0 构建必须拒绝',
+  () => runReview(reviewArgs(NEW_PROGRAM, treeFor(NEW_PROGRAM, catSame, polBadWorker), { ...APP170 })),
+  'BAD_SOURCE_POLICY');
+const badAppObj = JSON.parse(polV2.raw);
+badAppObj.sourcePrograms = badAppObj.sourcePrograms.map(r => r.version === '1.7.0' ? { ...r, applicationEngine: { ...ENGINE } } : r);
+expectCode('F10 v2 逐源 applicationEngine 与已签用途不符必须拒绝',
+  () => runReview(reviewArgs(NEW_PROGRAM, treeFor(NEW_PROGRAM, catSame, signed('policy', badAppObj)), { ...APP170 })),
+  'BAD_SOURCE_POLICY');
+const extraObj = JSON.parse(polV2.raw);
+extraObj.sourcePrograms = extraObj.sourcePrograms.map(r => r.version === '1.7.0' ? { ...r, extra: 'x' } : r);
+expectCode('F11 v2 逐源行含未知字段必须拒绝（不得静默丢弃）',
+  () => runReview(reviewArgs(NEW_PROGRAM, treeFor(NEW_PROGRAM, catSame, signed('policy', extraObj)), { ...APP170 })),
+  'BAD_SOURCE_POLICY');
+const dropObj = JSON.parse(polV2.raw);
+dropObj.sourcePrograms = dropObj.sourcePrograms.map(r => r.version === '1.7.0'
+  ? { version: r.version, main: r.main, asarSize: r.asarSize, asarSha256: r.asarSha256 } : r);
+expectCode('F12 v2 逐源行缺 applicationEngine 必须拒绝',
+  () => runReview(reviewArgs(NEW_PROGRAM, treeFor(NEW_PROGRAM, catSame, signed('policy', dropObj)), { ...APP170 })),
+  'BAD_SOURCE_POLICY');
+expectCode('F7 v2 策略禁止用于 initial 模式',
+  () => core.verifySourcePolicy({ policy: polV2.raw, signature: polV2.signature }, publicKey, { upgradeMode: 'initial' }),
+  'BAD_SOURCE_POLICY');
+const coreExtraObj = JSON.parse(polV2.raw);
+coreExtraObj.sourcePrograms = coreExtraObj.sourcePrograms.map(r => r.version === '1.6.0' ? { ...r, unknownField: 1 } : r);
+expectCode('F14 core 对 v2 逐源未知字段必须拒绝',
+  () => core.verifySourcePolicy({ policy: signed('policy', coreExtraObj).raw, signature: signed('policy', coreExtraObj).signature }, publicKey, { upgradeMode: 'repeat' }),
+  'BAD_SOURCE_POLICY');
+
+const total = pass + failed.length;
+console.log('\n合计 ' + total + ' 项：PASS ' + pass + '，FAIL ' + failed.length + (failed.length ? ' → ' + failed.join(',') : ''));
+process.exit(failed.length ? 1 : 0);

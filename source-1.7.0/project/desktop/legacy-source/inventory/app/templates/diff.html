@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+{% block title %}差异审核 · {{ s.name }}{% endblock %}
+
+{% block scripts %}
+<style>
+  details.rev > summary { list-style: none; cursor: pointer; display: inline-block; }
+  details.rev > summary::-webkit-details-marker { display: none; }
+  details.rev[open] > summary { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .rev-pop {
+    width: 300px; margin-top: 8px; background: #fff;
+    border: 1px solid var(--line); border-radius: 8px; padding: 12px;
+    box-shadow: 0 6px 20px rgba(23,43,77,.13); text-align: left;
+  }
+  .rev-pop .field { margin-bottom: 8px; }
+  .rev-pop select, .rev-pop input { width: 100%; }
+  table.tb thead th { top: 54px; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page-head">
+  <div>
+    <h1>差异审核 · {{ s.name }}</h1>
+    <div class="sub">
+      账面合计 {{ st.book_qty|qty }} · 实盘合计 {{ st.counted_qty|qty }} ·
+      有差异 <b>{{ st.diff_rows }}</b> 个商品编号 · 待审核 <b>{{ st.pending }}</b> 条
+    </div>
+  </div>
+  <div class="page-actions">
+    <a class="btn" href="{{ url_for('count.session_detail', sid=s.id) }}">← 任务详情</a>
+    <a class="btn" href="{{ url_for('count.session_entry', sid=s.id, tab='grid', filter='diff') }}">去改实盘数</a>
+    <a class="btn" href="{{ url_for('review.diff_export', sid=s.id) }}">导出差异表</a>
+    <a class="btn" href="{{ url_for('count.session_print', sid=s.id, filter='diff') }}" target="_blank">打印差异清单</a>
+  </div>
+</div>
+
+<div class="grid c4" style="margin-bottom:16px">
+  <div class="stat"><div class="k">盘点一致</div><div class="v">{{ st.match }}</div><div class="n">没有差异的商品编号</div></div>
+  <div class="stat good"><div class="k">盘盈</div><div class="v">{{ st.surplus }}</div><div class="n">合计 +{{ st.surplus_qty|qty }}</div></div>
+  <div class="stat bad"><div class="k">盘亏 / 账有实无</div><div class="v">{{ st.shortage + st.missing }}</div><div class="n">合计 {{ st.shortage_qty|qty }}</div></div>
+  <div class="stat warn"><div class="k">账无实有</div><div class="v">{{ st.extra }}</div><div class="n">账上没有、盘出来了</div></div>
+</div>
+
+<div class="card">
+  <h2>
+    <span>差异明细 <span class="hint">共 {{ total }} 行符合当前筛选</span></span>
+    <form method="get" class="row" style="gap:6px">
+      <select name="type" style="width:126px">
+        <option value="all" {{ 'selected' if ftype == 'all' }}>全部类型</option>
+        {% for k, v in diff_types.items() %}
+          <option value="{{ k }}" {{ 'selected' if ftype == k }}>{{ v }}</option>
+        {% endfor %}
+      </select>
+      <select name="rstatus" style="width:132px">
+        <option value="all" {{ 'selected' if frstatus == 'all' }}>全部审核状态</option>
+        <option value="pending" {{ 'selected' if frstatus == 'pending' }}>待审核</option>
+        <option value="approved" {{ 'selected' if frstatus == 'approved' }}>已通过</option>
+        <option value="rejected" {{ 'selected' if frstatus == 'rejected' }}>已驳回</option>
+      </select>
+      <select name="sort" style="width:146px">
+        <option value="location" {{ 'selected' if fsort == 'location' }}>按库位排</option>
+        <option value="code" {{ 'selected' if fsort == 'code' }}>按商品编号排</option>
+        <option value="diff" {{ 'selected' if fsort == 'diff' }}>差异大的在前</option>
+      </select>
+      <select name="size" style="width:110px">
+        {% for n in (25, 50, 100, 200) %}
+          <option value="{{ n }}" {{ 'selected' if size == n }}>每页 {{ n }}</option>
+        {% endfor %}
+      </select>
+      <input type="search" name="q" value="{{ q or '' }}" placeholder="搜商品编号 / 名称 / 库位" style="width:176px">
+      <label style="white-space:nowrap;font-weight:400">
+        <input type="checkbox" name="all" value="1" {{ 'checked' if show_all }}> 含无差异
+      </label>
+      <button class="btn sm" type="submit">筛选</button>
+      <a class="btn sm ghost" href="{{ url_for('review.diff_list', sid=s.id) }}">重置</a>
+    </form>
+  </h2>
+
+  <form method="post" action="{{ url_for('review.review_bulk', sid=s.id) }}">
+    <div class="card-body" style="padding:11px 16px;background:#fbfcfe;border-bottom:1px solid #eef1f5">
+      <div class="row" style="gap:8px;align-items:flex-end">
+        <div style="flex:0 0 132px">
+          <label>批量结论</label>
+          <select name="bulk_status">
+            <option value="approved">通过</option>
+            <option value="rejected">驳回</option>
+            <option value="pending">退回待审核</option>
+          </select>
+        </div>
+        <div class="grow">
+          <label>统一说明（驳回时必填）</label>
+          <input type="text" name="bulk_note" placeholder="例如：已与仓库主管确认，属漏记出库">
+        </div>
+        <div>
+          <button class="btn primary" type="submit" data-confirm-click="对勾选的行应用这个审核结论？">
+            应用到勾选行
+          </button>
+        </div>
+      </div>
+      <div style="margin-top:8px">
+        <label>统一原因（点一下就好，选填）</label>
+        <div class="chips">
+          <input type="radio" id="bz_0" name="bulk_reason" value="" checked>
+          <label for="bz_0">不指定</label>
+          {% for r in reasons %}
+            <input type="radio" id="bz_{{ loop.index }}" name="bulk_reason" value="{{ r }}">
+            <label for="bz_{{ loop.index }}">{{ r }}</label>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="tip" style="margin-top:6px">
+        先勾选下面的行，再点「应用到勾选行」。表头方框 = 全选本页。
+        只有<b>通过</b>的差异才会被收进库存调整单。
+      </div>
+    </div>
+
+    <table class="tb" id="difftable">
+      <thead>
+        <tr>
+          <th class="mid" style="width:38px">
+            <input type="checkbox" data-checkall="#difftable tbody" title="全选本页">
+          </th>
+          <th style="width:86px">库位</th>
+          <th style="width:132px">商品编号</th>
+          <th>商品名称 / 克重</th>
+          <th style="width:52px">单位</th>
+          <th class="num" style="width:78px">账面</th>
+          <th class="num" style="width:78px">实盘</th>
+          <th class="num" style="width:86px">差异</th>
+          <th class="mid" style="width:86px">类型</th>
+          <th style="width:120px">审核状态</th>
+          <th style="width:180px">原因 / 说明</th>
+          <th style="width:306px">逐条审核</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for r in rows %}
+        <tr class="{{ 'row-bad' if r.diff_type in ('shortage', 'missing') else ('row-diff' if r.has_diff else '') }}">
+          <td class="mid"><input type="checkbox" name="sku_id" value="{{ r.sku_id }}"></td>
+          <td>{{ r.location or '—' }}</td>
+          <td class="mono"><b>{{ r.code }}</b></td>
+          <td>
+            {{ r.name or '—' }}
+            {% if r.spec %}<span class="muted" style="font-size:12px"> / {{ r.spec }}</span>{% endif %}
+          </td>
+          <td class="muted">{{ r.unit or '' }}</td>
+          <td class="num">{{ r.book_qty|qty if r.book_qty is not none else '—' }}</td>
+          <td class="num">{{ r.counted_qty|qty if r.counted_qty is not none else '未盘' }}</td>
+          <td class="num">
+            {% if r.diff_qty %}
+              {# 正负靠 ↑ / ↓ 说，不只靠红绿——色觉障碍的人分不出这两种颜色 #}
+              {% if r.diff_qty > 0 %}
+                <b class="pos">↑ {{ r.diff_qty|signed }}</b>
+              {% else %}
+                <b class="neg">↓ {{ r.diff_qty|signed }}</b>
+              {% endif %}
+            {% else %}
+              <span class="muted">0</span>
+            {% endif %}
+          </td>
+          <td class="mid"><span class="tag {{ r.diff_type }}">{{ diff_types.get(r.diff_type, r.diff_type) }}</span></td>
+          <td>
+            <span class="tag {{ r.review_status or 'pending' }}">{{ status_text.get(r.review_status or 'pending') }}</span>
+            {% if r.reviewed_by_name %}
+              <div class="muted" style="font-size:11.5px">{{ r.reviewed_by_name }}<br>{{ r.reviewed_at }}</div>
+            {% endif %}
+          </td>
+          <td>
+            {% if r.reason %}<div><b>{{ r.reason }}</b></div>{% endif %}
+            {% if r.review_note %}<div class="muted" style="font-size:12px">{{ r.review_note }}</div>{% endif %}
+            {% if not r.reason and not r.review_note %}<span class="muted">—</span>{% endif %}
+          </td>
+          <td>
+            {% if r.has_diff %}
+            <details class="rev">
+              <summary class="btn sm">审核这一条 ▾</summary>
+              <div class="rev-pop">
+                <div class="field">
+                  <label>原因（点一下就好）</label>
+                  <div class="chips">
+                    <input form="rv{{ r.sku_id }}" type="radio" id="rz{{ r.sku_id }}_0"
+                           name="reason" value="" {{ 'checked' if not r.reason }}>
+                    <label for="rz{{ r.sku_id }}_0">不指定</label>
+                    {% for rs in reasons %}
+                      <input form="rv{{ r.sku_id }}" type="radio" id="rz{{ r.sku_id }}_{{ loop.index }}"
+                             name="reason" value="{{ rs }}" {{ 'checked' if r.reason == rs }}>
+                      <label for="rz{{ r.sku_id }}_{{ loop.index }}">{{ rs }}</label>
+                    {% endfor %}
+                  </div>
+                </div>
+                <div class="field">
+                  <label>说明</label>
+                  <input form="rv{{ r.sku_id }}" type="text" name="note" value="{{ r.review_note or '' }}"
+                         placeholder="驳回时必填">
+                </div>
+                <input form="rv{{ r.sku_id }}" type="hidden" name="sku_id" value="{{ r.sku_id }}">
+                {# 结论做成三个提交按钮：按钮自己带着 review_status 一起提交，
+                   比「先拉下拉选结论、再点保存」少一步；
+                   配合上面的原因胶囊，一条差异点两下就落定。 #}
+                <div class="row" style="gap:6px">
+                  <button form="rv{{ r.sku_id }}" class="btn primary sm" type="submit"
+                          name="review_status" value="approved">✓ 通过并保存</button>
+                  <button form="rv{{ r.sku_id }}" class="btn sm danger" type="submit"
+                          name="review_status" value="rejected">✗ 驳回</button>
+                  <button form="rv{{ r.sku_id }}" class="btn sm ghost" type="submit"
+                          name="review_status" value="pending">先放着</button>
+                </div>
+              </div>
+            </details>
+            {% else %}
+              <span class="muted">无差异</span>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+
+    {% if not rows %}<div class="empty">没有符合条件的行。放宽筛选条件，或勾上「含无差异」。</div>{% endif %}
+
+    {% if pages > 1 %}
+    <div class="pager">
+      <span>第 {{ page }} / {{ pages }} 页 · 共 {{ total }} 行</span>
+      <span class="sp"></span>
+      {% if page > 1 %}
+        <a href="{{ url_for('review.diff_list', sid=s.id, page=page-1, size=size, q=q, type=ftype, rstatus=frstatus, sort=fsort, all=('1' if show_all else None)) }}">上一页</a>
+      {% endif %}
+      {% if page < pages %}
+        <a href="{{ url_for('review.diff_list', sid=s.id, page=page+1, size=size, q=q, type=ftype, rstatus=frstatus, sort=fsort, all=('1' if show_all else None)) }}">下一页</a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </form>
+</div>
+
+{% for r in rows %}
+  {% if r.has_diff %}
+    <form id="rv{{ r.sku_id }}" method="post" action="{{ url_for('review.review_one', sid=s.id) }}"></form>
+  {% endif %}
+{% endfor %}
+
+{% if st.diff_rows %}
+<div class="card">
+  <h2>下一步：生成库存调整单</h2>
+  <div class="card-body">
+    <div class="note">
+      <b>调整单是什么：</b>把审核通过的差异汇总成一张「库存调整单」。
+      执行后系统按实盘数生成一份<b>新的账面批次</b>，旧账面自动退居历史——
+      「盘了没调」和「调了没痕迹」这两个坑都不会踩。
+    </div>
+    <form method="post" action="{{ url_for('review.adjustment_create', sid=s.id) }}">
+      <div class="row">
+        <div style="flex:0 0 280px">
+          <label for="only_approved">收录范围</label>
+          <select id="only_approved" name="only_approved">
+            <option value="1">只收录「审核通过」的差异（推荐）</option>
+            <option value="0">收录全部差异（含未审核、已驳回）</option>
+          </select>
+        </div>
+        <div class="grow">
+          <label for="adj-note">调整单说明</label>
+          <input type="text" id="adj-note" name="note" placeholder="例如：2026 年 6 月月末盘点，差异已逐项与仓库确认">
+        </div>
+        <div>
+          <button class="btn primary" type="submit"
+                  data-confirm-click="生成库存调整单？生成后还要在调整单页面点「执行」才会真正改账面。">
+            生成调整单
+          </button>
+        </div>
+      </div>
+      <div class="tip" style="margin-top:8px">
+        当前：待审核 {{ st.pending }} 条 · 已通过 {{ st.approved }} 条 · 已驳回 {{ st.rejected }} 条。
+        建议把待审核的先处理完再生成，否则要么漏调、要么把错账调进去。
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

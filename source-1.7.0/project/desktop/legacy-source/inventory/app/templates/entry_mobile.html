@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>手机录数 · {{ s.name }}</title>
+{# 这一页**故意不套 base.html**：手机上顶栏那排导航会把页面撑得比屏幕还宽，
+   出现横向滚动条，而录数时最怕的就是输入框被推出可视区。
+   它只借 app.css 里的颜色变量和 .muted / .mono 两个小类，其余样式全在这页里。 #}
+<link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+</head>
+<body class="m-body">
+<div class="m-wrap">
+{# 手机上专用的一页。桩子就三个：一个大的输入框、一列候选、一列刚录的。
+   所有交互都靠页面底部那段脚本走 fetch，不刷新页面——
+   刷新会丢焦点，在货架前这意味着每录一件都要重新点一次输入框。 #}
+<div class="m-head">
+  <div class="m-title">
+    <b>{{ s.name }}</b>
+    <span class="m-sub">账面基准 {{ s.batch_label or '—' }}</span>
+  </div>
+  <div class="m-prog">
+    <span id="m-counted">{{ st.counted }}</span> / <span id="m-total">{{ st.total }}</span>
+    {% if not s.blind %}<span class="m-diff">差异 <b id="m-diff">{{ st.diff_rows }}</b></span>{% endif %}
+  </div>
+</div>
+
+<div class="m-bar">
+  <input id="m-q" type="search" inputmode="search" autocomplete="off" autocorrect="off"
+         autocapitalize="off" spellcheck="false" enterkeyhint="done"
+         placeholder="扫一下，或敲编号后几位">
+  <button id="m-one" class="m-btn" type="button" title="就录 1 件">1</button>
+</div>
+<div id="m-msg" class="m-msg"></div>
+
+<div id="m-hits" class="m-list"></div>
+
+<div class="m-recent">
+  <div class="m-recent-head">
+    <span>刚录的</span>
+    <span class="muted" id="m-recent-note">点右边的「撤销」可以退回未盘</span>
+  </div>
+  <div id="m-recent">
+    {% for r in recent %}
+      <div class="m-row" data-sku="{{ r.sku_id }}">
+        <div class="m-row-main">
+          <div class="m-code mono">{{ r.code }}</div>
+          <div class="m-name">{{ r.name or '—' }}{% if r.location %} <span class="muted">· {{ r.location }}</span>{% endif %}</div>
+        </div>
+        <div class="m-qty">{{ r.qty|qty }}{{ r.unit or '' }}</div>
+        <button class="m-undo" type="button" data-sku="{{ r.sku_id }}">撤销</button>
+      </div>
+    {% endfor %}
+  </div>
+  <div id="m-empty" class="muted" style="padding:14px 2px{% if recent %};display:none{% endif %}">
+    这个任务还一条都没录。
+  </div>
+</div>
+
+<div class="m-foot">
+  <a class="m-link" href="{{ url_for('count.session_entry', sid=s.id, tab='fast') }}">用电脑版速录页</a>
+  <a class="m-link" href="{{ url_for('count.session_detail', sid=s.id) }}">任务详情</a>
+</div>
+
+<style>
+/* 只在这一页生效的样式，直接写在模板里：它跟桌面版是两套用法，
+   塞进 app.css 会让那份文件里多出一堆「只有手机上才用得上」的规则。 */
+.m-body { background: var(--bg); margin: 0; }
+.m-wrap { max-width: 560px; margin: 0 auto; padding: 10px 12px 28px;
+  /* 窄屏上唯一要防的事：任何一处溢出都会让整页出现横向滚动条，
+     而横向滚动条会让输入框在键盘弹起时被推出可视区。 */
+  overflow-x: hidden; }
+.m-head { display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  padding: 10px 2px 6px; }
+.m-title b { font-size: 16px; }
+.m-sub { display: block; font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+.m-prog { font-size: 13px; color: var(--ink-2); white-space: nowrap; }
+.m-prog #m-counted { font-size: 20px; font-weight: 700; color: var(--blue-d); }
+.m-diff { margin-left: 8px; }
+.m-diff b { color: var(--red); }
+
+/* 没有顶栏了，sticky 的偏移就是 0——写 54px 会把输入框往下推半条顶栏的高度，
+   正压在「刚录的」第一行上。 */
+.m-bar { display: flex; gap: 8px; position: sticky; top: 0; z-index: 5;
+  background: var(--bg); padding: 6px 0 8px; }
+.m-bar input { flex: 1; min-width: 0; height: 54px; font-size: 20px; padding: 0 14px;
+  border-radius: var(--radius); border: 1px solid var(--line); }
+.m-bar input:focus { border-color: var(--blue); box-shadow: var(--ring); outline: none; }
+.m-btn { height: 54px; min-width: 62px; font-size: 20px; font-weight: 700;
+  border: 0; border-radius: var(--radius); background: var(--blue); color: #fff; }
+.m-btn:active { background: var(--blue-d); }
+
+.m-msg { min-height: 22px; font-size: 13px; padding: 0 2px 4px; }
+.m-msg.ok { color: var(--green); font-weight: 600; }
+.m-msg.bad { color: var(--red); font-weight: 600; }
+
+.m-list:empty { display: none; }
+.m-row { display: flex; align-items: center; gap: 10px; background: var(--panel);
+  border: 1px solid var(--line); border-radius: var(--radius-sm);
+  padding: 10px 12px; margin-bottom: 8px; }
+.m-row.hit { border-color: var(--blue); }
+.m-row-main { flex: 1; min-width: 0; }
+.m-code { font-size: 15px; font-weight: 650; }
+.m-name { font-size: 12.5px; color: var(--ink-2); margin-top: 2px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-qty { font-size: 15px; font-weight: 700; color: var(--green); white-space: nowrap; }
+.m-row .m-pick { height: 42px; padding: 0 14px; border: 0; border-radius: var(--radius-sm);
+  background: var(--blue); color: #fff; font-size: 15px; font-weight: 600; }
+.m-undo { height: 34px; padding: 0 10px; border: 1px solid var(--line);
+  border-radius: var(--radius-xs); background: var(--panel); color: var(--red); font-size: 13px; }
+.m-done-tag { font-size: 12px; color: var(--amber); white-space: nowrap; }
+
+.m-recent { margin-top: 16px; }
+.m-recent-head { display: flex; justify-content: space-between; align-items: baseline;
+  font-size: 13px; font-weight: 600; padding: 0 2px 8px; }
+.m-foot { display: flex; gap: 16px; padding: 18px 2px 8px; }
+.m-link { font-size: 13px; }
+
+@media (max-width: 560px) {
+  .m-bar input { height: 50px; font-size: 18px; }
+  .m-btn { height: 50px; min-width: 56px; }
+  .m-head { flex-wrap: wrap; }
+}
+</style>
+
+<script>
+(function () {
+  'use strict';
+  var q = document.getElementById('m-q');
+  var hits = document.getElementById('m-hits');
+  var msg = document.getElementById('m-msg');
+  var list = document.getElementById('m-recent');
+  var empty = document.getElementById('m-empty');
+  var csrf = document.querySelector('meta[name="csrf-token"]').content;
+  var busy = false, sequence = 0, timer, controller;
+  var findUrl = {{ url_for('count.session_mobile_find', sid=s.id)|tojson }};
+  var saveUrl = {{ url_for('count.session_mobile_save', sid=s.id)|tojson }};
+  var clearUrl = {{ url_for('count.session_mobile_clear', sid=s.id)|tojson }};
+
+  function say(text, ok) {
+    msg.textContent = text || '';
+    msg.className = 'm-msg ' + (ok ? 'ok' : (text ? 'bad' : ''));
+  }
+  function element(tag, cls, value) {
+    var node = document.createElement(tag);
+    node.className = cls || '';
+    if (value !== undefined) node.textContent = String(value);
+    return node;
+  }
+  function setNums(data) {
+    [['counted','m-counted'],['total','m-total'],['diff_rows','m-diff']].forEach(function(pair) {
+      var node = document.getElementById(pair[1]);
+      if (node && data[pair[0]] !== undefined) node.textContent = data[pair[0]];
+    });
+  }
+  function row(item, candidate) {
+    var node = element('div','m-row' + (candidate ? ' hit' : ''));
+    node.dataset.sku = String(item.sku_id);
+    var main = element('div','m-row-main');
+    main.appendChild(element('div','m-code mono',item.code));
+    var description = item.name || '—';
+    if (item.location) description += ' · ' + item.location;
+    if (candidate && item.book !== null && item.book !== undefined) description += ' · 账面 ' + item.book_text;
+    main.appendChild(element('div','m-name',description));
+    node.appendChild(main);
+    if (candidate && item.counted !== null && item.counted !== undefined) node.appendChild(element('span','m-done-tag','已录 ' + item.counted));
+    if (!candidate) node.appendChild(element('div','m-qty',item.qty + (item.unit || '')));
+    var button = element('button',candidate ? 'm-pick' : 'm-undo',candidate ? '录 1 件' : '撤销');
+    button.type = 'button';
+    if (candidate) button.dataset.code = item.code;
+    else button.dataset.sku = String(item.sku_id);
+    node.appendChild(button);
+    return node;
+  }
+  function cancelSearch() {
+    clearTimeout(timer); sequence++;
+    if (controller) controller.abort();
+  }
+  async function jsonResponse(response) {
+    if (response.redirected || !(response.headers.get('content-type') || '').includes('application/json')) throw new Error('登录状态已失效，请刷新页面重新登录');
+    var data = await response.json();
+    if (!response.ok || data.ok === false) throw new Error(data.msg || '操作未保存，请刷新后重试');
+    return data;
+  }
+  async function search() {
+    cancelSearch();
+    var value = q.value.trim(), current = sequence;
+    hits.replaceChildren();
+    if (value.length < 2 || busy) return;
+    controller = new AbortController();
+    try {
+      var data = await jsonResponse(await fetch(findUrl + '?q=' + encodeURIComponent(value),{signal:controller.signal}));
+      if (current !== sequence || q.value.trim() !== value || busy) return;
+      data.forEach(function(item) { hits.appendChild(row(item,true)); });
+    } catch (error) {
+      if (error.name !== 'AbortError' && current === sequence) say(error.message,false);
+    }
+  }
+  function lock(value) {
+    busy = value; q.disabled = value;
+    document.querySelectorAll('.m-btn,.m-pick,.m-undo').forEach(function(button) { button.disabled = value; });
+  }
+  async function send(url, values) {
+    return jsonResponse(await fetch(url,{method:'POST',body:new URLSearchParams(values),headers:{'X-Requested-With':'fetch','X-CSRF-Token':csrf}}));
+  }
+  async function save(code) {
+    if (busy || !code) return;
+    cancelSearch(); lock(true);
+    try {
+      // A complete code takes priority. Resolve a suffix only when it has one match.
+      var candidates = await jsonResponse(await fetch(findUrl + '?q=' + encodeURIComponent(code)));
+      var exact = candidates.find(function(item) { return item.code.toUpperCase() === code.toUpperCase(); });
+      if (exact) code = exact.code;
+      else if (candidates.length === 1) code = candidates[0].code;
+      else if (candidates.length > 1) throw new Error('找到多个商品，请点选对应商品后录入');
+      var data = await send(saveUrl,{code:code,qty:'1'});
+      Array.from(list.children).forEach(function(item) { if (item.dataset.sku === String(data.sku_id)) item.remove(); });
+      list.prepend(row(data,false)); empty.style.display = 'none';
+      setNums(data); say(data.msg,true); q.value = ''; hits.replaceChildren();
+    } catch (error) { say(error.message,false); }
+    finally { lock(false); q.focus(); }
+  }
+  async function undo(skuId) {
+    if (busy) return;
+    cancelSearch(); lock(true);
+    try {
+      var data = await send(clearUrl,{sku_id:skuId});
+      Array.from(list.children).forEach(function(item) { if (item.dataset.sku === String(skuId)) item.remove(); });
+      empty.style.display = list.children.length ? 'none' : '';
+      setNums(data); say(data.msg,true); hits.replaceChildren();
+    } catch (error) { say(error.message,false); }
+    finally { lock(false); q.focus(); }
+  }
+  q.addEventListener('input',function() { cancelSearch(); hits.replaceChildren(); timer=setTimeout(search,180); });
+  q.addEventListener('keydown',function(event) {
+    if (event.key === 'Enter' && !event.isComposing) { event.preventDefault(); save(q.value.trim()); }
+  });
+  document.getElementById('m-one').addEventListener('click',function() { save(q.value.trim()); });
+  hits.addEventListener('click',function(event) { var button=event.target.closest('.m-pick'); if (button) save(button.dataset.code); });
+  list.addEventListener('click',function(event) { var button=event.target.closest('.m-undo'); if (button) undo(button.dataset.sku); });
+  q.addEventListener('focus',function() { setTimeout(function() { window.scrollTo(0,0); },120); });
+  q.focus();
+})();
+
+</script>
+</div>
+<link rel="stylesheet" href="{{ url_for('static',filename='xjy-theme.css') }}">
+</body>
+</html>

@@ -1,3 +1,9 @@
+# 当前版本源码：1.7.0
+
+当前维护源码、配套测试和 sequence 34 发布脚本快照见 [source-1.7.0](source-1.7.0/README.md)。本次只同步源码，不发布安装包；旧模块缺失原始源码及构建条件见该目录说明。下方保留此前网页项目的说明。
+
+---
+
 # vinext-starter
 
 A clean full-stack starter running on [vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and Drizzle support.

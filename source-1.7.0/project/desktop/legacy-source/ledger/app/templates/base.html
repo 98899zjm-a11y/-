@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}{{ APP_NAME }}{% endblock %} · {{ APP_NAME }}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+<link rel="stylesheet" href="{{ url_for('static',filename='workspace.css') }}">
+<link rel="stylesheet" href="{{ url_for('static',filename='xjy-theme.css') }}">
+</head>
+<body class="{{ 'app-body' if cu }} {% block bodyclass %}{% endblock %}">
+
+{% if cu %}
+<aside class="app-sidebar" id="finance-navigation" data-module-nav><a class="app-brand" href="{{ url_for('home.index') }}"><span>鑫</span><span>鑫金源珠宝</span></a><nav>
+<h3>财务系统</h3>
+<a class="{{ 'on' if path.startswith('/erp') }}" href="/erp/"><span class="nav-symbol">◇</span>采购与往来 ERP</a>
+{% for endpoint,label,symbol,prefix in [('home.index','经营概览','◈','/overview'),('sales.index','销售明细','↗','/sales'),('stock.index','库存台账','▦','/stock'),('material.index','存料费','◉','/material'),('sheet.index','电子表格','▤','/sheet')] %}<a class="{{ 'on' if path.startswith(prefix) or (endpoint=='home.index' and path=='/') }}" href="{{ url_for(endpoint) }}"><span class="nav-symbol">{{ symbol }}</span>{{ label }}</a>{% endfor %}
+<h3>人员与费用</h3><a class="{{ 'on' if path.startswith('/payroll') }}" href="{{ url_for('finance.payroll') }}"><span class="nav-symbol">￥</span>人员工资</a><a class="{{ 'on' if path.startswith('/expenses') }}" href="{{ url_for('finance.expenses') }}"><span class="nav-symbol">▧</span>报销费用</a>
+{% if original_tabs %}<h3>原表类目</h3>{% for tab in original_tabs %}<a href="{{ url_for('workbooks.page',doc=tab.document_id,sheet=tab.sheet) }}"><span class="nav-symbol">▤</span>{{ tab.sheet }}</a>{% endfor %}{% endif %}
+<h3>文件处理</h3><a class="{{ 'on' if path.startswith('/transfer') }}" href="{{ url_for('transfer.index') }}"><span class="nav-symbol">⇅</span>导入与导出</a><a class="{{ 'on' if path.startswith('/reports') }}" href="{{ url_for('reports.index') }}"><span class="nav-symbol">▥</span>经营汇报表</a>
+{% if xjy_collaboration_enabled %}<a class="{{ 'on' if path.startswith('/xjy/collaboration') }}" href="{{ url_for('xjy_collaboration_page') }}"><span class="nav-symbol">◇</span>协作汇报 · 发布销售表</a>{% endif %}
+<h3>核对与设置</h3><a class="{{ 'on' if path.startswith('/sources') or path.startswith('/source') }}" href="{{ url_for('enhanced.source_page') }}"><span class="nav-symbol">⇄</span>原表与对账</a><a class="{{ 'on' if path.startswith('/rules') }}" href="{{ url_for('enhanced.rule_page') }}"><span class="nav-symbol">ƒ</span>计算规则</a><a class="{{ 'on' if path.startswith('/algorithms') }}" href="{{ url_for('algorithm_approval.page') }}"><span class="nav-symbol">◇</span>算法检查与审批</a><a class="{{ 'on' if path.startswith('/master') }}" href="{{ url_for('master.index') }}"><span class="nav-symbol">⚙</span>主数据与参数</a>{% if cu.role=='admin' %}<a class="{{ 'on' if path.startswith('/users') }}" href="{{ url_for('auth.users') }}"><span class="nav-symbol">♙</span>用户管理</a>{% endif %}</nav><div class="sidebar-bottom">本地账目 · v{{ APP_VERSION }}<br>原始金额与规则版本均可追溯</div></aside>
+<header class="workspace-header"><div class="inline"><button class="menu-toggle" data-menu-toggle type="button" aria-controls="finance-navigation" aria-expanded="false" aria-label="展开导航"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16"></path><path d="M4 12h16"></path><path d="M4 19h16"></path></svg></button><strong>财务系统</strong><span class="note">{{ today }}</span></div><div class="userbox"><label>字号 <select data-font-size style="width:64px;min-height:28px;padding:2px"><option value="14">小</option><option value="16">中</option><option value="18">大</option></select></label><span class="who">{{ cu.display_name or cu.username }}</span><span class="status-pill">{{ {'admin':'管理员','bookkeeper':'操作员','viewer':'只看'}.get(cu.role,cu.role) }}</span><a class="mini" href="{{ url_for('auth.password') }}">改密码</a><a class="mini" href="{{ url_for('auth.logout') }}">退出</a></div></header>
+{% endif %}
+
+<main class="wrap">
+  {% with msgs = get_flashed_messages(with_categories=true) %}
+    {% if msgs %}
+      <div class="flashes">
+        {% for cat, m in msgs %}<div class="flash {{ cat }}">{{ m }}</div>{% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+  {% if cu and backup_error %}<div class="flash error">{{ backup_error }}。请检查磁盘空间并手动备份 data。</div>{% endif %}
+  {% block body %}{% endblock %}
+</main>
+
+<footer class="foot">
+  {{ APP_NAME }} v{{ APP_VERSION }} · {% if cu %}{{ backup_status }} · {% endif %}主机统一备份与恢复，请返回工作台操作
+</footer>
+{% block scripts %}{% endblock %}
+{% if cu and cu.role == 'viewer' %}
+<script>
+document.querySelectorAll('form[method="post"]').forEach(function(f) {
+  if (f.action.indexOf('/password') < 0) {
+    f.querySelectorAll('input,select,button,textarea').forEach(function(e) { e.disabled=true; });
+    var hint=document.createElement('p');hint.className='tip';hint.textContent='当前账号只可查看。';f.prepend(hint);
+  }
+});
+</script>
+{% endif %}
+<script src="{{ url_for('static',filename='workspace.js') }}"></script>
+{% if cu %}<link rel="stylesheet" href="{{ url_for('static',filename='annotations.css') }}"><script>window.annotationBoot={{ annotation_boot|tojson }};</script><script src="{{ url_for('static',filename='annotations.js') }}"></script>{% endif %}
+<script src="{{ url_for('static',filename='xjy-shell.js') }}"></script>
+</body>
+</html>

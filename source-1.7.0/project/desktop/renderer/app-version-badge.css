@@ -1,0 +1,10 @@
+:root { --app-version-footer-height:24px; --app-version-footer-space:calc(var(--app-version-footer-height) + env(safe-area-inset-bottom, 0px)); }
+body { padding-bottom:var(--app-version-footer-space); }
+.app-version-footer { position:fixed; inset:auto 0 0; z-index:90; box-sizing:border-box; height:var(--app-version-footer-space); padding:0 calc(14px + env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) 14px; display:flex; align-items:center; justify-content:flex-end; border-top:1px solid #e8e5de; background:#faf9f6; color:#777164; font:10px/1.2 system-ui,"Microsoft YaHei",sans-serif; letter-spacing:.3px; pointer-events:none; }
+.sidebar { bottom:var(--app-version-footer-space); }
+.desktop-auth, .auth-image, .auth-panel, .workspace { min-height:calc(100vh - var(--app-version-footer-space)); }
+@media print {
+  .app-version-footer { display:none; }
+  body { padding-bottom:0; }
+  .workspace { min-height:0; }
+}

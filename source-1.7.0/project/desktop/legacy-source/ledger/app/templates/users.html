@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}用户管理{% endblock %}
+{% block body %}
+<div class="page-head">
+      <div><h1>用户管理</h1><div class="sub">给同事开账号。新账号的初始密码是 123456，他第一次登录会被要求改。</div></div>
+  <div class="page-actions">
+    <a class="btn primary" href="{{ url_for('source.index') }}">原始 Excel（跟系统对账用）</a>
+  </div>
+</div>
+
+<div class="card">
+  <h2>想确认系统有没有算错？</h2>
+  <div class="card-body">
+    <div class="tip">
+      点上面的「<b>原始 Excel</b>」：把你发我的那份原表传上去，它会把原表**原样摆出来**，
+      还能**一行一行跟系统里的数比**——哪一格对不上，全给你列出来。
+      这是唯一一个不靠系统自己说话的页面。
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>新开一个账号</h2>
+  <div class="card-body">
+    <form method="post" class="filter">
+      <input type="hidden" name="act" value="add">
+      <div class="field"><label>账号</label><input type="text" name="username" placeholder="例如 xiaolin"></div>
+      <div class="field"><label>姓名</label><input type="text" name="display_name" placeholder="例如 小林"></div>
+      <div class="field"><label>角色</label>
+        <select name="role">
+          <option value="bookkeeper">记账员</option>
+          <option value="viewer">只看</option>
+          <option value="admin">管理员</option>
+        </select></div>
+      <div class="field"><label>初始密码</label><input type="text" name="password" value="123456"></div>
+      <div class="field"><button class="btn primary" type="submit">开账号</button></div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <h2>所有账号</h2>
+  <div class="card-body tight">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>账号</th><th>姓名</th><th>角色</th><th>状态</th><th>最后登录</th><th>操作</th></tr></thead>
+        <tbody>
+        {% for r in rows %}
+          <tr>
+            <td>{{ r.username }}</td>
+            <td>{{ r.display_name }}</td>
+            <td>{{ role_names.get(r.role, r.role) }}</td>
+            <td>{{ '启用' if r.active else '已停用' }}</td>
+            <td>{{ r.last_login_at or '—' }}</td>
+            <td>
+              <form method="post" style="display:inline"
+                    onsubmit="return confirm('把 {{ r.username }} 的密码重置成 123456？')">
+                <input type="hidden" name="act" value="reset"><input type="hidden" name="uid" value="{{ r.id }}">
+                <button class="btn sm" type="submit">重置密码</button>
+              </form>
+              <form method="post" style="display:inline">
+                <input type="hidden" name="act" value="toggle"><input type="hidden" name="uid" value="{{ r.id }}">
+                <button class="btn sm" type="submit">{{ '停用' if r.active else '启用' }}</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,70 @@
+param([Parameter(Mandatory=$true)][string]$PackageRoot,[ValidateSet('Upgrade','FreshHost','FreshEmployee','Recover','RecoverStart','Bridge')][string]$Action='Upgrade')
+$ErrorActionPreference='Stop'
+Set-StrictMode -Version Latest
+Add-Type -AssemblyName System.Windows.Forms
+@@PATH_GUARD@@
+@@PROGRESS_VIEW@@
+$progressView=$null
+$held=New-Object 'Collections.Generic.List[IDisposable]'
+$dirs=New-Object 'Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+function Hold-Parents([string]$Name){$p=$Name;while($p){if($dirs.Add($p)){$held.Add((Pin-PlainDirectory $p))};$parent=[IO.Directory]::GetParent($p);if(!$parent){break};$p=$parent.FullName}}
+function File-Hash($Stream){$Stream.Position=0;$h=[Security.Cryptography.SHA256]::Create();try{return ([BitConverter]::ToString($h.ComputeHash($Stream))).Replace('-','').ToLowerInvariant()}finally{$h.Dispose()}}
+function Quote-Arg([string]$Value){if($Value.Contains('"') -or $Value.Contains("`r") -or $Value.Contains("`n")){throw '参数含不允许的字符。'};return '"'+$Value+'"'}
+try{
+ $root=[IO.Path]::GetFullPath($PackageRoot).TrimEnd('\')
+ if(!$root.StartsWith([IO.Path]::GetPathRoot($root)) -or $root.StartsWith('\\') -or $root.Substring(2).Contains(':')){throw '请从普通本地目录解压后安装。'}
+ Hold-Parents $root
+ $rows=([Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('@@FILES_BASE64@@')))|ConvertFrom-Json
+ $expected=New-Object 'Collections.Generic.Dictionary[string,object]' ([StringComparer]::OrdinalIgnoreCase)
+ foreach($row in $rows){$expected.Add([string]$row.path,$row)}
+ $progressView=New-XjyProgressView -Stage '正在检查升级文件' -Detail '正在核对完整安装材料，请保持窗口打开。'
+ $progressView.Form.Show();[Windows.Forms.Application]::DoEvents()
+ $seen=New-Object 'Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+ $dynamicCount=0
+ $stack=New-Object 'Collections.Generic.Stack[string]';$stack.Push($root)
+ while($stack.Count){$dir=$stack.Pop();foreach($item in Get-ChildItem -LiteralPath $dir -Force){
+  if(($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0){throw '安装包不能经过链接或重解析点。'}
+  $relative=$item.FullName.Substring($root.Length+1).Replace('\','/')
+  if($relative -in @('engine-bridge-handoff.json','engine-bridge-accepted.json')){
+   if($Action -cne 'Bridge' -or $item.PSIsContainer -or $expected.ContainsKey($relative) -or !$seen.Add($relative)){throw '动态桥接记录范围或类型不正确。'}
+   $dynamicPin=Pin-PlainFile $item.FullName;try{if($dynamicPin.Length -gt 16384){throw '桥接记录过大。'}}finally{$dynamicPin.Dispose()}
+   # HMAC and stable re-reading belong to the native verifier. Do not retain
+   # this read handle: a previous ACK must remain atomically replaceable.
+   $dynamicCount++;continue
+  }
+  if($item.PSIsContainer){Hold-Parents $item.FullName;$stack.Push($item.FullName);continue}
+  if(!$seen.Add($relative)){throw '安装包含重复名称。'}
+  $pin=Pin-PlainFile $item.FullName;$held.Add($pin)
+  if($relative -in @('一键升级.cmd','首次安装主机.cmd','首次安装员工.cmd','安装组件/native-delivery-170.ps1')){continue}
+  if(!$expected.ContainsKey($relative)){throw ('安装包含额外文件：'+$relative)}
+  $spec=$expected[$relative]
+  if($pin.Length -ne [long]$spec.size -or (File-Hash $pin) -cne [string]$spec.sha256){throw ('安装文件校验未通过：'+$relative)}
+  Set-XjyProgressView -View $progressView -Detail ('正在核对：'+$relative)
+ }}
+ foreach($name in $expected.Keys){if(!$seen.Contains($name)){throw ('安装文件缺失：'+$name)}}
+ if($seen.Count -ne $expected.Count+4+$dynamicCount){throw '完整安装包的文件数量不符。'}
+ if($Action -ceq 'Bridge' -and !(Test-Path -LiteralPath (Join-Path $root 'engine-bridge-handoff.json') -PathType Leaf)){throw '原员工更新的认证交接记录缺失。'}
+ $mode=switch($Action){'Upgrade'{'--upgrade'};'FreshHost'{'--fresh-host'};'FreshEmployee'{'--fresh-employee'};'Recover'{'--recover'};'RecoverStart'{'--recover-start'};'Bridge'{'--continue-bridge'}}
+ $exe=Join-Path $root '受信助手\鑫金源珠宝报价.exe'
+ $tool=Join-Path $root '受信助手\delivery-tools\engine-native-entry170.cjs'
+ $binding=Join-Path $root 'engine-native170-binding.json'
+ $bindingPin=Pin-PlainFile $binding;$held.Add($bindingPin)
+ if((File-Hash $bindingPin) -cne '@@BINDING_SHA256@@'){throw '固定发布绑定校验失败，未启动维护助手。'}
+ $psi=New-Object Diagnostics.ProcessStartInfo;$psi.FileName=$exe;$psi.Arguments=(Quote-Arg $tool)+' --binding-sha256 @@BINDING_SHA256@@ '+$mode
+ $psi.WorkingDirectory=$root;$psi.UseShellExecute=$false;$psi.CreateNoWindow=$true;$psi.RedirectStandardOutput=$true;$psi.RedirectStandardError=$true;$psi.StandardOutputEncoding=[Text.UTF8Encoding]::new($false);$psi.StandardErrorEncoding=[Text.UTF8Encoding]::new($false)
+ $psi.EnvironmentVariables.Clear()
+ foreach($name in @('SystemRoot','WINDIR','TEMP','TMP','LOCALAPPDATA','APPDATA','USERPROFILE','COMSPEC')){$value=[Environment]::GetEnvironmentVariable($name,'Process');if($value){$psi.EnvironmentVariables[$name]=$value}}
+ $psi.EnvironmentVariables['ELECTRON_RUN_AS_NODE']='1'
+ Set-XjyProgressView -View $progressView -Stage '正在安装或升级程序' -Detail '程序正在核对安装位置、保留原有资料并处理升级。若提示退出，请从托盘正常退出原程序。'
+ $p=[Diagnostics.Process]::Start($psi);$stdout=$p.StandardOutput.ReadToEndAsync();$stderr=$p.StandardError.ReadToEndAsync()
+ while(!$p.WaitForExit(100)){[Windows.Forms.Application]::DoEvents()}
+ $out=$stdout.GetAwaiter().GetResult();$err=$stderr.GetAwaiter().GetResult()
+ if($p.ExitCode -ne 0){throw ('安装或升级已停止。请保留原程序、备份和错误记录。'+"`n"+$err)}
+ $results=@();foreach($line in ($out -split "`r?`n")){if($line.Trim()){$v=$line|ConvertFrom-Json;if($v.type -ceq 'result'){$results+=@($v)}}}
+ if($results.Count -ne 1){throw '维护助手没有返回唯一完成记录。'};$result=$results[0]
+ if($Action -in @('Recover','RecoverStart')){if($result.recovered -ne $true){throw '恢复未获确认，请保留现场。'}}else{if($result.completed -ne $true -or $result.version -cne '1.7.0' -or $result.engineVersion -cne '44.9.0' -or $result.role -cnotin @('host','employee')){throw '完整安装或正确角色启动未获确认，请保留原始记录。'}}
+ Close-XjyProgressView -View $progressView
+ [void][Windows.Forms.MessageBox]::Show('处理结果已确认。请在打开的软件中核对版本和角色；员工连接店内主机后登录。','鑫金源珠宝1.7',[Windows.Forms.MessageBoxButtons]::OK,[Windows.Forms.MessageBoxIcon]::Information)
+ exit 0
+}catch{Close-XjyProgressView -View $progressView;[void][Windows.Forms.MessageBox]::Show($_.Exception.Message,'安装或升级未完成',[Windows.Forms.MessageBoxButtons]::OK,[Windows.Forms.MessageBoxIcon]::Error);[Console]::Error.WriteLine($_.Exception.Message);exit 1}
+finally{Close-XjyProgressView -View $progressView;for($i=$held.Count-1;$i -ge 0;$i--){$held[$i].Dispose()}}

@@ -1,0 +1,9 @@
+'use strict';
+// Public release-file transport only. No product/SQLite/key execution or access.
+const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),assert=require('node:assert/strict');
+const W='E:/codex/2026-10-15/work/xjy-v16-deep-audit',D=path.join(W,'release-work/deepseek-stage1-development-a1'),hash=b=>crypto.createHash('sha256').update(b).digest('hex');
+function plain(file,dir=false){for(let p=path.resolve(file);;p=path.dirname(p)){const s=fs.lstatSync(p);assert(!s.isSymbolicLink()&&fs.realpathSync.native(p).toLowerCase()===p.toLowerCase());if(p===path.resolve(file))assert(dir?s.isDirectory():s.isFile()&&s.nlink===1);if(p===path.dirname(p))break;}}
+const raw=fs.readFileSync(path.join(W,'release-work/native160-to162-repeat-source-a2/DELTA-STAGING-SOURCE.json'));assert.equal(hash(raw),'44d21b12ee1216f3eabfaad229df220dfb04705f0c9bebec5e3788e50a01794c');const plan=JSON.parse(raw);assert.equal(plan.files.length,14);assert.equal(plan.deltaFileCount,12);
+const checked=plan.files.map(r=>{const from=path.resolve(r.sourcePublicPath),to=path.resolve(D,...r.destinationRelativePath.split('/'));assert(from.toLowerCase().startsWith(path.join(W,'release-work').toLowerCase()+path.sep));assert(to.toLowerCase().startsWith(path.join(D,'inputs/initial162-a5-delta').toLowerCase()+path.sep));plain(from);const b=fs.readFileSync(from);assert.equal(b.length,r.size);assert.equal(hash(b),r.sha256);return{r,from,to,b};});
+const target=path.join(D,'inputs/initial162-a5-delta');plain(path.dirname(target),true);assert(!fs.existsSync(target),'CreateNew public delta only');fs.mkdirSync(target);plain(target,true);for(const {r,to,b} of checked){fs.writeFileSync(to,b,{flag:'wx'});plain(to);assert.equal(hash(fs.readFileSync(to)),r.sha256);}
+console.log(JSON.stringify({stagedPublicFiles:checked.length,bytes:checked.reduce((s,x)=>s+x.b.length,0),deltaFiles:12,target,productExecuted:false,databaseAccess:false,keyAccess:false}));

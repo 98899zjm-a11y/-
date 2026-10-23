@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}新建盘点任务{% endblock %}
+
+{% block body %}
+<div class="page-head">
+  <div>
+    <h1>新建盘点任务</h1>
+    <div class="sub">建好之后先打印盘点表拿去数，数完再回来把数字录进系统。</div>
+  </div>
+  <div class="page-actions">
+    <a class="btn" href="{{ url_for('count.session_list') }}">← 返回任务列表</a>
+  </div>
+</div>
+
+{% if not batches %}
+<div class="note warn">
+  <b>还不能建任务——没有任何账面数据。</b>先去
+  <a href="{{ url_for('stock.book_list') }}">账面数据</a> 导入一张库存 Excel。
+</div>
+{% else %}
+
+<form method="post" action="{{ url_for('count.session_new') }}">
+<div class="grid c2">
+  <div class="card">
+    <h2>基本信息</h2>
+    <div class="card-body">
+      <div class="field">
+        <label for="name">任务名称</label>
+        <input type="text" id="name" name="name" placeholder="例如：2026 年 6 月月末全盘" autofocus>
+        <div class="tip">留空的话自动按「盘点 年月日」命名。</div>
+      </div>
+
+      <div class="field">
+        <label for="batch_id">用哪张账面表做对比基准</label>
+        <select id="batch_id" name="batch_id">
+          {% for b in batches %}
+            <option value="{{ b.id }}" {{ 'selected' if active and b.id == active.id }}>
+              {{ b.label }}（{{ b.row_count }} 个商品编号 · 导于 {{ b.created_at }}）{% if b.is_active %} ← 当前账面{% endif %}
+            </option>
+          {% endfor %}
+        </select>
+        <div class="tip">盘点结果会跟这张表的数量比。选错批次会导致满屏虚假差异，务必确认。</div>
+      </div>
+
+      <div class="field">
+        <label for="scope_location">只盘某个库位（选填）</label>
+        <input type="text" id="scope_location" name="scope_location" placeholder="例如：A区">
+        <div class="tip">
+          填了之后本轮只盘点库位里包含这段文字的商品编号，适合分区分次盘。
+          多个库位用逗号隔开，例如「A区,B区」。留空 = 全盘。
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="note">备注（选填）</label>
+        <input type="text" id="note" name="note" placeholder="例如：配合月底结账，A 区由张三负责">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>打印方式</h2>
+    <div class="card-body">
+      <div class="field">
+        <div class="checks">
+          <label>
+            <input type="checkbox" name="blind" value="1" checked>
+            <b>盲盘</b>——打印的盘点表上不显示账面数量
+          </label>
+        </div>
+        <div class="tip">
+          强烈建议保持勾选。纸质盘点表上印着账面数时，盘点员很容易照着抄，
+          盘出来的结果永远「没有差异」，盘点就白做了。<br>
+          需要核对时可以在打印页临时关掉这一项。
+        </div>
+      </div>
+
+      <div class="note" style="margin-top:18px">
+        <b>建完之后怎么走：</b>
+        <ol style="margin:8px 0 0;padding-left:20px;line-height:1.9">
+          <li>在任务详情页点「打印盘点表」，用浏览器打印（或导出 Excel 再排版打印）</li>
+          <li>拿着纸去仓库数，把实盘数写在纸上</li>
+          <li>回来点「录入实盘」，用扫码枪或键盘把 商品编号 + 数量 敲进去</li>
+          <li>录完把任务状态改成「复核中」，交给复核员看差异</li>
+          <li>复核员确认后生成库存调整单，执行后账面自动更新成新的一批</li>
+        </ol>
+      </div>
+
+      <div style="margin-top:20px">
+        <button class="btn primary" type="submit">创建任务</button>
+        <a class="btn ghost" href="{{ url_for('count.session_list') }}">取消</a>
+      </div>
+    </div>
+  </div>
+</div>
+</form>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}存料费{% endblock %}
+{% block body %}
+<div class="page-head">
+  <div>
+    <h1>存料费</h1>
+    <div class="sub">
+      和你那张表一样，按「日期 × 供货商」看。库里一天一家存一行，
+      页面拼回矩阵——**不同供货商绝不相加**，板料和金额也分开看。
+    </div>
+  </div>
+  <div class="page-actions">
+    <a class="btn" href="{{ url_for('material.export') }}">导出 CSV</a>
+    <a class="btn" href="{{ url_for('material.index', all=1) }}">全部时间</a>
+  </div>
+</div>
+
+<div class="card">
+  <h2>记一笔 <span class="hint">同一天同一家再记会覆盖上一次</span></h2>
+  <div class="card-body">
+    <form method="post" action="{{ url_for('material.save') }}">
+      <input type="hidden" name="material_snapshot" value="{{ material_snapshot }}">
+      <div class="form-grid">
+        <div class="field"><label>日期 *</label><input type="date" name="date" value="{{ today }}"></div>
+        <div class="field"><label>供货商 *</label>
+          <select name="supplier">{% for s in sups_all %}<option>{{ s }}</option>{% endfor %}</select></div>
+        <div class="field"><label>板料 (克)</label><input type="number" step="0.0001" name="grams" placeholder="可正可负"></div>
+        <div class="field"><label>金额 (元)</label><input type="number" step="0.01" name="amount" placeholder="可正可负"></div>
+        <div class="field wide"><label>备注</label><input type="text" name="note" placeholder="例如：还料 / 提货"></div>
+      </div>
+      <div class="page-actions" style="margin-top:10px"><button class="btn primary" type="submit">保存</button></div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <h2>筛选</h2>
+  <div class="card-body">
+    <form method="get" class="filter">
+      <div class="field"><label>从</label><input type="date" name="s" value="{{ s }}"></div>
+      <div class="field"><label>到</label><input type="date" name="e" value="{{ e }}"></div>
+      <div class="field"><button class="btn primary" type="submit">查</button></div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <h2>按供货商汇总 <span class="hint">{{ total.days }} 天 · 板料合计 {{ total.gram|gram }} g · 金额合计 ￥{{ total.amount|money }}</span></h2>
+  <div class="card-body tight">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>供货商</th><th class="num">板料 (克)</th><th class="num">金额 (元)</th></tr></thead>
+        <tbody>
+        {% for x in summary %}
+          <tr>
+            <td>{{ x.supplier }}</td>
+            <td class="num {{ 'neg' if x.grams < 0 else '' }}">{{ x.grams|fmt2 }}</td>
+            <td class="num {{ 'neg' if x.amount < 0 else '' }}">{{ x.amount|fmt2 }}</td>
+          </tr>
+        {% else %}
+          <tr><td class="empty" colspan="3">这个范围里没有记录</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>按日期看（矩阵） <span class="hint">一格 = 板料克数 / 金额</span></h2>
+  <div class="card-body tight">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>日期</th>
+          {% for sp in sups %}<th class="num">{{ sp }}</th>{% endfor %}
+          <th class="num">当天合计(克)</th><th class="num">当天合计(元)</th>
+        </tr></thead>
+        <tbody>
+        {% for d in day_rows %}
+          <tr>
+            <td>{{ d.date }}</td>
+            {% for sp in sups %}
+              {% set c = d.cells.get(sp) %}
+              <td class="num">
+                {% if c %}{{ c.grams|fmt2 }}<br><span class="note">{{ c.amount|fmt2 }}</span>{% endif %}
+              </td>
+            {% endfor %}
+            <td class="num">{{ d.grams|fmt2 }}</td>
+            <td class="num">{{ d.amount|fmt2 }}</td>
+          </tr>
+        {% else %}
+          <tr><td class="empty" colspan="{{ sups|length + 3 }}">没有记录</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>逐条（要改就删了重记）</h2>
+  <div class="card-body tight">
+    <div class="table-wrap" style="max-height:360px">
+      <table>
+        <thead><tr><th>日期</th><th>供货商</th><th class="num">板料(克)</th><th class="num">金额(元)</th><th>备注</th><th>操作</th></tr></thead>
+        <tbody>
+        {% for r in raw %}
+          <tr>
+            <td>{{ r.date }}</td><td>{{ r.supplier }}</td>
+            <td class="num">{{ r.grams|fmt2 }}</td>
+            <td class="num">{{ r.amount|fmt2 }}</td>
+            <td>{{ r.note }}</td>
+            <td>
+              <form method="post" action="{{ url_for('material.delete', rid=r.id) }}" style="display:inline"
+                    onsubmit="return confirm('确定删掉这一条吗？')">
+                <input type="hidden" name="snapshot" value="{{ row_token('material_stock', r) }}"><button class="btn sm danger" type="submit">删</button>
+              </form>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td class="empty" colspan="6">没有记录</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<div class="card"><h2>存料费金额试算</h2><div class="card-body" data-material-calculator><div class="filter"><div class="field"><label>克数</label><input type="number" step="any" data-value="克数" value="0"></div><div class="field"><label>单价</label><input type="number" step="any" data-value="单价" value="0"></div><div class="field"><label>工费</label><input type="number" step="any" data-value="工费" value="0"></div><div class="field"><button type="button" class="btn" data-material-calc>按当前规则试算</button></div></div><strong data-calc-result></strong><p class="note">试算不改原账，请将确认的金额录入账目。<a href="{{ url_for('enhanced.rule_page',domain='material') }}">编辑公式</a></p></div></div>{% endblock %}

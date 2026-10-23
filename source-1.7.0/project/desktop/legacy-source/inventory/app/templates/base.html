@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}{{ APP_NAME }}{% endblock %} · {{ APP_NAME }}</title>
+<link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+<style>
+.page-eyebrow{font-size:12px;letter-spacing:.1em;color:#64748b;margin-bottom:6px}.entry-navigation{display:flex;gap:8px;background:#e9eef5;border-radius:12px;padding:6px;width:max-content;max-width:100%;margin-bottom:22px}.entry-navigation a{padding:10px 24px;border-radius:9px;color:#526073;text-decoration:none;font-weight:600}.entry-navigation a.on{background:#fff;box-shadow:0 2px 6px #21334d14;color:#2457d6}.entry-layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:24px;align-items:start}.entry-card-heading{padding:20px 24px;border-bottom:1px solid var(--line-2);display:flex;justify-content:space-between;align-items:center}.entry-card-heading h2{padding:0;border:0;margin:0}.entry-form{padding:0 24px}.entry-section{padding:24px 0;border-bottom:1px solid var(--line-2)}.entry-section-title{display:flex;align-items:center;gap:10px;margin-bottom:18px}.entry-section-title span{color:#2457d6;background:#eef3ff;border-radius:6px;padding:4px 8px;font-size:12px;font-weight:700}.entry-section-title h3{margin:0;font-size:15px}.entry-grid{display:grid;gap:18px}.entry-grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}.entry-grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}.entry-grid .span-two{grid-column:span 2}.entry-grid .field{margin:0}.entry-grid label{font-size:13px;color:#526073;margin-bottom:8px}.entry-grid input,.entry-grid select{padding:11px 12px;min-height:43px;border-radius:8px}.field-note{font-size:12px;color:#8390a3;margin-top:7px}#inbound-fields[hidden]{display:none}.purchase-summary{margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px;background:#f0f6ff;padding:18px;border-radius:10px;color:#1e3b63}.purchase-summary>div{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}.purchase-summary span{font-size:12px;width:100%;color:#617793}.purchase-summary strong{font-size:25px;font-variant-numeric:tabular-nums}.purchase-summary small{font-size:12px}.purchase-summary p{grid-column:span 2;margin:0;font-size:12px;color:#6b819d}.entry-submit{padding:20px 0;display:flex;justify-content:space-between;align-items:center;gap:12px;color:#718096;font-size:12px}.entry-submit button{padding:12px 32px}.entry-aside .card{margin-bottom:16px}.aside-stat{display:flex;justify-content:space-between;padding:9px 0;align-items:center}.aside-stat span{color:#6b7787;font-size:13px}.aside-stat b{font-size:21px}.entry-help p{font-size:13px;line-height:1.8;margin:0 0 12px}.recent-entry{display:flex;justify-content:space-between;gap:8px;margin-bottom:14px}.recent-entry div{min-width:0}.recent-entry b,.recent-entry span{display:block;overflow:hidden;text-overflow:ellipsis}.recent-entry b{font-size:13px}.recent-entry span{font-size:12px;color:#8793a3}.recent-entry strong{white-space:nowrap;font-size:13px}.excel-toolbar{display:flex;gap:20px;justify-content:space-between;align-items:center;padding:20px 24px}.excel-toolbar h2{padding:0;margin:0;border:0;font-size:17px}.excel-meta{color:#738195;font-size:12px;line-height:1.7;margin-top:7px}.excel-tools{display:flex;gap:10px;align-items:center}.excel-tools input{width:320px}.excel-grid{overflow:auto;min-height:300px;max-height:65vh}.excel-grid table{border-collapse:collapse;font-size:13px;min-width:100%;width:max-content}.excel-grid th,.excel-grid td{border:1px solid #e6eaf0;padding:12px 16px;white-space:nowrap;max-width:300px;overflow:hidden;text-overflow:ellipsis}.excel-grid th{position:sticky;top:0;background:#eff3f8;z-index:1;font-weight:600}.excel-grid tbody tr:hover{background:#f1f7ff}.excel-grid th:first-child,.excel-grid td:first-child{color:#8793a1;text-align:right}.excel-pager{padding:16px 24px;display:flex;justify-content:space-between;align-items:center}.excel-status{padding:50px;color:#738195}.excel-grid>div{padding:40px;color:#738195}input[type=datetime-local]{font:inherit;color:var(--ink);background:#fff;border:1px solid #ccd3dd;border-radius:var(--radius-sm);padding:7px 10px;width:100%}@media(max-width:1000px){.entry-layout{grid-template-columns:1fr}.entry-aside{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.entry-grid.three{grid-template-columns:repeat(2,minmax(0,1fr))}.excel-toolbar{flex-wrap:wrap}}@media(max-width:620px){.entry-form{padding:0 16px}.entry-grid.two,.entry-grid.three,.entry-aside{grid-template-columns:1fr}.entry-grid .span-two{grid-column:span 1}.entry-navigation a{padding:9px 14px}.excel-tools input{width:100%}.excel-tools{width:100%}.excel-toolbar{padding:16px}}
+</style><style>
+.stock-app{--ink:#24364a;--ink-2:#566779;background:#f3f6fa}.stock-app .topbar{position:sticky;top:0;z-index:50;background:#fff}.stock-app .topbar-inner{max-width:none;min-height:64px;padding:0 24px;justify-content:space-between}.stock-app .brand{font-size:15px}.stock-app .brand-name{max-width:190px}.stock-app .nav{position:fixed;top:82px;bottom:18px;left:18px;width:184px;margin:0;padding:14px 10px;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:5px;overflow-y:auto;border:1px solid #e2e9f1;border-radius:14px;background:#fff;box-shadow:0 6px 24px #27426306}.stock-app .nav a{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:8px;font-size:13px;min-height:38px}.stock-app .nav a.on{background:#ecf3ff;color:#2457d6;font-weight:600}.stock-app main.wrap{width:calc(100% - 258px);max-width:none;margin:28px 30px 24px 228px;padding:0}.stock-app .foot{margin-left:212px}.stock-app .card{border-color:#e1e8f0;border-radius:12px;box-shadow:0 3px 12px #263e5704}.stock-app .entry-layout{grid-template-columns:minmax(0,1fr) 250px;gap:18px}.stock-app .entry-section{padding:18px 0}.stock-app .entry-form{padding:0 20px}.stock-app .entry-grid{gap:14px}.stock-app .entry-grid input,.stock-app .entry-grid select{padding:10px 11px;min-height:40px}.stock-app .entry-card-heading h2{font-size:18px}.stock-app .entry-navigation{margin-bottom:18px}.draft-note{font-size:12px;color:#61778e;margin-bottom:14px;line-height:1.7}.material-type-note{font-size:12px;color:#728398;margin-top:6px}.stock-app .tb.ed select[name=material_type]{min-width:125px}.stock-app .tb.ed input[type=number]{min-width:95px}@media(max-width:1180px){.stock-app .entry-layout{grid-template-columns:minmax(0,1fr)}.stock-app .entry-aside{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}}@media(max-width:980px){.stock-app .topbar-inner{flex-wrap:wrap;padding:10px 16px;gap:10px}.stock-app .nav{position:static;flex-direction:row;flex-wrap:wrap;width:100%;max-height:130px;order:3;padding:6px;border:0;box-shadow:none;background:#f5f8fc;border-radius:8px}.stock-app .nav a{padding:7px 10px;min-height:34px;font-size:12px}.stock-app main.wrap{width:calc(100% - 32px);margin:22px 16px}.stock-app .foot{margin-left:0}.stock-app .entry-aside{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.stock-app .entry-aside{grid-template-columns:1fr}.stock-app .userbox .who{max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.stock-app .entry-form{padding:0 14px}}
+</style><style>.stock-app .topbar{backdrop-filter:none;-webkit-backdrop-filter:none;filter:none;transform:none}.stock-app .topbar-inner{height:auto}.stock-app .nav{flex-wrap:nowrap}@media(max-width:980px){.stock-app .nav{flex-wrap:wrap}}</style>
+<link rel="stylesheet" href="{{ url_for('static',filename='xjy-theme.css') }}">
+</head>
+<body data-stock-user="{{ cu.id if cu else '' }}" data-stock-instance="{{ stock_instance }}" class="{{ 'stock-app' if cu }} {% block bodyclass %}{% endblock %}">
+
+{% if cu %}
+<header class="topbar">
+  <div class="topbar-inner">
+    <button class="menu-toggle" type="button" data-menu-toggle aria-controls="inventory-navigation" aria-expanded="false" aria-label="展开导航"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16"></path><path d="M4 12h16"></path><path d="M4 19h16"></path></svg></button>
+    <a class="brand" href="{{ url_for('home.index') }}">
+      <span class="brand-mark">鑫</span>
+      <span class="brand-name">鑫金源珠宝<small>库管系统</small></span>
+    </a>
+
+
+
+    <div class="userbox">
+      {% if xjy_collaboration_enabled %}<a class="mini xjy-collab-nav {{ 'on' if path.startswith('/xjy/collaboration') }}" href="{{ url_for('xjy_collaboration_page') }}">汇报财务系统</a>{% endif %}
+      <span class="who">{{ cu.display_name or cu.username }}</span>
+      <span class="role">{{ ROLE_NAMES.get(cu.role, cu.role) }}</span>
+      <a class="mini" href="{{ url_for('auth.password') }}">改密码</a>
+      <a class="mini" href="{{ url_for('auth.logout') }}">退出</a>
+    </div>
+  </div>
+</header>
+    <nav class="nav" id="inventory-navigation" data-module-nav aria-label="库管业务导航"><div class="nav-heading">库管系统</div>
+      <a href="{{ url_for('home.index') }}" class="{{ 'on' if path == '/' }}">首页</a>
+
+      {% if cu.role == 'admin' %}
+        <a href="{{ url_for('stock.book_list') }}" class="{{ 'on' if path.startswith('/book') }}">账面数据</a>
+        <a href="{{ url_for('stock.sku_list') }}" class="{{ 'on' if path.startswith('/skus') }}">商品主库存</a>
+      {% endif %}
+
+      <a href="{{ url_for('count.session_list') }}" class="{{ 'on' if path.startswith('/sessions') }}">
+        盘点任务{% if nav_count.sessions %}<span class="dot">{{ nav_count.sessions }}</span>{% endif %}
+      </a>
+
+      {# 出入库是单独一个大分类：商品和物料两套清单并排放，靠页内页签切换，
+         不再在顶栏占两个位置——顶栏留给「你在哪个大模块」。 #}
+      <a href="{{ url_for('moves.move_list') }}"
+         class="{{ 'on' if path.startswith('/moves') }}">商品入库 / 出库</a>
+      <a href="{{ url_for('materials.material_list') }}"
+         class="{{ 'on' if path.startswith('/material') }}">物料出入库</a>
+      <a href="{{ url_for('stock.excel_page') }}" class="{{ 'on' if path.startswith('/excel-sync') }}">Excel 实时对照</a>
+      <a href="{{ url_for('report.metal_page') }}" class="{{ 'on' if path.startswith('/metal-stats') }}">板料统计</a>
+      <a href="{{ url_for('pricing.index') }}"
+         class="{{ 'on' if path.startswith('/pricing') }}">一键算价</a>
+
+      {% if cu.role in ('admin', 'reviewer') %}
+        <a href="{{ url_for('review.adjustment_list') }}" class="{{ 'on' if path.startswith('/adjustments') }}">
+          库存调整单{% if nav_count.adjustments %}<span class="dot soft" title="有草稿调整单还没执行">{{ nav_count.adjustments }}</span>{% endif %}
+        </a>
+        {# 报表放在靠后：它是「回头看」的页面，不是每天要点的入口。 #}
+        <a href="{{ url_for('report.index') }}" class="{{ 'on' if path.startswith('/reports') }}">报表</a>
+        <a href="{{ url_for('auth.logs') }}" class="{{ 'on' if path.startswith('/logs') }}">操作日志</a>
+      {% endif %}
+
+      {% if cu.role == 'admin' %}
+        <a href="{{ url_for('auth.users') }}" class="{{ 'on' if path.startswith('/users') }}">用户管理</a>
+      {% endif %}
+    </nav>
+{% endif %}
+
+<main class="wrap {% block wrapclass %}{% endblock %}">
+  {% block crumbs %}{% endblock %}
+
+  {% with msgs = get_flashed_messages(with_categories=true) %}
+    {% if msgs %}
+      <div class="flashes">
+      {% for cat, m in msgs %}
+        <div class="flash {{ cat }}">{{ m }}</div>
+      {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  {% block body %}{% endblock %}
+{% for key, values in inbound_choices.items() %}<datalist id="{{ key }}-choices">{% if key == 'unit' %}<option value="件"><option value="条"><option value="只"><option value="枚"><option value="对"><option value="套">{% endif %}{% for value in values %}<option value="{{ value }}">{% endfor %}</datalist>{% endfor %}
+</main>
+
+<footer class="foot">
+  {{ APP_NAME }} v{{ APP_VERSION }} · 主机统一备份与恢复，请返回工作台操作
+</footer>
+
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+<script id="stock-draft-saved" type="application/json">{{ stock_draft_saved|tojson }}</script>
+<script src="{{ url_for('static',filename='draft-state.js') }}" defer></script>
+{% block scripts %}{% endblock %}
+<script src="{{ url_for('static',filename='xjy-shell.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}导入与导出{% endblock %}
+{% block body %}
+<link rel="stylesheet" href="{{ url_for('static', filename='transfer.css') }}">
+<section class="transfer-page">
+  <div class="page-head transfer-head">
+    <div><p class="transfer-eyebrow">原始 Excel 工作簿</p><h1>导入与导出</h1><p class="sub">按原工作表预览列和数据，确认后入账。导出前选择文件格式与范围。</p></div>
+    {% if doc %}<a class="btn" href="{{ url_for('enhanced.reconcile', doc=doc.id) }}">查看逐项对账</a>{% endif %}
+  </div>
+  <ol class="transfer-steps" aria-label="原表导入步骤">
+    <li><span>1</span><div><strong>选择原表</strong><small>上传或打开已归档文件</small></div></li>
+    <li><span>2</span><div><strong>核对预览</strong><small>检查工作表、列和待处理内容</small></div></li>
+    <li><span>3</span><div><strong>确认入账</strong><small>导入明确数据，再逐项对账</small></div></li>
+  </ol>
+
+  <div class="transfer-tools">
+    <section class="transfer-panel">
+      <div class="transfer-section-title"><span class="transfer-number">1</span><div><h2>选择原始表格</h2><p>支持 .xlsx 和 .xlsm，上传后先预览。</p></div></div>
+      {% if can_import %}
+      <form method="post" action="{{ url_for('enhanced.source_upload') }}" enctype="multipart/form-data" class="transfer-upload" data-transfer-upload>
+        <input type="hidden" name="origin" value="transfer">
+        <label for="transfer-file" class="transfer-file-label">选择 Excel 文件</label>
+        <input id="transfer-file" type="file" name="file" accept=".xlsx,.xlsm" required>
+        <p class="transfer-file-name" data-transfer-file-name>尚未选择文件</p>
+        <button type="submit" class="btn primary">上传并预览</button>
+      </form>
+      {% else %}<p class="transfer-hint">当前账号可预览与导出原表。上传和导入请由管理员操作。</p>{% endif %}
+      <p class="transfer-note">上传只归档原文件，不会自动生成账目；公式和原始行保持可追溯。</p>
+      {% if docs %}
+      <form method="get" action="{{ url_for('transfer.index') }}" class="transfer-archive">
+        <label for="transfer-document">打开已归档原表</label>
+        <div class="transfer-inline"><select id="transfer-document" name="doc">{% for item in docs %}<option value="{{ item.id }}" {{ 'selected' if doc and item.id == doc.id }}>{{ item.name }} · {{ item.created_at }}</option>{% endfor %}</select><button class="btn" type="submit">打开预览</button></div>
+      </form>
+      {% endif %}
+    </section>
+
+    <section class="transfer-panel transfer-export">
+      <div class="transfer-section-title"><span class="transfer-number transfer-export-mark">出</span><div><h2>导出文件</h2><p>先明确格式，再选择需要的工作表。</p></div></div>
+      {% if doc and sheets %}
+      <form method="get" action="/workbooks/{{ doc.id }}/export" data-transfer-export data-sheet="{{ current.name if current else '' }}">
+        <fieldset class="transfer-format"><legend>文件格式</legend>
+          <label><input type="radio" name="format" value="xlsx" checked><span><strong>Excel 工作簿（.xlsx）</strong><small>保留全部原工作表、列顺序与原表公式</small></span></label>
+          <label><input type="radio" name="format" value="csv"><span><strong>当前工作表数据（.csv）</strong><small>一张工作表的单元格值，便于汇总和整理</small></span></label>
+        </fieldset>
+        <label for="transfer-export-sheet">导出范围</label>
+        <select id="transfer-export-sheet" name="sheet" data-transfer-export-sheet>
+          <option value="">全部 {{ sheets|length }} 张工作表（Excel）</option>
+          {% for item in sheets %}<option value="{{ item.name }}">{{ item.name }}</option>{% endfor %}
+        </select>
+        <p class="transfer-note" data-transfer-export-note>Excel 导出完整工作簿。原公式在 Excel 中重新计算，结果可能与原缓存金额不同。</p>
+        <button type="submit" class="btn primary">按所选格式导出</button>
+      </form>
+      <a class="transfer-text-link" href="{{ url_for('enhanced.reconcile', doc=doc.id, export=1) }}">另行导出完整对账结果（CSV）</a>
+      {% else %}<div class="transfer-empty"><strong>先选择一份原表</strong><p>打开已归档文件后，即可选择导出格式。</p></div>{% endif %}
+    </section>
+  </div>
+
+  {% if doc and current %}
+  <section class="transfer-panel transfer-preview">
+    <div class="transfer-section-title"><span class="transfer-number">2</span><div><h2>核对工作表与列</h2><p>{{ doc.name }} · 按原表顺序显示 {{ sheets|length }} 张工作表</p></div></div>
+    <nav class="transfer-sheet-tabs" aria-label="原表工作表">
+      {% for item in sheets %}<a class="{{ 'active' if current.name == item.name }}" href="{{ url_for('transfer.index', doc=doc.id, sheet=item.name) }}" {% if current.name == item.name %}aria-current="page"{% endif %}><strong>{{ item.name }}</strong><small>{{ item.title }} · 原表 {{ item.row_count }} 行{% if item.pending_count %} · 待处理 {{ item.pending_count }} 行{% endif %}</small></a>{% endfor %}
+    </nav>
+    <div class="transfer-sheet-overview"><div><span>当前原工作表</span><strong>{{ current.name }}</strong></div><div><span>业务明细</span><strong>{{ current.business_count }} 行</strong></div><div><span>已关联来源</span><strong>{{ current.linked_count }} 行</strong></div><div class="{{ 'needs-attention' if current.pending_count }}"><span>待处理</span><strong>{{ current.pending_count }} 行</strong></div></div>
+    <div class="transfer-preview-head"><div><h3>原表数据预览</h3><p class="transfer-note">显示前 {{ current.preview|length }} 行。行号和列号与原文件一致，公式显示在原值下方。</p></div><a class="btn" href="/workbooks/{{ doc.id }}?sheet={{ current.name|urlencode }}">打开这张原表编辑</a></div>
+    <div class="transfer-scroll" tabindex="0" aria-label="原表前二十行预览，可横向滚动">
+      <table class="transfer-preview-table"><thead><tr><th class="transfer-row-number">原行</th>{% for column in current.columns %}<th><span>{{ column.letter }}</span><strong>{{ column.name }}</strong></th>{% endfor %}<th>识别结果</th></tr></thead><tbody>
+        {% for row in current.preview %}<tr><th class="transfer-row-number" scope="row">{{ row.row_no }}</th>{% for cell in row.cells %}<td title="{{ cell.address }}{% if cell.formula %} · {{ cell.formula }}{% endif %}"><div class="transfer-cell-value {{ 'transfer-missing' if cell.missing_cache }}">{{ '公式未提供缓存值' if cell.missing_cache else cell.value }}</div>{% if cell.formula %}<div class="transfer-cell-formula">{{ cell.formula }}</div>{% endif %}</td>{% endfor %}<td><span class="transfer-classification">{{ row.classification }}</span>{% if row.warning %}<div class="transfer-warning">{{ row.warning }}</div>{% endif %}</td></tr>{% endfor %}
+      </tbody></table>
+    </div>
+    <details class="transfer-mapping"><summary>查看原列与系统字段的对应关系</summary><p class="transfer-note">这里展示当前识别规则。未对应的列继续保留在原表，不会默认为账目字段。{% if current.header_row %}表头位于第 {{ current.header_row }} 行。{% else %}尚未识别业务表头。{% endif %}</p>
+      <div class="transfer-scroll transfer-mapping-scroll"><table><thead><tr><th>原列号</th><th>原列名称</th><th>系统对应字段</th><th>处理方式</th></tr></thead><tbody>{% for column in current.columns %}<tr><td>{{ column.letter }}</td><td>{{ column.name }}</td><td>{{ column.target }}</td><td>{{ '按当前规则识别，导入前核对' if column.mapped else '只归档，不入账' }}</td></tr>{% endfor %}</tbody></table></div>
+    </details>
+    {% if current.pending_count %}
+    <div class="transfer-pending"><div class="transfer-preview-head"><div><h3>这张表还有 {{ current.pending_count }} 行需要处理</h3><p class="transfer-note">先核实单位、日期或旧账对应。以下展示前 {{ current.pending|length }} 行，完整列表在导入确认页。</p></div><a class="btn" href="{{ url_for('enhanced.source_page', doc=doc.id) }}">去确认待处理内容</a></div>
+      <div class="transfer-scroll transfer-pending-scroll"><table><thead><tr><th>原表位置</th><th>状态</th><th>需核对的内容</th></tr></thead><tbody>{% for row in current.pending %}<tr><td>{{ row.sheet }} · 第 {{ row.row_no }} 行{% if row.kind == 'material' %}<small>供货商格：{% for cell in row.normalized.get('cells', []) %}{{ cell.supplier }}（{{ current.columns[cell.column - 1].letter }}{{ row.row_no }}）{% if not loop.last %}、{% endif %}{% endfor %}</small>{% endif %}</td><td>{{ row.classification }}</td><td>{{ row.warning or '这行还有单元格尚未完成来源关联，请到导入确认页核对。' }}</td></tr>{% endfor %}</tbody></table></div>
+    </div>
+    {% endif %}
+  </section>
+
+  <section class="transfer-panel transfer-confirm"><div class="transfer-section-title"><span class="transfer-number">3</span><div><h2>确认明确数据后入账</h2><p>已关联来源 {{ total_linked }} 行，待处理 {{ total_pending }} 行。关联来源不等于已逐项对账一致。</p></div></div><div class="transfer-confirm-actions"><p>在确认页勾选工作表，核对单位与旧记录，再导入明确的数据。重复导入相同原表行会跳过。</p>{% if can_import %}<a class="btn primary" href="{{ url_for('enhanced.source_page', doc=doc.id) }}">前往导入确认</a>{% else %}<span class="transfer-hint">导入需要管理员账号</span>{% endif %}</div></section>
+  {% elif doc %}<section class="transfer-panel transfer-empty"><strong>这份归档没有可预览的工作表</strong><p>请检查原始文件，或重新上传完整 Excel 工作簿。</p></section>
+  {% endif %}
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='transfer.js') }}"></script>{% endblock %}

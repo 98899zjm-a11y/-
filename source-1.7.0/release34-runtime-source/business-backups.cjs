@@ -1,0 +1,106 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),sqlite=require('node:sqlite');
+const MAGIC=Buffer.from('XJYBK001'),CHUNK=64*1024;
+const LEGACY_SLOTS=Object.freeze(['sales','ledger','inventory','config','documents']),CAPTURE_SLOTS=Object.freeze([...LEGACY_SLOTS,'quoteImages']);
+function capturedSlots(header){if(!Object.hasOwn(header,'capturedSlots'))return[...LEGACY_SLOTS];const names=header.capturedSlots;if(!Array.isArray(names)||names.length<LEGACY_SLOTS.length||names.length>CAPTURE_SLOTS.length||new Set(names).size!==names.length||names.some(name=>!CAPTURE_SLOTS.includes(name))||LEGACY_SLOTS.some(name=>!names.includes(name)))throw Error('Invalid authenticated captured slot schema');return[...names];}
+// Only these known top-level Electron/session runtime stores are excluded.
+// Saved business JSON and retained numbering/configuration remain dependencies.
+const CONFIG_RUNTIME=new Set(['cache','code cache','gpucache','dawngraphitecache','dawnwebgpucache','blob_storage','crashpad','grshadercache','shadercache','videodecodestats','shared dictionary','sharedstorage','session storage','local storage','service worker','network','partitions','storage','dictionaries','browsermetrics','browsermetrics-spare.pma','lockfile','singletonlock','singletoncookie','singletonsocket','devtoolsactiveport','chrome_debug.log','cookies','cookies-journal','transportsecurity','quotamanager','quotamanager-journal','module-runtime']);
+function createBusinessBackups({context,withFrozen,salesDatabase}){
+ const {root,layout,policy,namespace}=require("./business-maintenance-layout.cjs").requireContext(context);
+ const fs=policy.io;
+ const sqlite={...require('node:sqlite'),DatabaseSync:policy.DatabaseSync};
+ if(typeof withFrozen!=="function"||typeof salesDatabase!=="function")throw TypeError("Trusted backup lifecycle required");
+ for(const file of [path.join(layout.dataDir,"jewelry.sqlite"),path.join(layout.ledgerDir,"ledger.db"),path.join(layout.inventoryDir,"stockcheck.db")])if(!fs.existsSync(policy.check(file))||!fs.lstatSync(file).isFile())throw Error("Complete existing business database missing; refusing empty initialization");
+ for(const directory of [layout.dataDir,layout.ledgerDir,layout.inventoryDir,layout.configDir,layout.documentsDir,layout.quoteImagesDir])if(!fs.existsSync(policy.check(directory))||!fs.statSync(directory).isDirectory())throw Error('Complete existing business dependencies missing; refusing empty storage initialization');
+
+ const keyFile=policy.guard.assertPath(path.join(layout.configDir,'backup-key.bin'));
+ if(!fs.existsSync(keyFile))fs.writeFileSync(keyFile,crypto.randomBytes(32),{flag:'wx',mode:0o600});
+ const key=fs.readFileSync(keyFile);if(key.length!==32)throw new Error('Invalid isolated backup key');
+ const slots={sales:layout.dataDir,ledger:layout.ledgerDir,inventory:layout.inventoryDir,config:layout.configDir,documents:layout.documentsDir,quoteImages:layout.quoteImagesDir};
+ const databases={sales:{file:'jewelry.sqlite',directory:layout.dataDir},ledger:{file:'ledger.db',directory:layout.ledgerDir},inventory:{file:'stockcheck.db',directory:layout.inventoryDir}};
+ for(const directory of Object.values(slots)){policy.guard.assertPath(directory);if(!fs.existsSync(directory))fs.mkdirSync(directory,{recursive:true});}
+ const canonical=value=>JSON.stringify(value);
+ const headerMac=value=>crypto.createHmac('sha256',key).update('xjy-header-v1\0').update(canonical(value)).digest('hex');
+ const readExact=(fd,size,position)=>{const b=Buffer.alloc(size);let n=0;while(n<size){const count=fs.readSync(fd,b,n,size-n,position+n);if(!count)throw new Error('Truncated archive record');n+=count;}return b;};
+ function header(filename){policy.check(filename);const fd=fs.openSync(filename,'r');try{const start=readExact(fd,12,0);if(!start.subarray(0,8).equals(MAGIC))throw new Error('Unknown archive format');const length=start.readUInt32BE(8);if(length>8192)throw new Error('Invalid archive header');const raw=readExact(fd,length,12),data=JSON.parse(raw.toString());const{mac,...signed}=data;if(!/^[a-f0-9]{64}$/.test(mac||'')||!crypto.timingSafeEqual(Buffer.from(mac,'hex'),Buffer.from(headerMac(signed),'hex'))||signed.namespace!==namespace||signed.version!==1||!['auto','manual','pre-restore'].includes(signed.kind)||!Number.isFinite(Date.parse(signed.createdAt)))throw new Error('Archive header integrity failed');capturedSlots(data);return{data,raw,start:12+length};}finally{fs.closeSync(fd);}}
+ function walk(directory,prefix,entries,snapshots){
+  policy.check(directory);for(const name of fs.readdirSync(directory)){if(prefix==='config'&&CONFIG_RUNTIME.has(name.toLowerCase()))continue;const file=policy.check(path.join(directory,name)),stat=fs.lstatSync(file);if(stat.isDirectory()){walk(file,prefix+'/'+name,entries,snapshots);continue;}if(!stat.isFile())throw new Error('Unsupported backup dependency');
+   if(file===keyFile||snapshots.some(x=>file===x.original+'-wal'||file===x.original+'-shm'||file===x.original+'-journal'))continue;
+   const substitution=snapshots.find(x=>x.original===file);entries.push({path:prefix+'/'+name,file:substitution?substitution.snapshot:file});}
+ }
+ function hashFile(filename){const fd=fs.openSync(policy.check(filename),'r'),hash=crypto.createHash('sha256'),buffer=Buffer.alloc(CHUNK);try{let size=0;while(true){const count=fs.readSync(fd,buffer,0,buffer.length,null);if(!count)break;hash.update(buffer.subarray(0,count));size+=count;}return{size,sha256:hash.digest('hex')};}finally{fs.closeSync(fd);}}
+ async function create(options={}){return withFrozen(()=>createFrozen(options));}
+ async function createFrozen({kind='manual',now=new Date()}={}){
+  if(!['auto','manual','pre-restore'].includes(kind)||!Number.isFinite(now.getTime()))throw new Error('Invalid backup operation');
+  {
+   const id=crypto.randomUUID(),scratch=policy.check(path.join(layout.runtimeDir,'snapshots',id),true);fs.mkdirSync(scratch,{recursive:true});fs.writeFileSync(path.join(scratch,'.owner.json'),JSON.stringify({version:1,namespace,type:'snapshot'}));let temporary=null;try{const snapshots=[];
+   for(const[name,item]of Object.entries(databases)){const original=policy.check(path.join(item.directory,item.file)),snapshot=policy.check(path.join(scratch,name+'.sqlite'),true);const db=name==='sales'?salesDatabase():new sqlite.DatabaseSync(original,{readOnly:true});try{await sqlite.backup(db,snapshot);}finally{if(name!=='sales')db.close();}snapshots.push({original,snapshot});}
+   require('./business-erp-backup-integrity.cjs').validateErpAttachments({DatabaseSync:sqlite.DatabaseSync,database:snapshots.find(x=>x.original===path.join(layout.ledgerDir,'ledger.db')).snapshot,attachmentsDirectory:path.join(layout.ledgerDir,'erp-attachments'),check:policy.check});
+   const entries=[];for(const[name,directory]of Object.entries(slots))walk(directory,name,entries,snapshots);
+   for(const [suffix,name]of [['.print-ledger.json','print-ledger.json'],['.print-ledger.metadata.json','print-ledger.metadata.json'],['.central-print-ledger.json','central-print-ledger.json']]){const printLedger=layout.dataDir+suffix;if(fs.existsSync(policy.check(printLedger)))entries.push({path:'printing/'+name,file:printLedger});}
+   entries.sort((a,b)=>a.path.localeCompare(b.path));if(entries.length>100000)throw new Error('Backup dependency count exceeds safety limit');
+   const basename=(kind==='auto'?'AUTO':kind==='pre-restore'?'PRE':'MANUAL')+'-'+now.toISOString().slice(0,10)+'-'+id+'.xjybak';
+   const destination=policy.check(path.join(layout.backupDir,basename),true);temporary=destination+'.tmp';const fd=fs.openSync(temporary,'wx',0o600);
+   const signed={version:1,namespace,kind,createdAt:now.toISOString(),nonce:crypto.randomBytes(12).toString('base64'),capturedSlots:[...CAPTURE_SLOTS]},raw=Buffer.from(canonical({...signed,mac:headerMac(signed)})),length=Buffer.alloc(4);length.writeUInt32BE(raw.length);
+   const cipher=crypto.createCipheriv('aes-256-gcm',key,Buffer.from(signed.nonce,'base64'));cipher.setAAD(raw);const manifest=crypto.createHash('sha256');
+   const frame=(type,value)=>{const data=Buffer.from(canonical(value)),prefix=Buffer.alloc(5);prefix[0]=type;prefix.writeUInt32BE(data.length,1);fs.writeSync(fd,cipher.update(prefix));fs.writeSync(fd,cipher.update(data));};
+   try{
+    fs.writeSync(fd,MAGIC);fs.writeSync(fd,length);fs.writeSync(fd,raw);
+    for(const entry of entries){const meta={path:entry.path,...hashFile(entry.file)};manifest.update(canonical(meta)+'\n');frame(1,meta);const source=fs.openSync(policy.check(entry.file),'r'),buffer=Buffer.alloc(CHUNK),hash=crypto.createHash('sha256');let count,size=0;try{while((count=fs.readSync(source,buffer,0,buffer.length,null))>0){size+=count;hash.update(buffer.subarray(0,count));fs.writeSync(fd,cipher.update(buffer.subarray(0,count)));}}finally{fs.closeSync(source);}if(size!==meta.size||hash.digest('hex')!==meta.sha256)throw new Error('Attachment changed during frozen backup');}
+    frame(255,{count:entries.length,manifest:manifest.digest('hex')});fs.writeSync(fd,cipher.final());fs.writeSync(fd,cipher.getAuthTag());fs.fsyncSync(fd);
+   }finally{fs.closeSync(fd);}
+   policy.check(destination,true);fs.renameSync(temporary,destination);temporary=null;return{file:destination,createdAt:signed.createdAt,kind,files:entries.length,encrypted:true};
+   }finally{if(temporary&&fs.existsSync(policy.check(temporary,true)))fs.unlinkSync(temporary);removeManaged(scratch,'snapshots','snapshot');}
+  }
+ }
+ function safeRelative(value){if(typeof value!=='string'||!value||value.length>2048||value.startsWith('/')||value.split('/').some(x=>!x||x==='.'||x==='..'||/[\\:\x00-\x1f]/.test(x))||![...CAPTURE_SLOTS,'printing'].includes(value.split('/')[0]))throw new Error('Invalid archive record path');return value;}
+ function removeManaged(directory,parent,type){
+  policy.check(directory,true);if(path.dirname(directory)!==path.join(layout.runtimeDir,parent)||! /^[a-f0-9-]{36}$/.test(path.basename(directory)))throw new Error('Invalid owned cleanup target');
+  function scan(folder){for(const name of fs.readdirSync(policy.check(folder))){const item=policy.check(path.join(folder,name),true);if(fs.lstatSync(item).isDirectory())scan(item);}}
+  const marker=path.join(directory,'.owner.json');if(fs.existsSync(policy.check(marker))){const owner=JSON.parse(fs.readFileSync(marker));if(owner.version!==1||owner.namespace!==namespace||owner.type!==type)throw new Error('Cleanup ownership mismatch');}
+  else throw new Error('Owned maintenance stage marker missing; retaining unknown directory');
+  scan(directory);fs.rmSync(policy.check(directory,true),{recursive:true,force:false});
+ }
+ function discardStage(directory){removeManaged(directory,'restore-stage','stage');}
+ function cleanupOrphans(){
+  let protectedStage=null;const journal=path.join(layout.runtimeDir,'restore-transaction.json');if(fs.existsSync(policy.check(journal))){const tx=JSON.parse(fs.readFileSync(journal));if(tx.namespace!==namespace)throw new Error('Foreign restore transaction');if(!['COMMITTED','ROLLED_BACK'].includes(tx.state))protectedStage=tx.stage;}
+  for(const[parent,type]of [['snapshots','snapshot'],['restore-stage','stage']]){const folder=policy.check(path.join(layout.runtimeDir,parent),true);if(!fs.existsSync(folder))continue;for(const name of fs.readdirSync(folder)){if(! /^[a-f0-9-]{36}$/.test(name))continue;const item=policy.check(path.join(folder,name),true);if(item===protectedStage)continue;try{removeManaged(item,parent,type);}catch(error){fs.appendFileSync(path.join(layout.logDir,'orphan-cleanup.log'),new Date().toISOString()+' retained unrecognized stage: '+name+' '+error.message+'\n');}}}
+ }
+ async function probe(filename,{requireCurrentSlots=false}={}){if(typeof requireCurrentSlots!=='boolean')throw TypeError('Explicit captured-slot probe policy required');const staged=await verifyAndStage(filename);try{if(requireCurrentSlots&&CAPTURE_SLOTS.some(name=>!staged.capturedSlots.includes(name)))throw Error('Authenticated archive lacks current captured dependencies');return true;}finally{discardStage(staged.directory);}}
+ async function verifyAndStage(filename){
+  const info=header(filename),captured=capturedSlots(info.data),directory=policy.check(path.join(layout.runtimeDir,'restore-stage',crypto.randomUUID()),true);fs.mkdirSync(directory,{recursive:true});fs.writeFileSync(path.join(directory,'.owner.json'),JSON.stringify({version:1,namespace,type:'stage'}));const fd=fs.openSync(policy.check(filename),'r');try{const size=fs.fstatSync(fd).size,cipherEnd=size-16;
+  const decrypt=crypto.createDecipheriv('aes-256-gcm',key,Buffer.from(info.data.nonce,'base64'));decrypt.setAAD(info.raw);decrypt.setAuthTag(readExact(fd,16,cipherEnd));
+  let pending=Buffer.alloc(0),record=null,remaining=0,out=null,hash=null,footer=null,count=0;const manifest=crypto.createHash('sha256'),seen=new Set();
+  function feed(chunk){pending=Buffer.concat([pending,chunk]);while(pending.length){
+   if(record){const length=Math.min(remaining,pending.length);if(length){const bytes=pending.subarray(0,length);fs.writeSync(out,bytes);hash.update(bytes);pending=pending.subarray(length);remaining-=length;}if(remaining)break;fs.closeSync(out);out=null;if(hash.digest('hex')!==record.sha256)throw new Error('Archive attachment integrity failed');record=null;continue;}
+   if(footer)throw new Error('Trailing archive record');if(pending.length<5)break;const type=pending[0],length=pending.readUInt32BE(1);if(length>32768)throw new Error('Invalid archive record size');if(pending.length<5+length)break;const data=JSON.parse(pending.subarray(5,5+length).toString());pending=pending.subarray(5+length);
+   if(type===255){footer=data;continue;}if(type!==1)throw new Error('Unknown archive record');safeRelative(data.path);if(data.path.split('/')[0]!=='printing'&&!captured.includes(data.path.split('/')[0]))throw Error('Archive record references an uncaptured slot');if(!Number.isSafeInteger(data.size)||data.size<0||data.size>100*1024**3||!/^[a-f0-9]{64}$/.test(data.sha256))throw new Error('Invalid archive attachment');const folded=data.path.toLowerCase();if(seen.has(folded)||++count>100000)throw new Error('Duplicate archive record');seen.add(folded);manifest.update(canonical(data)+'\n');const target=policy.check(path.join(directory,...data.path.split('/')),true);fs.mkdirSync(path.dirname(target),{recursive:true});out=fs.openSync(target,'wx',0o600);hash=crypto.createHash('sha256');record=data;remaining=data.size;
+  }}
+  try{for(let position=info.start;position<cipherEnd;){const length=Math.min(CHUNK,cipherEnd-position);feed(decrypt.update(readExact(fd,length,position)));position+=length;}feed(decrypt.final());if(out&&remaining===0)feed(Buffer.alloc(0));if(record&&remaining===0){fs.closeSync(out);out=null;if(hash.digest('hex')!==record.sha256)throw new Error('Archive attachment integrity failed');record=null;}if(record||pending.length||!footer||footer.count!==count||footer.manifest!==manifest.digest('hex'))throw new Error('Incomplete archive integrity manifest');}finally{if(out!==null)fs.closeSync(out);}
+  const validated=[];for(const[name,item]of Object.entries(databases)){const file=policy.check(path.join(directory,name,item.file));const db=new sqlite.DatabaseSync(file,{readOnly:true});try{const integrity=db.prepare('PRAGMA integrity_check').get().integrity_check;if(integrity!=='ok'||db.prepare('PRAGMA foreign_key_check').all().length)throw new Error('Database integrity failed');validated.push({module:name,integrity});}finally{db.close();}}
+  const erpAttachments=require('./business-erp-backup-integrity.cjs').validateErpAttachments({DatabaseSync:sqlite.DatabaseSync,database:path.join(directory,'ledger','ledger.db'),attachmentsDirectory:path.join(directory,'ledger','erp-attachments'),check:policy.check});
+  // An extracted attachment must be physically present before any publication.
+  const metadata=path.join(directory,'sales','images','metadata.json');if(fs.existsSync(metadata)){for(const key of Object.keys(JSON.parse(fs.readFileSync(metadata,'utf8')))){if(!/^images\/[a-f0-9-]{36}$/.test(key)||!fs.existsSync(policy.check(path.join(directory,'sales','images',key.slice(7)))))throw new Error('Image attachment integrity failed');}}
+  for(const name of captured)fs.mkdirSync(policy.check(path.join(directory,name),true),{recursive:true});return{directory,databases:validated,files:count,header:info.data,capturedSlots:captured,erpAttachments};
+  }catch(error){try{discardStage(directory);}catch{}throw error;}finally{fs.closeSync(fd);}
+ }
+ async function cleanup(now=new Date()){
+  const removed=[];for(const name of fs.readdirSync(layout.backupDir)){if(!/^AUTO-\d{4}-\d{2}-\d{2}-[a-f0-9-]{36}\.xjybak$/.test(name))continue;const file=policy.check(path.join(layout.backupDir,name),true);try{const info=header(file),stamp=Date.parse(info.data.createdAt);if(info.data.kind!=='auto'||stamp>now.getTime()||now.getTime()-stamp<7*86400000)continue;const before=fs.statSync(file);await probe(file);policy.check(file,true);const after=fs.statSync(file);if(before.ino!==after.ino||before.dev!==after.dev||before.size!==after.size||before.mtimeMs!==after.mtimeMs)continue;fs.unlinkSync(file);removed.push(file);}catch(error){fs.appendFileSync(path.join(layout.logDir,'backup-retention.log'),new Date().toISOString()+' skip invalid AUTO snapshot: '+error.message+'\n');}}
+  return removed;
+ }
+ function list(){return fs.readdirSync(layout.backupDir).filter(x=>/^(AUTO|MANUAL|PRE)-.*\.xjybak$/.test(x)).flatMap(name=>{try{const file=policy.check(path.join(layout.backupDir,name)),info=header(file);return[{file,kind:info.data.kind,createdAt:info.data.createdAt}];}catch{return[];}}).sort((a,b)=>b.createdAt.localeCompare(a.createdAt));}
+
+ async function prepareKnowledgeMerge(filename,{merge}={}){
+  const staged=await verifyAndStage(filename);try{
+   const files=[];for(const [archive,live]of [['printing/print-ledger.json',layout.dataDir+'.print-ledger.json'],['printing/print-ledger.metadata.json',layout.dataDir+'.print-ledger.metadata.json'],['printing/central-print-ledger.json',layout.dataDir+'.central-print-ledger.json'],['config/document-number-reservations.json',path.join(layout.configDir,'document-number-reservations.json')]]){
+    const item=policy.check(path.join(staged.directory,...archive.split('/')));if(!fs.existsSync(item))continue;const current=policy.check(live),a=hashFile(item),b=fs.existsSync(current)?hashFile(current):null;files.push({archive,archiveFile:item,liveFile:current,archiveHash:a.sha256,currentHash:b?.sha256||null,requiresMerge:!b||b.sha256!==a.sha256});
+   }
+   if(files.some(x=>x.requiresMerge)&&typeof merge!=='function')throw Error('Print/number knowledge conflict requires explicit audited merge; business restore never replaces current knowledge');
+   if(typeof merge==='function'){const result=await merge(Object.freeze({hostId:context.hostId,profileId:context.profileId,files:Object.freeze(files.map(Object.freeze))}));if(!result||result.ok!==true||!Array.isArray(result.conflicts)||result.conflicts.length)throw Error('Disaster knowledge merge conflict; no automatic publication');return result;}
+   return{ok:true,conflicts:[],files:files.map(({archive,archiveHash,currentHash})=>({archive,archiveHash,currentHash})),preserved:true};
+  }finally{discardStage(staged.directory);}
+ }
+ return{create,createFrozen,verifyAndStage,probe,discardStage,cleanupOrphans,cleanup,list,prepareKnowledgeMerge};
+}
+module.exports={createBusinessBackups,capturedSlots};

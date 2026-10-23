@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}登录{% endblock %}
+{% block bodyclass %}login-page{% endblock %}
+{% block body %}
+<div class="login-card">
+  <h1>珠宝内帐</h1>
+  <div class="sub">鑫金源珠宝内帐记账管理</div>
+
+  {% with msgs = get_flashed_messages(with_categories=true) %}
+    {% for cat, m in msgs %}<div class="flash {{ cat }}" style="margin-bottom:12px">{{ m }}</div>{% endfor %}
+  {% endwith %}
+
+  <form method="post" autocomplete="off">
+    <div class="field">
+      <label for="username">账号</label>
+      <input type="text" id="username" name="username" value="{{ username or '' }}" autofocus autocomplete="username">
+    </div>
+    <div class="field">
+      <label for="password">密码</label>
+      <input type="password" id="password" name="password" autocomplete="current-password">
+    </div>
+    <label class="remember">
+      <input type="checkbox" name="remember" value="1" checked>
+      <span>记住我<em>（这台电脑 90 天不用再登）</em></span>
+    </label>
+    <button class="btn primary" type="submit">登 录</button>
+  </form>
+
+  <div class="note" style="margin-top:16px;text-align:center">
+    第一次用：账号 admin ／ 密码 admin123，登录后会让你改密码
+  </div>
+</div>
+{% endblock %}

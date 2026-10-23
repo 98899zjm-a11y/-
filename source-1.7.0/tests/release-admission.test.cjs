@@ -1,0 +1,8 @@
+'use strict';
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const root=path.resolve(__dirname,'..');
+function api(){return require('../project/desktop/release-admission.cjs');}
+test('a packaged candidate inside the development copy cannot bypass actual Sandbox admission',()=>{assert.throws(()=>api().admitRelease({isPackaged:true,codeDir:path.join(root,'project','desktop'),environment:{}}),/Sandbox|隔离/);});
+test('a test release refuses an external database before opening or creating it',()=>{assert.throws(()=>api().admitRelease({isPackaged:false,codeDir:path.join(root,'project','desktop'),environment:{XJY_RELEASE_TEST_ROOT:root,XJY_DATA_DIR:path.resolve(root,'..','outside-db')},validateSandbox:()=>({sandbox:true})}),/目录|path|隔离/);});
+test('a verified test release returns an owned data target with public access disabled',()=>{let checked=0;const r=api().admitRelease({isPackaged:false,codeDir:path.join(root,'project','desktop'),environment:{XJY_RELEASE_TEST_ROOT:root,XJY_DATA_DIR:path.join(root,'data','release-sales')},validateSandbox:r=>{checked++;assert.equal(r,root);return{sandbox:true};}});assert.equal(checked,1);assert.equal(r.mode,'sandbox');assert.equal(r.publicAccess,false);assert.equal(r.dataDir,path.join(root,'data','release-sales'));assert.ok(!fs.existsSync(r.dataDir));});
+test('a fake environment flag alone cannot replace a real Sandbox check',()=>{assert.throws(()=>api().admitRelease({isPackaged:false,codeDir:path.join(root,'project','desktop'),environment:{XJY_RELEASE_TEST_ROOT:root,XJY_DATA_DIR:path.join(root,'data','fake'),XJY_SANDBOX:'1'}}),/Sandbox|验证/);});

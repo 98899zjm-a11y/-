@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}{{ sku.code }} · 商品档案{% endblock %}
+
+{% block crumbs %}
+<div class="crumbs">
+  <a href="{{ url_for('stock.sku_list') }}">商品主数据</a>
+  <span class="sep">/</span>
+  <span class="cur">{{ sku.code }}</span>
+</div>
+{% endblock %}
+
+{% block body %}
+<div class="page-head">
+  <div>
+    <h1><span class="mono">{{ sku.code }}</span>
+      {% if sku.returned %}<span class="tag ret" title="客户退回来的货，仍算在库">退回</span>{% endif %}
+      {% if not sku.active %}<span class="tag">停用</span>{% endif %}
+    </h1>
+    <div class="sub">
+      {{ sku.name or '（没有填名称）' }}
+      {% if sku.material_type %} · 材质 {{ sku.material_type }}{% endif %}
+      {% if sku.category %} · {{ sku.category }}{% endif %}
+      {% if sku.spec %} · 克重 {{ sku.spec }}{% endif %}
+       · 克单价 {{ sku.gram_price|number if sku.gram_price is not none else "—" }} 元/克 · 单件成本 {{ purchase(sku).unit_cost|money }} 元
+      {% if sku.unit %} · {{ sku.unit }}{% endif %}
+      {% if sku.location %} · 库位 {{ sku.location }}{% endif %}
+      {% if sku.supplier %} · 进货商 {{ sku.supplier }}{% endif %}
+    </div>
+  </div>
+  <div class="page-actions">
+    <a class="btn" href="{{ url_for('stock.sku_list') }}">← 回商品列表</a>
+    <a class="btn" href="{{ url_for('moves.move_list') }}?q={{ sku.code }}">只看流水</a>
+  </div>
+</div>
+
+{# 三个数字摆一起：出问题时最常问的就是「账面是多少、流水动了多少、现在还剩几件」。
+   放在同一行，一眼就能看出差额是哪来的。 #}
+<div class="grid c3" style="margin-bottom:16px">
+  <div class="stat {{ 'good' if live > 0 else 'bad' }}">
+    <div class="k">当前库存</div>
+    <div class="v">{{ live|qty }}</div>
+    <div class="n">账面数 + 这个批次上的流水净额</div>
+  </div>
+  <div class="stat">
+    <div class="k">账面数</div>
+    <div class="v">{{ book_raw|qty }}</div>
+    <div class="n">{% if batch %}来自「{{ batch.label }}」{% else %}还没有导入过账面{% endif %}</div>
+  </div>
+  <div class="stat {{ 'blue' if move_net >= 0 else 'warn' }}">
+    <div class="k">累计出入库（入 − 出）</div>
+    <div class="v">{{ move_net|signed }}</div>
+    <div class="n">这件货从建账到现在的流水合计，下面列了多少就合多少</div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>这件货的全部记录
+    <span class="hint">共 {{ events|length }} 条，从新到旧</span>
+  </h2>
+  {% if events %}
+  <div class="card-body tight">
+    <div class="scroll">
+      <table class="tb" style="min-width:900px">
+        <thead>
+          <tr>
+            <th style="width:170px">时间</th>
+            <th style="width:100px">发生了什么</th>
+            <th style="width:90px" class="num">数量</th>
+            <th style="width:110px">经手人</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for e in events %}
+          <tr>
+            <td class="mono muted">{{ e.at }}</td>
+            <td>
+              {% if e.kind == 'in' %}<span class="tag in">入库</span>
+              {% elif e.kind == 'out' %}<span class="tag out">出库</span>
+              {% elif e.kind == 'count' %}<span class="tag approved">盘点</span>
+              {% else %}<span class="tag admin">调整</span>{% endif %}
+            </td>
+            <td class="num {{ 'in' if e.qty > 0 else ('out' if e.qty < 0 else '') }}">
+              {{ '%+g'|format(e.qty) if e.kind in ('in', 'out') else e.qty|qty }}
+            </td>
+            <td>{{ e.who or '—' }}</td>
+            <td>
+              {{ e.title }}
+              {% if e.note %}<span class="muted">· {{ e.note }}</span>{% endif %}
+              {% if e.link %} <a href="{{ e.link }}">看这一单 →</a>{% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% else %}
+  <div class="card-body">
+    <p class="muted">这件货还没有任何记录：没入过库、没出过库、也没被盘点过。</p>
+  </div>
+  {% endif %}
+</div>
+
+<div class="note">
+  <b>「当前库存」是怎么算出来的：</b>当前账面数（导入的，或最近一次调整后的）
+  加上<strong>当前这个批次上</strong>的出入库流水净额。执行库存调整单时会生成一份新账面，
+  把当时流水的后果一次性吸收进去，所以上面那些老流水不会被重复扣第二遍——
+  这也意味着「累计出入库」不等于「当前库存 − 账面数」，前者是历史总和，后者只看当前批次。
+</div>
+{% endblock %}

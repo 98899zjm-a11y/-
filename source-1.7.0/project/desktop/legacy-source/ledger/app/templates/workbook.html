@@ -1,0 +1,14 @@
+{% extends "base.html" %}{% block title %}{{ sheet }}{% endblock %}{% block body %}
+<link rel="stylesheet" href="{{ url_for('static',filename='workbook.css') }}">
+<div class="page-head"><div><h1>{{ sheet }}</h1><p class="sub">{{ doc.name }} · 修改后自动保存，相关公式与已关联的系统记录同时更新。</p></div><div class="page-actions"><a class="btn" href="{{ url_for('external_sync.page',doc=doc.id) }}">Excel 自动联动</a><a class="btn" href="/transfer?doc={{ doc.id }}">导入与导出</a></div></div>
+<div class="xl-tabs">{% for name,spec in sheets.items() %}<a class="{{ 'on' if name==sheet }}" href="{{ url_for('workbooks.page',doc=doc.id,sheet=name) }}">{{ name }}</a>{% endfor %}</div>
+<div class="wb-toolbar"><label>起始行 <input id="wb-start" type="number" min="1" value="{{ request.args.get('row',1) }}"></label><label>起始列 <select id="wb-col">{% for i in range(1,sheets[sheet].columns+1,20) %}<option value="{{ i }}">第 {{ i }} 列起</option>{% endfor %}</select></label><button class="btn" id="wb-load">显示</button><button class="btn" id="wb-prev">上一页</button><button class="btn" id="wb-next">下一页</button><button class="btn" id="wb-history">修改记录</button><span id="wb-status" role="status" aria-live="polite">正在载入…</span></div>
+<div class="wb-toolbar"><select id="wb-field"><option value="0">所有列</option>{% for name in sheets[sheet].headers %}{% if sheets[sheet].kind!='sales' or name not in ['模板','工费','加工费'] %}<option value="{{ loop.index }}">{{ name or '第 '~loop.index~' 列' }}</option>{% endif %}{% endfor %}</select><select id="wb-op"><option value="contains">包含文字</option><option value="eq">数值等于</option><option value="gt">数值大于</option><option value="lt">数值小于</option></select><input id="wb-kw" placeholder="筛选条件"><select id="wb-linked"><option value="">全部行</option><option value="yes">已关联系统</option><option value="pending">未关联／待处理</option></select><button class="btn" id="wb-filter">筛选</button></div>
+<div class="wb-formula"><strong id="wb-address">单元格</strong><input id="wb-formula" placeholder="选择格子查看数值或公式；以 = 开头可修改计算方法" {{ 'disabled' if readonly }}><button class="btn primary" id="wb-apply" {{ 'disabled' if readonly }}>应用</button></div>
+<p class="note">浅绿色为公式格；选中后可在上方修改公式。失去焦点后自动保存。可以从 Excel 复制多格后粘贴，整批校验并同步。未入账行仍需先导入；原表表头决定字段对应，调整前需要确认映射。</p>
+<div class="wb-scroll"><table id="wb-grid"><thead></thead><tbody></tbody></table></div>
+<div class="wb-legend">{{ '当前账号只可查看。' if readonly else '显示保留两位，计算保留原精度。点格子旁的“注”可填写插注。另一个窗口修改账目时，本页自动更新；正在编辑的格子会先保留，保存前检查冲突。' }} <span id="wb-range"></span></div>
+<details id="wb-history-panel"><summary>最近修改记录</summary><pre id="wb-history-content" style="white-space:pre-wrap;max-height:30vh;overflow:auto"></pre></details>
+<script>window.workbookConfig={{ {'doc':doc.id,'sheet':sheet,'readonly':readonly}|tojson }};</script>
+<script src="{{ url_for('static',filename='workbook.js') }}"></script>
+{% endblock %}

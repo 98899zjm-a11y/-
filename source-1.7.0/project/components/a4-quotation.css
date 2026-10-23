@@ -1,0 +1,114 @@
+.a4-print-root{position:fixed;inset:0;z-index:250;background:#ece7df;color:#28231f;display:flex;flex-direction:column;font-family:"Microsoft YaHei",Arial,sans-serif}
+html:has(.a4-print-root),body:has(.a4-print-root){overflow:hidden}
+.a4-toolbar{flex:none;display:flex;justify-content:space-between;align-items:center;gap:20px;background:#fff;border-bottom:1px solid #ded5c9;padding:17px clamp(16px,4vw,48px)}
+.a4-toolbar h2{font:400 20px/1.3 SimSun,serif;letter-spacing:1px;margin:0}
+.a4-toolbar p{margin:6px 0 0;font-size:11px;color:#867967}
+.a4-toolbar-actions{display:flex;gap:10px;align-items:center}
+.a4-toolbar-button{border:1px solid #d8cdbf;background:#fff;color:#6f6150;padding:10px 15px;font:12px/1.5 "Microsoft YaHei",Arial,sans-serif;white-space:nowrap;cursor:pointer}
+.a4-print-button{background:#7a2939;border-color:#7a2939;color:#fff}
+.a4-toolbar-button:focus-visible{outline:2px solid #7a2939;outline-offset:3px}
+.a4-toolbar-button:disabled{opacity:.55;cursor:wait}
+.a4-toolbar .a4-print-error{color:#a34736;max-width:420px;line-height:1.5}
+.a4-preview-scroll{flex:1;min-height:0;overflow:auto;padding:25px 20px 40px}
+.a4-document{width:100%;max-width:210mm;margin:0 auto}
+.a4-preview-page{width:min(100%,210mm);container-type:inline-size;margin:0 auto 26px;background:#fff;box-shadow:0 8px 35px #392e2022}
+.a4-sheet{width:100%;min-height:141.429cqw;box-sizing:border-box;padding:5.714cqw;display:flex;flex-direction:column;background:#fff;color:#28231f;font:400 2cqw/1.55 "Microsoft YaHei",Arial,sans-serif;overflow:visible}
+.a4-sheet h1,.a4-sheet h2,.a4-sheet h3,.a4-sheet h4,.a4-sheet p,.a4-sheet dl{margin:0}
+.a4-sheet img{display:block;max-width:100%}
+.a4-brand{text-align:center;padding-bottom:2.4cqw;border-bottom:.12cqw solid #ded5c9}
+.a4-brand>div{font:400 4.2cqw/1.25 Georgia,serif;letter-spacing:.45cqw;overflow-wrap:anywhere}
+.a4-brand>p{margin-top:1.1cqw;font:400 2.05cqw/1.4 SimSun,serif;letter-spacing:.65cqw}
+.a4-meta{display:flex;justify-content:space-between;gap:3cqw;font-size:1.8cqw;color:#756957;padding:1.2cqw 0;overflow-wrap:anywhere}
+.a4-document-title{text-align:center;padding:.8cqw 0 2.2cqw}
+.a4-document-title h1{font:400 3.05cqw/1.4 SimSun,serif;letter-spacing:.6cqw}
+.a4-document-title p{font-size:1.65cqw;color:#9a8a73;margin-top:1cqw;overflow-wrap:anywhere}
+.a4-content{flex:1;min-width:0}
+.a4-main-product{display:grid;grid-template-columns:14cqw minmax(0,1fr);gap:3.5cqw;align-items:center;margin-bottom:2cqw;break-inside:avoid}
+.a4-main-product>img{width:14cqw;height:14cqw;object-fit:cover;object-position:34% 65%;background:#eee8de}
+.a4-main-product h2{font:400 2.6cqw/1.4 SimSun,serif;overflow-wrap:anywhere}
+.a4-main-product p{font-size:1.85cqw;color:#81735e;margin-top:1.2cqw;white-space:pre-wrap;overflow-wrap:anywhere}
+.a4-parameters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2.5cqw;padding:1.2cqw 0;border-top:.12cqw solid #ded5c9;border-bottom:.12cqw solid #ded5c9;margin-bottom:2cqw!important;break-inside:avoid}
+.a4-parameters dt,.a4-item-parameters dt{font-size:1.65cqw;color:#95836a;margin-bottom:.6cqw}
+.a4-parameters dd,.a4-item-parameters dd{margin:0;font-size:1.8cqw;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.a4-fees{margin:1.5cqw 0 2cqw}
+.a4-sheet h3{font:400 2.25cqw/1.4 SimSun,serif;letter-spacing:.15cqw;margin-bottom:1.2cqw}
+.a4-fees table{width:100%;border-collapse:collapse;font-size:1.85cqw;line-height:1.4}
+.a4-fees th{font-weight:400;font-size:1.65cqw;color:#9a8669;padding:.6cqw 0;border-bottom:.12cqw solid #ded5c9;text-align:left}
+.a4-fees th:last-child,.a4-fees td:last-child{text-align:right;width:38%;font-variant-numeric:tabular-nums}
+.a4-fees td{padding:.9cqw 0;border-bottom:.08cqw solid #eee8df;vertical-align:top;overflow-wrap:anywhere}
+.a4-fees td:first-child{padding-right:3cqw}
+.a4-fees tr{break-inside:avoid}
+.a4-fees td small{display:block;font-size:1.55cqw;color:#95836a;margin-top:.45cqw}
+.a4-fees .a4-row-divider td{border-top:.14cqw solid #d6c8b5}
+.a4-products{display:grid;gap:3cqw}
+.a4-item{padding-bottom:1.6cqw;border-bottom:.12cqw solid #ded5c9;break-inside:avoid}
+.a4-item-heading{display:grid;grid-template-columns:10cqw minmax(0,1fr);gap:3cqw;align-items:start}
+.a4-item-heading>img{width:10cqw;height:10cqw;object-fit:cover;object-position:34% 65%;background:#eee8de}
+.a4-item-heading h3{font-size:2.3cqw;margin-bottom:.8cqw;overflow-wrap:anywhere}
+.a4-item-heading p{font-size:1.75cqw;color:#81735e;white-space:pre-wrap;overflow-wrap:anywhere}
+.a4-item-parameters{display:flex;gap:5cqw;flex-wrap:wrap;margin-top:1cqw!important}
+.a4-item-parameters>div{display:flex;align-items:baseline;gap:1cqw}
+.a4-item-parameters dt{margin:0}
+.a4-item .a4-fees{margin-top:1cqw;margin-bottom:1cqw}
+.a4-item .a4-fees h3{display:none}
+.a4-item .a4-fees table{font-size:1.65cqw}
+.a4-item .a4-fees th{font-size:1.5cqw}
+.a4-item .a4-fees td{padding:.4cqw 0}
+.a4-products+.a4-fees{margin:1cqw 0}
+.a4-products+.a4-fees h3,.a4-products+.a4-fees thead{display:none}
+.a4-products+.a4-fees td{padding:.4cqw 0}
+.a4-item-subtotal{display:flex;justify-content:space-between;gap:3cqw;font-size:1.85cqw;color:#81735e}
+.a4-item-subtotal strong{font-weight:400;color:#28231f}
+.a4-continuation{margin:3cqw 0;break-inside:avoid}
+.a4-continuation p{font-size:1.85cqw;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+.a4-payments{margin:2cqw 0;break-inside:avoid}
+.a4-payment-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3.5cqw}
+.a4-payment{display:grid;grid-template-columns:minmax(0,1fr) 14cqw;gap:2cqw;align-items:start;padding:1.2cqw;border:.1cqw solid #e3d9cb;break-inside:avoid}
+.a4-payment h4{font:400 2cqw/1.4 SimSun,serif;overflow-wrap:anywhere}
+.a4-payment p{font-size:1.6cqw;color:#81735e;line-height:1.6;margin-top:.7cqw;white-space:pre-wrap;overflow-wrap:anywhere}
+.a4-qr{width:14cqw;height:14cqw;object-fit:contain;background:#fff;image-rendering:pixelated}
+.a4-payments-compact .a4-payment-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:2cqw}
+.a4-payments-compact .a4-payment{display:flex;flex-direction:column;gap:1.4cqw;padding:1cqw}
+.a4-payments-compact .a4-payment h4{font-size:1.7cqw;line-height:1.35}
+.a4-payments-compact .a4-payment p{font-size:1.4cqw;line-height:1.4;min-height:4cqw}
+.a4-payments-compact .a4-qr{width:25mm;height:25mm;align-self:center;max-width:100%}
+.a4-has-payments .a4-products{gap:2cqw}
+.a4-has-payments .a4-brand{padding-bottom:1.5cqw}
+.a4-has-payments .a4-brand>div{font-size:3.5cqw}
+.a4-has-payments .a4-meta{padding:.8cqw 0}
+.a4-has-payments .a4-document-title{padding:.5cqw 0 1.2cqw}
+.a4-has-payments .a4-document-title h1{font-size:2.7cqw}
+.a4-has-payments .a4-item{padding-bottom:1cqw}
+.a4-has-payments .a4-item-heading p{line-height:1.35}
+.a4-has-payments .a4-item-parameters{margin-top:.5cqw!important;line-height:1.3}
+.a4-has-payments .a4-item .a4-fees table{line-height:1.25}
+.a4-has-payments .a4-item .a4-fees th{padding:.35cqw 0}
+.a4-has-payments .a4-item .a4-fees td{padding:.2cqw 0}
+.a4-has-payments .a4-item-subtotal{font-size:1.65cqw;line-height:1.35}
+.a4-has-payments .a4-payments{margin:1cqw 0}
+.a4-has-payments .a4-qr{width:25mm;height:25mm}
+.a4-has-payments .a4-payments-compact .a4-payment{padding:.6cqw}
+.a4-has-payments .a4-payments-compact .a4-payment{padding:.4cqw;gap:.8cqw}
+.a4-has-payments .a4-payments-compact .a4-payment-grid{gap:1.5cqw}
+.a4-total{display:flex;justify-content:space-between;align-items:center;gap:3cqw;padding-top:2cqw;border-top:.18cqw solid #7a2939;margin-top:2.5cqw;break-inside:avoid}
+.a4-total>span{font-size:2cqw;color:#81735e}
+.a4-total>strong{font:400 4.2cqw/1.15 Arial,sans-serif;white-space:nowrap;font-variant-numeric:tabular-nums}
+.a4-total small{font-size:1.85cqw;font-weight:400;margin-left:1.3cqw}
+.a4-note{font-size:1.6cqw;line-height:1.5;color:#95836a;white-space:pre-wrap;overflow-wrap:anywhere;margin-top:1.2cqw!important}
+.a4-footer{display:flex;justify-content:space-between;gap:2cqw;color:#a08b6d;font-size:1.45cqw;line-height:1.4;border-top:.08cqw solid #e5dccf;margin-top:1.5cqw;padding-top:1cqw;overflow-wrap:anywhere}
+@media(max-width:600px){.a4-toolbar{gap:12px;padding:13px 14px;align-items:flex-start}.a4-toolbar h2{font-size:17px}.a4-toolbar-actions{gap:7px;flex-wrap:wrap;justify-content:flex-end}.a4-toolbar-button{font-size:10px;padding:9px 10px}.a4-preview-scroll{padding:16px 12px 26px}}
+@page{size:A4 portrait;margin:0}
+@media print{
+  html:has(.a4-print-root),body:has(.a4-print-root){margin:0!important;padding:0!important;background:#fff!important;height:auto!important;min-height:0!important;overflow:visible!important}
+  body:has(.a4-print-root)>*:not(.a4-print-root){display:none!important}
+  .a4-print-root{position:static!important;inset:auto!important;display:block!important;background:#fff!important;width:210mm!important;height:auto!important;overflow:visible!important;z-index:auto!important}
+  .a4-print-root .a4-toolbar{display:none!important}
+  .a4-print-root .a4-preview-scroll{display:block!important;height:auto!important;overflow:visible!important;padding:0!important}
+  .a4-print-root .a4-document{width:210mm!important;max-width:none!important;margin:0!important}
+  .a4-print-root .a4-preview-page{width:210mm!important;max-width:none!important;margin:0!important;box-shadow:none!important;break-after:page;page-break-after:always}
+  .a4-print-root .a4-preview-page:last-child{break-after:auto;page-break-after:auto}
+  .a4-print-root .a4-sheet{width:210mm!important;min-height:294mm!important;height:auto!important;padding:12mm!important;display:block!important;box-shadow:none!important;border:0!important;overflow:visible!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+  .a4-print-root .a4-qr{width:28mm!important;height:28mm!important;object-fit:contain}
+  .a4-print-root .a4-has-payments .a4-qr{width:25mm!important;height:25mm!important}
+  .a4-print-root .a4-payments-compact .a4-qr{width:25mm!important;height:25mm!important}
+}

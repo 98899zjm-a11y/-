@@ -1,0 +1,534 @@
+{% extends "base.html" %}
+{% block title %}物料出入库{% endblock %}
+
+{% macro tablink(key, text) -%}
+  <a class="tab {{ 'on' if tab == key }}" href="{{ url_for('materials.material_list') }}?tab={{ key }}">{{ text }}</a>
+{%- endmacro %}
+
+{% macro inventory_panel() -%}
+<div class="card mat-inventory" id="material-inventory">
+  <h2>物料库存总表 <span class="hint">显示 {{ inventory_rows|length }} / {{ inventory_stats.count }} 种物料</span></h2>
+  <div class="card-body">
+    <div class="mat-stock-note">当前库存按全部历史入库、出库计算；流水的日期、方向筛选不会改变这里的库存。录入或删除流水后自动更新。</div>
+    <div class="mat-stock-stats">
+      <div><span>物料种类</span><b>{{ inventory_stats.count }}</b></div>
+      <div><span>有库存</span><b class="in">{{ inventory_stats.positive }}</b></div>
+      <div><span>零库存</span><b>{{ inventory_stats.zero }}</b></div>
+      <div><span>负库存</span><b class="out">{{ inventory_stats.negative }}</b></div>
+    </div>
+    <form method="get" action="{{ url_for('materials.material_list') }}" class="row mat-stock-filters">
+      <input type="hidden" name="tab" value="{{ tab }}">
+      {% if tab == 'moves' %}{% for key, value in f.items() %}{% if value %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endif %}{% endfor %}{% endif %}
+      <div class="grow" style="flex:1 1 230px"><label for="stock-sq">搜索物料</label><input type="search" id="stock-sq" name="sq" value="{{ inventory_filter.sq }}" placeholder="编号 / 名称 / 分类 / 进货商"></div>
+      <div style="flex:1 1 130px"><label for="stock-sc">分类</label><select id="stock-sc" name="sc"><option value="">全部分类</option>{% for value in inventory_categories %}<option value="{{ value }}" {{ 'selected' if inventory_filter.sc == value }}>{{ value }}</option>{% endfor %}</select></div>
+      <div style="flex:1 1 110px"><label for="stock-su">单位</label><select id="stock-su" name="su"><option value="">全部单位</option>{% for value in inventory_units %}<option value="{{ value or '__none' }}" {{ 'selected' if inventory_filter.su == (value or '__none') }}>{{ value or '未设置单位' }}</option>{% endfor %}</select></div>
+      <div style="flex:1 1 120px"><label for="stock-ss">库存状态</label><select id="stock-ss" name="ss"><option value="">全部状态</option><option value="positive" {{ 'selected' if inventory_filter.ss == 'positive' }}>有库存</option><option value="zero" {{ 'selected' if inventory_filter.ss == 'zero' }}>零库存</option><option value="negative" {{ 'selected' if inventory_filter.ss == 'negative' }}>负库存</option><option value="inactive" {{ 'selected' if inventory_filter.ss == 'inactive' }}>已停用</option></select></div>
+      <div><button class="btn" type="submit">筛选总表</button></div>
+      {% if inventory_qs %}<div><a class="btn ghost" href="{{ url_for('materials.material_list', tab=tab) }}#material-inventory">重置</a></div>{% endif %}
+      <div><a class="btn" href="{{ url_for('materials.material_export_list') }}{{ ('?' + inventory_qs) if inventory_qs }}">导出总表</a></div>
+    </form>
+  </div>
+  <div class="card-body tight">
+    {% if inventory_rows %}
+    <div class="scroll mat-stock-scroll"><table class="tb" style="min-width:970px">
+      <thead><tr><th>物料编号</th><th>物料名称</th><th>分类</th><th>单位</th><th class="num">累计入库</th><th class="num">累计出库</th><th class="num">当前库存</th><th>库存状态</th>{% if cu.role in ('admin','reviewer') %}<th>操作</th>{% endif %}</tr></thead>
+      <tbody>{% for m in inventory_rows %}<tr class="{{ 'off' if not m.active }}" data-material-code="{{ m.code }}">
+        <td class="mono"><b>{{ m.code }}</b></td><td>{{ m.name or '—' }}</td><td class="muted">{{ m.category or '—' }}</td><td>{{ m.unit or '未设置' }}</td>
+        <td class="num in">{{ m.in_qty|qty }}</td><td class="num out">{{ m.out_qty|qty }}</td><td class="num"><b class="{{ 'out' if m.current_qty < 0 else 'in' if m.current_qty > 0 else '' }}">{{ m.current_qty|qty }}</b></td>
+        <td>{% if m.current_qty < 0 %}<span class="tag out">负库存</span>{% elif m.current_qty == 0 %}<span class="tag">零库存</span>{% else %}<span class="tag ok">有库存</span>{% endif %}{% if not m.active %} <span class="tag">停用</span>{% endif %}</td>
+        {% if cu.role in ('admin','reviewer') %}<td>{% if m.active %}<a class="btn sm" href="{{ url_for('materials.material_list', tab='moves', code=m.code) }}#material-entry">录出入库</a>{% else %}<a class="btn sm" href="{{ url_for('materials.material_list', tab='list', edit=m.id) }}#edit">查看资料</a>{% endif %}</td>{% endif %}
+      </tr>{% endfor %}</tbody>
+    </table></div>
+    {% else %}<div class="empty">{% if inventory_stats.count %}当前总表筛选条件下没有物料。<a href="{{ url_for('materials.material_list', tab=tab) }}#material-inventory">查看全部</a>{% else %}还没有物料。{% if cu.role in ('admin','reviewer') %}<a href="{{ url_for('materials.material_list', tab='list') }}">新增物料资料</a>，或在录入表单填写新编号和名称，记录第一笔入库。{% endif %}{% endif %}</div>{% endif %}
+  </div>
+  <div class="mat-stock-footer">各物料按自身单位显示，不合并不同单位的数量。停用物料及其库存仍保留在总表中。</div>
+</div>
+{%- endmacro %}
+
+{% block body %}
+<style>
+.mat-stock-note{color:var(--ink-3);font-size:13px;line-height:1.6}.mat-stock-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:14px 0 16px}.mat-stock-stats>div{border:1px solid var(--line-2);border-radius:10px;padding:12px 16px;background:var(--paper,#fff)}.mat-stock-stats span{display:block;font-size:12px;color:var(--ink-3)}.mat-stock-stats b{display:block;font-size:25px;line-height:1.6}.mat-inventory .in,.stat .v.in{color:var(--green)}.mat-inventory .out,.stat .v.out{color:var(--red)}.mat-stock-filters{align-items:flex-end;gap:10px}.mat-stock-scroll{max-height:370px}.mat-stock-scroll thead th{position:sticky;top:0;z-index:1;background:#f5f7fa}.mat-stock-footer{padding:11px 20px;color:var(--ink-3);font-size:12px;border-top:1px solid var(--line-2)}.mat-today-units{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}.mat-today-unit{font-size:12px;color:var(--ink-3)}@media(max-width:680px){.mat-stock-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.mat-stock-filters>div{flex:1 1 140px!important}.mat-stock-scroll{max-height:330px}}
+.material-direction{border:0;padding:0;margin:0 0 25px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.material-direction legend{font-size:12px;color:var(--ink-3);margin-bottom:10px}.material-direction>div{position:relative}.material-direction input{position:absolute;left:14px;top:16px;accent-color:#2457d6;width:16px;height:16px;margin:0}.material-direction label{display:block;padding:13px 16px 13px 42px;border:1px solid #d6deeb;border-radius:10px;background:#f8fafc;cursor:pointer;margin:0}.material-direction label b,.material-direction label span{display:block}.material-direction label b{font-size:14px;line-height:1.5;color:#475569}.material-direction label span{font-size:12px;color:#8492a6;margin-top:4px}.material-direction input:checked+label{background:#eef4ff;border-color:#8eadee;box-shadow:0 0 0 1px #8eadee}.material-direction input:checked+label b{color:#2457d6}.material-direction input:focus-visible+label{outline:2px solid #2457d6;outline-offset:2px}.material-direction #m-out:checked+label{background:#fff5ef;border-color:#e8b28c;box-shadow:0 0 0 1px #e8b28c}.material-direction #m-out:checked+label b{color:#a94722}.material-entry-layout{margin-bottom:24px}.material-entry-layout .out,.material-remaining .out{color:var(--red)}.material-entry-layout .in{color:var(--green)}.material-entry-layout input[readonly]{background:#f3f6fa;color:#64748b}.material-remaining{display:flex;align-items:baseline;gap:7px;padding:12px 16px;background:#f4f8fd;border-radius:8px;margin-top:10px;font-size:12px;color:#65758e}.material-remaining strong{font-size:22px;color:#24466f}.material-detail-preview{display:grid;grid-template-columns:2fr 1fr 1fr;gap:15px;padding:16px;background:#f6f8fb;border-radius:10px}.material-detail-preview span,.material-detail-preview b{display:block}.material-detail-preview span{color:#8290a3;font-size:12px;margin-bottom:7px}.material-detail-preview b{font-size:14px;color:#42516a;overflow-wrap:anywhere}.material-detail-preview p{grid-column:1 / -1;margin:0;font-size:12px;color:#8190a5;line-height:1.7}#material-in-fields[hidden],#material-out-details[hidden],#mm-remaining[hidden],#mm-name-star[hidden]{display:none}@media(max-width:620px){.material-direction label{padding:12px 8px 12px 35px}.material-direction input{left:10px;top:16px}.material-direction label span{font-size:11px}.material-detail-preview{grid-template-columns:1fr}.material-remaining{flex-wrap:wrap}}
+</style>
+{% set io_tab = 'material' %}
+{% include "_io_tabs.html" %}
+<div class="page-head">
+  <div>
+    <div class="page-eyebrow">物料库存管理</div>
+    <h1>{{ '物料库存总表' if tab == 'stock' else '物料资料' if tab == 'list' else '物料出入库' }}</h1>
+    <div class="sub">包装盒、标签、配件分别记账。录入后库存立即更新，库存数量按各物料的单位显示。</div>
+  </div>
+  <div class="page-actions">
+    {% if tab == 'list' %}
+      {# 「新增一个物料」只是建个名字。人建完名字第一反应就是「那库存在哪录」，
+         所以这一页必须有一眼能看到的录入口，不能只靠上面那个页签。 #}
+      <a class="btn primary" href="{{ url_for('materials.material_list', tab='moves') }}">录一条出入库</a>
+      <a class="btn" href="{{ url_for('materials.material_export_list') }}">导出物料清单</a>
+    {% elif tab == 'moves' %}
+      <a class="btn" href="{{ url_for('materials.material_export_moves') }}{{ ('?' + qs) if qs }}">导出 Excel</a>
+    {% else %}
+      {% if cu.role in ('admin','reviewer') %}<a class="btn primary" href="{{ url_for('materials.material_list', tab='moves') }}#material-entry">录物料出入库</a>{% endif %}
+      <a class="btn" href="{{ url_for('materials.material_export_list') }}{{ ('?' + inventory_qs) if inventory_qs }}">导出库存总表</a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="tabs">
+  {{ tablink('moves', '录出入库 / 流水') }}
+  {{ tablink('stock', '库存总表' ~ '（' ~ inventory_stats.count ~ '种）') }}
+  {{ tablink('list', '物料资料') }}
+</div>
+
+{% if tab == 'stock' %}{{ inventory_panel() }}{% endif %}
+{% if tab == 'moves' %}
+<div class="grid c3" style="margin-bottom:16px">
+  <div class="stat blue">
+    <div class="k">今天入库</div>
+    <div class="v sm in">{{ sum_today['in']['n'] }} <span style="font-size:14px">笔</span></div>
+    <div class="mat-today-units">{% for item in today_units['in'] %}<span class="mat-today-unit">{{ item.qty|qty }} {{ item.unit or '（未设置单位）' }}</span>{% else %}<span class="mat-today-unit">今天暂无入库</span>{% endfor %}</div>
+  </div>
+  <div class="stat blue">
+    <div class="k">今天出库</div>
+    <div class="v sm out">{{ sum_today['out']['n'] }} <span style="font-size:14px">笔</span></div>
+    <div class="mat-today-units">{% for item in today_units['out'] %}<span class="mat-today-unit">{{ item.qty|qty }} {{ item.unit or '（未设置单位）' }}</span>{% else %}<span class="mat-today-unit">今天暂无出库</span>{% endfor %}</div>
+  </div>
+  <div class="stat">
+    <div class="k">当前筛选流水</div>
+    <div class="v sm">{{ total }} <span style="font-size:14px">笔</span></div>
+    <div class="n">当前库存请查看下方库存总表</div>
+  </div>
+</div>
+
+{% if cu.role in ('admin', 'reviewer') %}
+<div class="entry-layout material-entry-layout" id="material-entry">
+  <div class="card entry-card">
+    <div class="entry-card-heading"><h2 id="material-entry-heading">填写物料入库信息</h2><span class="tag in" id="material-direction-tag">入库增加库存</span></div>
+    <form method="post" action="{{ url_for('materials.material_move_create') }}" id="material-move-form" class="entry-form" data-stock-draft-key="material-move">
+      <section class="entry-section">
+        <fieldset class="material-direction"><legend>记录方向</legend>
+          <div><input type="radio" name="direction" id="m-in" value="in" checked><label for="m-in"><b>物料入库</b><span>采购收货 / 期初建账</span></label></div>
+          <div><input type="radio" name="direction" id="m-out" value="out"><label for="m-out"><b>物料出库</b><span>领用 / 消耗 / 发出</span></label></div>
+        </fieldset>
+        <div class="entry-section-title"><span>01</span><h3>物料与数量</h3></div>
+        <div class="entry-grid two">
+          <div class="field"><label for="mm-code">物料编号 *</label><input type="text" id="mm-code" name="code" required autocomplete="off" value="{{ prefill or '' }}" list="entry-material-codes" placeholder="选择或输入物料编号"><div class="field-note">已有编号自动带出资料，新编号可直接入库建档。</div></div>
+          <div class="field"><label for="mm-qty"><span id="material-qty-direction">入库</span>数量 *</label><input type="number" id="mm-qty" name="qty" min="0.000001" step="any" value="1" required><div class="field-note">按物料自身单位填写，本次数量须大于 0。</div></div>
+        </div>
+        <div id="mm-stock" class="stock-hint" aria-live="polite" hidden></div>
+        <div class="material-remaining" id="mm-remaining" hidden>保存后预计库存 <strong id="mm-remaining-value">—</strong><span id="mm-remaining-unit"></span></div>
+      </section>
+      <section class="entry-section">
+        <div class="entry-section-title"><span>02</span><h3>物料详细资料</h3></div>
+        <div id="material-in-fields" class="entry-grid two">
+          <div class="field span-two"><label for="mm-name">物料名称 <span id="mm-name-star" hidden>*</span></label><input type="text" id="mm-name" name="name" data-stock-draft-readonly="keep" placeholder="例如：大号首饰盒"><div class="field-note">新物料须填写名称；已有资料留空会保留原值。</div></div>
+          <div class="field"><label for="mm-category">分类</label><input type="text" id="mm-category" name="category" data-stock-draft-readonly="keep" list="entry-mat-cats" placeholder="选择或输入分类"></div>
+          <div class="field"><label for="mm-unit">单位</label><input type="text" id="mm-unit" name="unit" data-stock-draft-readonly="keep" list="entry-mat-units" placeholder="个 / 米 / 张 / 卷"><div class="field-note" id="mm-unit-note">为新物料填写计量单位。</div></div>
+        </div>
+        <div id="material-out-details" class="material-detail-preview" hidden><div><span>物料名称</span><b id="mm-out-name">—</b></div><div><span>分类</span><b id="mm-out-category">—</b></div><div><span>单位</span><b id="mm-out-unit">—</b></div><p>出库使用已建档的物料资料。修改名称和分类请在入库时填写，或打开物料资料页面。</p></div>
+      </section>
+      <section class="entry-section">
+        <div class="entry-section-title"><span>03</span><h3>时间、经手人与备注</h3></div>
+        <div class="entry-grid two">
+          <div class="field"><label for="mm-at">出入库时间</label><input type="datetime-local" id="mm-at" name="move_at" value="{{ now|replace(' ', 'T') }}"></div>
+          <div class="field"><label for="mm-op">经手人</label><input type="text" id="mm-op" name="operator" placeholder="填写经手人"></div>
+          <div class="field span-two"><label for="mm-note">备注</label><input type="text" id="mm-note" name="note" placeholder="期初库存、领用部门、单据号或本次说明"></div>
+        </div>
+      </section>
+      <div class="entry-submit"><span>保存后同步物料库存总表。</span><button class="btn primary" id="material-submit" type="submit">记录物料入库</button></div>
+    </form>
+    <datalist id="entry-material-codes">{% for m in material_choices %}{% if m.active %}<option value="{{ m.code }}">{{ m.name or m.code }}</option>{% endif %}{% endfor %}</datalist>
+    <datalist id="entry-mat-cats">{% for c in mat_cats %}<option value="{{ c }}">{% endfor %}{% for c in inventory_categories %}{% if c not in mat_cats %}<option value="{{ c }}">{% endif %}{% endfor %}</datalist>
+    <datalist id="entry-mat-units">{% for value in inventory_units %}{% if value %}<option value="{{ value }}">{% endif %}{% endfor %}<option value="个"><option value="米"><option value="张"><option value="卷"></datalist>
+  </div>
+  <aside class="entry-aside">
+    <div class="card"><h2>物料库存概况</h2><div class="card-body"><div class="aside-stat"><span>物料种类</span><b>{{ inventory_stats.count }}</b></div><div class="aside-stat"><span>有库存 / 零库存</span><b>{{ inventory_stats.positive }} / {{ inventory_stats.zero }}</b></div><div class="aside-stat"><span>负库存物料</span><b class="out">{{ inventory_stats.negative }}</b></div><a class="btn" href="{{ url_for('materials.material_list', tab='stock') }}">打开库存总表</a></div></div>
+    <div class="card"><h2>最近物料流水</h2><div class="card-body">{% for r in rows[:5] %}<div class="recent-entry"><div><b>{{ r.material_code }}</b><span>{{ r.material_name or '未填写名称' }}</span></div><strong class="{{ r.direction }}">{{ '+' if r.direction == 'in' else '−' }}{{ r.qty|qty }} {{ r.unit }}</strong></div>{% else %}<p class="muted">暂无物料出入库记录。</p>{% endfor %}<a href="#material-moves">查看流水明细</a></div></div>
+    <div class="card"><h2>录入说明</h2><div class="card-body entry-help"><p>已有物料先选择编号，系统带出名称、分类、单位和当前库存。</p><p>新物料填写编号、名称和单位，记录第一笔入库即可建账。</p><p>已使用的单位保持一致；使用另一种计量单位时，请新增物料编号。</p><a href="{{ url_for('materials.material_list', tab='list') }}">管理物料资料</a></div></div>
+  </aside>
+</div>
+<script>
+(function(){
+  var form=document.getElementById('material-move-form'),code=document.getElementById('mm-code'),hint=document.getElementById('mm-stock');
+  var fields=['name','category','unit'],dirty={},autoValues={},sequence=0,controller=null,timer=null,lastMatch=null,button=document.getElementById('material-submit');
+  var lookupUrl={{ '/materials/lookup'|tojson }};
+  function field(k){return document.getElementById('mm-'+k);}
+  function inbound(){return document.getElementById('m-in').checked;}
+  function estimate(){
+    var quantity=Number(document.getElementById('mm-qty').value),known=lastMatch&&lastMatch.found&&isFinite(Number(lastMatch.stock));
+    var show=known&&quantity>0&&isFinite(quantity),area=document.getElementById('mm-remaining');area.hidden=!show;if(!show)return;
+    var next=Number(lastMatch.stock)+(inbound()?quantity:-quantity);
+    document.getElementById('mm-remaining-value').textContent=Number(next.toFixed(6)).toLocaleString('zh-CN',{maximumFractionDigits:6});
+    document.getElementById('mm-remaining-value').classList.toggle('out',next<0);
+    document.getElementById('mm-remaining-unit').textContent=lastMatch.unit||'';
+  }
+  function applyDirection(){
+    var isIn=inbound(),label=isIn?'入库':'出库',tag=document.getElementById('material-direction-tag');
+    document.getElementById('material-entry-heading').textContent='填写物料'+label+'信息';document.getElementById('material-qty-direction').textContent=label;
+    tag.textContent=isIn?'入库增加库存':'出库减少库存';tag.className='tag '+(isIn?'in':'out');
+    document.getElementById('material-in-fields').hidden=!isIn;document.getElementById('material-out-details').hidden=isIn;
+    field('name').required=isIn&&!!lastMatch&&!lastMatch.found;document.getElementById('mm-name-star').hidden=!field('name').required;
+    var knownUnit=lastMatch&&lastMatch.found?lastMatch.unit:'',wrongUnit=!!(isIn&&knownUnit&&field('unit').value.trim()&&field('unit').value.trim()!==knownUnit);
+    field('unit').readOnly=!!knownUnit&&field('unit').value.trim()===knownUnit;field('unit').setCustomValidity(wrongUnit?'该物料已按“'+knownUnit+'”记账，请使用此单位，或为新单位新增编号。':'');
+    document.getElementById('mm-unit-note').textContent=wrongUnit?'该编号的计量单位为“'+knownUnit+'”，请修正单位或使用新编号。':field('unit').readOnly?'已按此单位记账，使用新单位时请新增物料编号。':'为新物料填写计量单位。';
+    ['name','category','unit'].forEach(function(k){document.getElementById('mm-out-'+k).textContent=lastMatch&&lastMatch.found?(lastMatch[k]||'—'):'请先选择已建档物料';});
+    if(!button.disabled)button.textContent='记录物料'+label;estimate();
+  }
+  function changed(){form.dispatchEvent(new CustomEvent('stock:form-updated',{bubbles:true}));}
+  function lookup(){
+    var key=code.value.trim(),id=++sequence;
+    if(controller)controller.abort();lastMatch=null;field('name').setCustomValidity('');
+    if(!key){hint.hidden=true;applyDirection();return;}
+    controller=new AbortController();var captured={};fields.forEach(function(k){captured[k]=field(k).value;});
+    hint.hidden=false;hint.classList.remove('warn');hint.textContent='正在查询物料…';
+    fetch(lookupUrl+'?code='+encodeURIComponent(key),{signal:controller.signal,cache:'no-store'}).then(function(response){if(!response.ok)throw Error();return response.json();}).then(function(data){
+      if(sequence!==id||code.value.trim()!==key)return;lastMatch=data;hint.hidden=false;hint.classList.toggle('warn',!data.found||!data.active);
+      if(data.found){
+        hint.textContent=data.code+' · '+(data.name||'未填写名称')+' · 当前库存 '+data.stock_text+' '+(data.unit||'（未设置单位）')+(data.active?'':' · 已停用');
+        fields.forEach(function(k){var input=field(k);if(dirty[k]||input.value!==captured[k]||input.value.trim())return;var value=data[k]===undefined||data[k]===null?'':String(data[k]);input.value=value;autoValues[k]=value;});
+      }else{hint.textContent=inbound()?'新物料：填写名称和单位后，可记录入库建档。':'找不到该编号，出库须选择已建档物料。';}
+      applyDirection();changed();
+    }).catch(function(error){if(error.name==='AbortError'||sequence!==id||code.value.trim()!==key)return;lastMatch=null;hint.hidden=false;hint.classList.add('warn');hint.textContent='物料查询暂未完成，可重试查询；保存时会再次核对编号。';applyDirection();});
+  }
+  fields.forEach(function(k){field(k).addEventListener('input',function(){dirty[k]=true;field('name').setCustomValidity('');if(k==='unit')applyDirection();});});
+  code.addEventListener('input',function(){
+    ++sequence;if(controller)controller.abort();lastMatch=null;
+    fields.forEach(function(k){var input=field(k);if(!dirty[k]&&Object.prototype.hasOwnProperty.call(autoValues,k)&&input.value===autoValues[k])input.value='';});
+    autoValues={};hint.hidden=true;applyDirection();clearTimeout(timer);timer=setTimeout(lookup,250);
+  });
+  code.addEventListener('blur',function(){clearTimeout(timer);lookup();});
+  ['m-in','m-out'].forEach(function(id){document.getElementById(id).addEventListener('change',function(){code.setCustomValidity('');field('name').setCustomValidity('');applyDirection();if(lastMatch&&!lastMatch.found)hint.textContent=inbound()?'新物料：填写名称和单位后，可记录入库建档。':'找不到该编号，出库须选择已建档物料。';});});
+  document.getElementById('mm-qty').addEventListener('input',estimate);
+  form.addEventListener('submit',function(event){
+    if(button.disabled){event.preventDefault();return;}
+    if(lastMatch&&lastMatch.found&&!lastMatch.active){event.preventDefault();alert('该物料已停用，请先在物料资料中启用。');return;}
+    if(!inbound()&&lastMatch&&!lastMatch.found){event.preventDefault();code.setCustomValidity('出库须选择已建档的物料编号');code.reportValidity();return;}
+    if(inbound()&&lastMatch&&!lastMatch.found&&!field('name').value.trim()){event.preventDefault();field('name').setCustomValidity('新物料请填写名称');field('name').reportValidity();return;}
+    var qty=Number(document.getElementById('mm-qty').value),stock=lastMatch&&lastMatch.found?Number(lastMatch.stock):null;
+    if(!inbound()&&stock!==null&&qty>stock&&!confirm('本次出库后库存将为 '+Number((stock-qty).toFixed(6))+' '+(lastMatch.unit||'')+'。确定记录？')){event.preventDefault();return;}
+    button.disabled=true;button.textContent='正在保存…';
+  });
+  code.addEventListener('input',function(){code.setCustomValidity('');});
+  function restored(event){
+    if(event&&event.detail&&event.detail.form&&event.detail.form!==form)return;
+    var names=event&&event.detail&&Array.isArray(event.detail.fields)?event.detail.fields:[];
+    fields.forEach(function(k){if(names.indexOf(k)!==-1||field(k).value.trim())dirty[k]=true;});autoValues={};applyDirection();clearTimeout(timer);lookup();
+  }
+  form.addEventListener('stock:draft-restored',restored);
+  window.addEventListener('pageshow',function(){button.disabled=false;applyDirection();});
+  applyDirection();if(code.value.trim())lookup();
+})();
+</script>
+{% else %}
+{# 盘点员看不到录入表单。以前这里是一片空白，看起来就像「这个功能没做」，
+   所以明确说一句这是谁的活。 #}
+<div class="note warn">
+  你的角色是<b>盘点员</b>，只看出入库流水。要录物料出入库，请让<b>管理员</b>或<b>复核员</b>来录。
+</div>
+{% endif %}
+
+{{ inventory_panel() }}
+
+<div class="card" id="material-moves">
+  <h2>物料流水 <span class="hint">共 {{ total }} 条</span></h2>
+
+  <div class="card-body pad-sm" style="border-bottom:1px solid var(--line-2)">
+    <form method="get" action="{{ url_for('materials.material_list') }}" class="row" style="gap:10px">
+      <input type="hidden" name="tab" value="moves">
+      <div style="flex:0 0 110px">
+        <label for="f-d">方向</label>
+        <select id="f-d" name="d">
+          <option value="" {{ 'selected' if not f['d'] }}>全部</option>
+          <option value="in" {{ 'selected' if f['d'] == 'in' }}>入库</option>
+          <option value="out" {{ 'selected' if f['d'] == 'out' }}>出库</option>
+        </select>
+      </div>
+      <div style="flex:0 0 150px">
+        <label for="f-from">开始日期</label>
+        <input type="date" id="f-from" name="from" value="{{ f['from'] }}">
+      </div>
+      <div style="flex:0 0 150px">
+        <label for="f-to">结束日期</label>
+        <input type="date" id="f-to" name="to" value="{{ f['to'] }}">
+      </div>
+      <div class="grow" style="flex:1 1 220px">
+        <label for="f-q">关键字</label>
+        <input type="search" id="f-q" name="q" value="{{ f['q'] }}"
+               placeholder="搜物料编号 / 名称 / 分类 / 经手人 / 备注">
+      </div>
+      <div style="flex:0 0 auto"><button class="btn" type="submit">筛选</button></div>
+      {% if f['d'] or f['from'] or f['to'] or f['q'] %}
+        <div style="flex:0 0 auto">
+          <a class="btn ghost" href="{{ url_for('materials.material_list') }}">重置</a>
+        </div>
+      {% endif %}
+    </form>
+  </div>
+
+  <div class="card-body tight">
+    {% if rows %}
+    <div class="scroll">
+      <table class="tb" style="min-width:1040px">
+        <thead>
+          <tr>
+            <th style="width:150px">出入库时间</th>
+            <th style="width:70px">方向</th>
+            <th style="width:150px">物料编号</th>
+            <th>物料名称</th>
+            <th style="width:110px">分类</th>
+            <th style="width:64px">单位</th>
+            <th class="num" style="width:100px">数量</th>
+            <th style="width:100px">经手人</th>
+            <th style="width:200px">备注</th>
+            <th style="width:100px">录入人</th>
+            {% if cu.role in ('admin', 'reviewer') %}<th style="width:80px">操作</th>{% endif %}
+          </tr>
+        </thead>
+        <tbody>
+        {% for r in rows %}
+          <tr>
+            <td class="nowrap mono">{{ r.move_at }}</td>
+            <td><span class="tag {{ r.direction }}">{{ dirs.get(r.direction, r.direction) }}</span></td>
+            <td class="mono"><b>{{ r.material_code }}</b></td>
+            <td class="ellip">{{ r.material_name or '—' }}</td>
+            <td class="muted">{{ r.category or '—' }}</td>
+            <td class="muted">{{ r.unit or '—' }}</td>
+            <td class="num"><b>{{ r.qty|qty }}</b></td>
+            <td>{{ r.operator or '—' }}</td>
+            <td class="ellip" title="{{ r.note }}">{{ r.note or '—' }}</td>
+            <td class="muted nowrap">{{ r.created_by_name or '—' }}</td>
+            {% if cu.role in ('admin', 'reviewer') %}
+            <td>
+              <form method="post" action="{{ url_for('materials.material_move_delete', mid=r.id) }}"
+                    data-confirm="删除这条物料流水？{{ r.move_at }} {{ dirs.get(r.direction, r.direction) }} {{ r.material_code }} × {{ r.qty|qty }}">
+                <button class="btn sm danger" type="submit">删除</button>
+              </form>
+            </td>
+            {% endif %}
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <div class="empty">
+        {% if f['d'] or f['from'] or f['to'] or f['q'] %}
+          当前筛选条件下没有物料流水。<a href="{{ url_for('materials.material_list') }}">看全部</a>
+        {% else %}
+          还没有物料出入库记录。
+          {% if cu.role in ('admin', 'reviewer') %}在上面填一条「期初库存」入库，库存就有数了。{% endif %}
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+  {% if pages > 1 %}
+  <div class="pager">
+    <span>第 {{ page }} / {{ pages }} 页 · 共 {{ total }} 条</span>
+    <span class="sp"></span>
+    {% set base = url_for('materials.material_list') ~ '?tab=moves&' ~ (qs + '&' if qs else '') %}
+    {% if page > 1 %}<a href="{{ base }}page={{ page - 1 }}">← 上一页</a>
+    {% else %}<span class="dis">← 上一页</span>{% endif %}
+    {% if page < pages %}<a href="{{ base }}page={{ page + 1 }}">下一页 →</a>
+    {% else %}<span class="dis">下一页 →</span>{% endif %}
+  </div>
+  {% endif %}
+</div>
+
+{% elif tab == 'list' %}
+
+{% if cu.role in ('admin', 'reviewer') %}
+<div class="card">
+  <h2>新增一个物料
+    <span class="hint">只是建个名字，库存还是 0——建完点右上角「录一条出入库」才有数</span>
+  </h2>
+  <div class="card-body">
+    <form method="post" action="{{ url_for('materials.material_save') }}">
+      <div class="row" style="align-items:flex-end;gap:12px">
+        <div style="flex:0 0 170px">
+          <label for="n-code">物料编号 <span style="color:var(--red)">*</span></label>
+          <input type="text" id="n-code" name="code" required placeholder="例：BOX-001"
+                 style="font-family:Consolas,monospace">
+        </div>
+        <div class="grow" style="flex:1 1 180px">
+          <label for="n-name">物料名称</label>
+          <input type="text" id="n-name" name="name" placeholder="例：大号首饰盒">
+        </div>
+        <div style="flex:0 0 130px">
+          <label for="n-cat">分类</label>
+          <input type="text" id="n-cat" name="category" list="mat-cats" placeholder="可留空">
+          <datalist id="mat-cats">
+            {% for c in mat_cats %}<option value="{{ c }}">{% endfor %}
+          </datalist>
+        </div>
+        <div style="flex:0 0 130px">
+          <label for="n-spec">规格</label>
+          <input type="text" id="n-spec" name="spec" placeholder="可留空">
+        </div>
+        <div style="flex:0 0 90px">
+          <label for="n-unit">单位</label>
+          <input type="text" id="n-unit" name="unit" placeholder="个">
+        </div>
+        <div style="flex:0 0 140px">
+          <label for="n-sup">进货商</label>
+          <input type="text" id="n-sup" name="supplier" placeholder="可留空">
+        </div>
+        <div class="grow" style="flex:1 1 150px">
+          <label for="n-note">备注</label>
+          <input type="text" id="n-note" name="note" placeholder="可留空">
+        </div>
+        <div style="flex:0 0 auto">
+          <button class="btn primary" type="submit" style="height:36px">新增</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+<div class="card">
+  <h2>物料清单 <span class="hint">共 {{ mats|length }} 个</span></h2>
+
+  <div class="card-body pad-sm" style="border-bottom:1px solid var(--line-2)">
+    <form method="get" action="{{ url_for('materials.material_list') }}" class="row" style="gap:10px">
+      <input type="hidden" name="tab" value="list">
+      <div class="grow" style="flex:1 1 260px">
+        <label for="mq">搜索</label>
+        <input type="search" id="mq" name="mq" value="{{ mq or '' }}"
+               placeholder="搜物料编号 / 名称 / 分类 / 进货商" style="width:340px">
+      </div>
+      <div style="flex:0 0 auto"><button class="btn" type="submit">搜索</button></div>
+      {% if mq %}
+        <div style="flex:0 0 auto">
+          <a class="btn ghost" href="{{ url_for('materials.material_list', tab='list') }}">重置</a>
+        </div>
+      {% endif %}
+    </form>
+  </div>
+
+  <div class="card-body tight">
+    {% if mats %}
+    <div class="scroll">
+      <table class="tb" style="min-width:1120px">
+        <thead>
+          <tr>
+            <th style="width:150px">物料编号</th>
+            <th>物料名称</th>
+            <th style="width:110px">分类</th>
+            <th style="width:140px">规格</th>
+            <th style="width:64px">单位</th>
+            <th style="width:140px">进货商</th>
+            <th class="num" style="width:100px">累计入库</th>
+            <th class="num" style="width:100px">累计出库</th>
+            <th class="num" style="width:100px">当前库存</th>
+            <th style="width:80px">状态</th>
+            {% if cu.role in ('admin', 'reviewer') %}<th style="width:260px">操作</th>{% endif %}
+          </tr>
+        </thead>
+        <tbody>
+        {% for m in mats %}
+          <tr class="{{ 'off' if not m.active }}">
+            <td class="mono"><b>{{ m.code }}</b></td>
+            <td>{{ m.name or '—' }}</td>
+            <td class="muted">{{ m.category or '—' }}</td>
+            <td class="muted">{{ m.spec or '—' }}</td>
+            <td class="muted">{{ m.unit or '—' }}</td>
+            <td class="muted">{{ m.supplier or '—' }}</td>
+            <td class="num in">{{ inventory_totals[m.id].in_qty|qty }}</td>
+            <td class="num out">{{ inventory_totals[m.id].out_qty|qty }}</td>
+            <td class="num"><b class="{{ 'out' if stock.get(m.id, 0) < 0 else '' }}">{{ (stock.get(m.id, 0))|qty }}</b></td>
+            <td>
+              {% if m.active %}<span class="tag ok">启用</span>
+              {% else %}<span class="tag">停用</span>{% endif %}
+            </td>
+            {% if cu.role in ('admin', 'reviewer') %}
+            <td>
+              <div class="row" style="gap:6px">
+                {# 编号带过去，省得再敲一遍——「这个物料还有多少、我要再入一批」是最常见的动作 #}
+                <a class="btn sm primary" href="{{ url_for('materials.material_list', tab='moves', code=m.code) }}">录出入库</a>
+                <a class="btn sm" href="{{ url_for('materials.material_list', tab='list', edit=m.id) }}#edit">改资料</a>
+                <form method="post" action="{{ url_for('materials.material_toggle', mid=m.id) }}">
+                  <button class="btn sm" type="submit">{{ '停用' if m.active else '启用' }}</button>
+                </form>
+                {% if cu.role == 'admin' %}
+                <form method="post" action="{{ url_for('materials.material_delete', mid=m.id) }}"
+                      data-confirm="删除物料 {{ m.code }}？只有从没进出过的物料才能删。">
+                  <button class="btn sm danger" type="submit">删除</button>
+                </form>
+                {% endif %}
+              </div>
+            </td>
+            {% endif %}
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <div class="empty">
+        {% if mq %}没搜到匹配的物料。<a href="{{ url_for('materials.material_list', tab='list') }}">看全部</a>
+        {% else %}还没有物料。上面「新增一个物料」先建个名字，再用右上角的
+          <a href="{{ url_for('materials.material_list', tab='moves') }}">录一条出入库</a>
+          把库存录进去（比如「期初库存」）。{% endif %}
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% set edit_id = request.args.get('edit') %}
+{% if edit_id and cu.role in ('admin', 'reviewer') %}
+  {% set em = mats|selectattr('id', 'equalto', edit_id|int)|first %}
+  {% if em %}
+  <div class="card" id="edit">
+    <h2>修改物料 <span class="hint">{{ em.code }}</span></h2>
+    <div class="card-body">
+      <form method="post" action="{{ url_for('materials.material_save') }}">
+        <input type="hidden" name="id" value="{{ em.id }}">
+        <div class="row" style="align-items:flex-end;gap:12px">
+          <div style="flex:0 0 170px">
+            <label for="e-code">物料编号 <span style="color:var(--red)">*</span></label>
+            <input type="text" id="e-code" name="code" value="{{ em.code }}" required
+                   style="font-family:Consolas,monospace">
+          </div>
+          <div class="grow" style="flex:1 1 180px">
+            <label for="e-name">物料名称</label>
+            <input type="text" id="e-name" name="name" value="{{ em.name }}">
+          </div>
+          <div style="flex:0 0 130px">
+            <label for="e-cat">分类</label>
+            <input type="text" id="e-cat" name="category" value="{{ em.category }}" list="mat-cats">
+          </div>
+          <div style="flex:0 0 130px">
+            <label for="e-spec">规格</label>
+            <input type="text" id="e-spec" name="spec" value="{{ em.spec }}">
+          </div>
+          <div style="flex:0 0 90px">
+            <label for="e-unit">单位</label>
+            <input type="text" id="e-unit" name="unit" value="{{ em.unit }}">
+          </div>
+          <div style="flex:0 0 140px">
+            <label for="e-sup">进货商</label>
+            <input type="text" id="e-sup" name="supplier" value="{{ em.supplier }}">
+          </div>
+          <div class="grow" style="flex:1 1 150px">
+            <label for="e-note">备注</label>
+            <input type="text" id="e-note" name="note" value="{{ em.note }}">
+          </div>
+          <div style="flex:0 0 auto">
+            <button class="btn primary" type="submit" style="height:36px">保存</button>
+          </div>
+          <div style="flex:0 0 auto">
+            <a class="btn ghost" href="{{ url_for('materials.material_list', tab='list') }}">取消</a>
+          </div>
+        </div>
+        <div class="tip" style="color:var(--ink-3);font-size:12px;margin-top:8px">
+          这里改的是物料资料，不影响已经记下的流水——流水里存的是当时的编号、名称、分类快照，
+          改名字不会把历史记录一起改掉。
+        </div>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+{% endif %}
+
+{% endif %}
+{% endblock %}
