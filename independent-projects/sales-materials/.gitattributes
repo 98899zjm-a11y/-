@@ -1,0 +1,2 @@
+# Preserve the exact reviewed Windows candidate source bytes.
+* -text whitespace=cr-at-eol

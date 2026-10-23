@@ -1,0 +1,12 @@
+node_modules/
+runtime/
+evidence/
+*.sqlite*
+*.db*
+*.log
+.env*
+*.pem
+*.key
+*.jpg
+*.png
+*.webp

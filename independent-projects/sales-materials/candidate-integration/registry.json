@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "moduleId": "sales-materials-local-candidate",
+  "label": "销售素材选样（独立候选）",
+  "entry": "entry.mjs",
+  "launcher": "Start-SalesMaterials.ps1",
+  "host": "127.0.0.1",
+  "port": 21963,
+  "url": "http://127.0.0.1:21963",
+  "sourceModule": "D:/Codex/xjy-sales-materials-20261023/server.mjs",
+  "dataRoot": "D:/Codex/xjy-sales-materials-20261023/runtime/data",
+  "nodeRuntime": "D:/Codex/xjy-agent-sales-media/openclaw-isolated/runtime/node-v24.22.1-win-x64/node.exe",
+  "permissionBoundary": "local-candidate",
+  "inheritsProductionEmployeePermissions": false,
+  "productionRegistered": false,
+  "sourceMode": "independent-module-reference"
+}
