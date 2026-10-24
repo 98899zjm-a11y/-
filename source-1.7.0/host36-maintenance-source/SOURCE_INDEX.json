@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "productVersion": "1.7.0",
+  "hostSequence": 36,
+  "scope": "Reviewed six-file maintenance-source delta; not a standalone installer",
+  "files": [
+    {
+      "path": "worker/delivery-tools/host20-guest-operation170.cjs",
+      "bytes": 16342,
+      "sha256": "21f6ecfcf3b7f3b349f944a5654d0d41ca9a2ad6410371dc16d96f05bdacbae1"
+    },
+    {
+      "path": "worker/delivery-tools/host20-native-authority170.cjs",
+      "bytes": 18966,
+      "sha256": "3478eb34b5368fc0ba35899f0606158e74df2a0e22e456c5b6895fc5fe1f1223"
+    },
+    {
+      "path": "worker/delivery-tools/host20-native-entry170.cjs",
+      "bytes": 5929,
+      "sha256": "af5e92257c4faebf66535105ebf33956b0dcf30f424ba2bbf5723d4753a72c84"
+    },
+    {
+      "path": "worker/delivery-tools/host20-preflight170.cjs",
+      "bytes": 1821,
+      "sha256": "7ae66e3454f661691b46d0101114f9149b294411bc5fd81dc93f822fea73323b"
+    },
+    {
+      "path": "worker/delivery-tools/host20-startup-snapshot170.cjs",
+      "bytes": 31164,
+      "sha256": "c37cdb0a0cf681c5851e90a4deab65e1be79e25b0d31b8ab6e3aa31e26e9c07e"
+    },
+    {
+      "path": "worker/delivery-tools/host20-state-io170.cjs",
+      "bytes": 28737,
+      "sha256": "4a204b6c046bb8431de4f7eb6e7eb9e0c6673c76a8a0dd7777c953f2ae86feab"
+    }
+  ]
+}
