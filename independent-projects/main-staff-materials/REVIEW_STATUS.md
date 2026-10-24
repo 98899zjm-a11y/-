@@ -1,12 +1,16 @@
 # 本轮独立审查与验收范围
 
-## 2026-10-24 22:17:49 +08:00 当前最终产品源码检查点
+## 2026-10-24 22:40:32 +08:00 当前最终产品源码检查点
+
+员工接入检查工具现已96/96、0fail/skip；新D目录只读采集exit0、7命令全ok、1合格物理接口、2个loopback候选监听。实际观察未填写员工IPv4/角色时得到needs_input、authorization=false、networkPlan=null，未发明对端。独立e926已闭F3/F7/F4/F2-explicit-failure/F5、findings=[]、blocking=false；仅工具源码结论，不是正式身份或跨机验收。
+
+源码已普通归档3353427（12文件，快照/index/commit同字节，三次Gitleaks与NFKC敏感形状0，远端一致）；不部署或交1.7.1完成。评分辅助12/12且独立a961关闭4问题、findings=[]。员工检查工具3个有效DTO边界已Root复现并由f322修复，96/96及独立e926终审闭合；adapter Status本机实际System.String，不能称已复现数字事故；进程Path/StartTime是已批准只读信息，失败现场保留。
 
 最终产品源classifier89f107…31c63e/searchfa8d54…be1a47：Node全glob511/511，真实Electron44.9/Node24.22.0相关11文件226/226，均0失败/跳过。正常stop/launch后PID28656仅loopback，当前HTTP参考16/16。最新同字节44.9图形fixture15图全加载、16查询、同原preload登录、opaque403、退出清空/重开15，并过4加密LAN安全探针。证据candidate-all-final-material-tail.log、native44/electron44-frozen-source-complete.json、native44/native44-frozen-complete.json、candidate-final-source-reference-acceptance.json。
 
 真实独立Harness950终审已闭R1/R3/N1/R4/N2及3单字/复合材质子项，blocking=false；此为静态源码结论，实际测试由Root执行。R2/R5按原合同撤回；P3石和玉/大理石等人工标签词表边界已Root复现并明记，未无限扩自然语言词表，也不把标签当真实材质证明。无分隔未知词连接词仍可能漏检。全部原回复、未应用坏补丁、RED及运输转义更正保留。
 
-纯无I/O证据评分辅助作者151已修空预期及无效证据仍可满分：任意violation使metricsUsable=false、exact/category分0、query.exact=false，保留诊断；合法真实漏检仍consistent且低分。原断言保留，真实RED->GREEN12/12，独立a961闭环复查仍待。它不见证真实模型，不进产品入口，不解锁员工验收。
+纯无I/O证据评分辅助作者151已修空预期及无效证据仍可满分：任意violation使metricsUsable=false、exact/category分0、query.exact=false，保留诊断；合法真实漏检仍consistent且低分。原断言保留，真实RED->GREEN12/12，独立a961闭环复查已真实收到：4问题关闭、findings=[]、blocking=false。它不见证真实模型，不进产品入口，不解锁员工验收。
 
 visual-v2仍未在入口启用，21434无监听、新模型零次，参考16/16不是自动模型准确率；旧自动2/8仅历史。正式员工、物理跨机、完整changed发行入口/ASAR/签署安装仍未验，readyFor171=false，未发完成交接。服务恢复明确确认、员工IPv4/窗口/角色及重要网络方案仍待。正式版、业务库和网络未改。
 
