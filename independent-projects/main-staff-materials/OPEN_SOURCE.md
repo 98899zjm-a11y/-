@@ -19,3 +19,13 @@
 依赖提取用现成[Microsoft TypeScript v5.9.3](https://github.com/microsoft/TypeScript/tree/v5.9.3) AST，Apache-2.0；只读本机已装package/library/LICENSE三文件，固定版本/SHA，noEmit/noLib/noResolve，不执行被审源码、不下载、不进运行树。原手写mask的注释/正则缺陷保留RED后替换，88份原runtime specifier结果与旧受检数组逐项一致。
 
 sharp0.35.5及126原生/依赖文件与许可材料逐字节装配到D准备树，仍不在Git分发。不同传递依赖各自许可不变，不把全部统称Apache。受检prepare只证明闭包和实际图片编码可用，未运行材料ASAR封包或签署安装；原资源白名单/安全门禁保持。
+
+## 2026-10-24 实际44.9隔离验证与上游依据
+
+本轮仅复用本机既有44.9发行纯引擎19文件（336,821,740B，源/目标及源前后摘要一致），保留LICENSE与Chromium许可；来源是本机发行副本，NotSigned不冒称官方验签。没有新下载/全局安装，也不随公开源码分发引擎、模型或原生依赖。
+
+实际D副本实测Electron44.9.0/Node24.22.0/SQLite3.53.4。依据[Electron官方打包布局](https://www.electronjs.org/docs/latest/tutorial/application-distribution)仅在该D引擎resources/app放自有合成fixture，未复制正式app.asar、activation或数据；原preload/加密LAN/15图加载/16参考查询/opaque403/退出/重开已执行。源码或模型修改后的最新组合需按新摘要重新验证，不以旧结果代替。
+
+物理引擎检查采用Electron内建[original-fs](https://www.electronjs.org/docs/latest/tutorial/asar-archives#treating-an-asar-archive-as-a-normal-file)，防止普通fs把不存在app.asar解释成虚拟包；只改检测工具绑定，不全局process.noAsar、不修改fuses、不关闭sandbox/CSP。Node权限模式下fsync禁用由[Node上游说明](https://github.com/nodejs/node/blob/main/doc/api/permissions.md)与本机24.22.1错误共同核实，保留失败现场；工具最终按既有正常受检Node方式执行，路径/单链接/摘要/wx/fsync校验全部保留。
+
+上述是专用fixture，不是完整changed release-app/真实ASAR/签署/安装/真实员工或物理跨机验收。相关198断言在该真实引擎直接node:test模块中通过，未把原CLI启动或汇总器失败删除。

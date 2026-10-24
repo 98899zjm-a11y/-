@@ -2,6 +2,15 @@
 
 本合同适用于本轮D盘候选。正式员工/当前正式会话不因源码合同自动接通；program-side materials-runtime-capability.json须显式{version:1,enabled:true}且受检，缺失默认false。employee只用远端，不加载profile库。
 
+## 视觉协议与检索语义（本轮新增，仍未真实模型验收）
+
+createClassifier的schemaVersion属于受信构造选项，不是客户端权限或HTTP开关；缺省legacy-v1。显式visual-v2的模型内部只接decision/category/features/structure封闭枚举，无自由tags/reason，外部仍投影为原sha256/decision/category/tags/reason。新模式未被当前运行入口选用，mock测试和参考标签成绩不代表真实图像事实。
+
+主类证据不明确/非首饰、未知视图或完整声明与局部视图冲突时弃权。T/十字以旋转镜像无关的三/四方向证据投影；shape unknown仅该形状弃权，不由axis猜标签，也不自动否定仍明确的主类。项链/手链与carrier须双向一致；none不能同时声明完整链身或附件present。unknown carrier/附件不产生无吊坠或挂件标签；absence只在明确完整匹配carrier时生成。
+
+检索两种否定有明确区别：普通“不要/不喜欢/排除”只排除已登记正特征，允许未记录者作为有限候选，但证据必须not_recorded且返回unrecorded_exclusion及“未记录不保证不存在”的说明；“无/没有/不带/不含”必须explicit_absence。不要把普通候选说成保证无特征，也不擅改成更严格产品语义。供货是另一规则：unknown永不证明正反现货状态。
+
+正向独立“吊坠”是商品主类；明确承载链或显式吊坠缺失要求按挂件事实解释，不能仅因类别不是吊坠就满足“没有吊坠”。未核材质正请求只退到类别/可见款式并明确警告，不证明材质；负材质要求无法核实则拒绝，标签材质不能成为literal款式匹配条件。珍珠仅珠饰外观、金/银/玫瑰金色仅可见颜色的既有例外保持。
 ## 存储与宿主
 
 openProfileLibrary({dataRoot,classify})只给可信本机固定销售素材目录铸内部capability；原openLibrary({root,classify})仍限原runtime。拒未知非空、坏marker、日志残留、别名/多链接、库/图缺失或非文件；不重建未知现场。createMaterialRuntimeSuite({origin,dataRoot,classify})先验loopback origin，默认review-first，返回冻结handle、sessionRequest、close；关闭使原isLive失效，构造失败正常close。
@@ -29,3 +38,7 @@ jewelry://app/materials只处理固定3代码资产与上述路由，固定真�
 ## 启动保全与范围
 
 新候选仅D合成main-data，不setup缺失业务库；HTTP21965/LAN21966都loopback。CLI无自由路径/账号/端口覆盖，内部fixture仅受检新子目录+port0。后台仅本次私有IPC/nonce adopt，无kill/自动恢复；owner/临时残留保全。9关键源摘要是子集，完整源码/暂存/commit另核。实际--launch/重复拒绝/--stop/重启已测；openRequested不表示浏览器已显示，PS策略未改。正式安装/真实网络与正式账号修改另确认。
+
+## 2026-10-24 有限标签检索边界
+
+搜索只核登记款式标签，不证明化学材质、真假、价格或库存。当前词表在“石和玉”等无分隔单字组合及“大理石”等未覆盖人工标签上仍可能保留literal（P3，已实测留证）；不能把命中证据当材质验证。不为凑命中率硬拆并蒂莲等完整款式词，无分隔未知词连接词可能漏检。显式缺失必须有absence证据，unknown供货保持待核实；新视觉模型精度须另外实测。

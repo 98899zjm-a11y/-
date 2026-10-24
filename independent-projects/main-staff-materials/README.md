@@ -13,6 +13,8 @@
 
 ## 实际验证
 
+2026-10-24当前增量：Node511/511、真实44.9相关226/226及同字节独立原生参考链已过；产品独立源码终审无P1/P2阻断。新模型、正式身份与跨机仍未验证，v2未启用。旧443/44.7为下方历史基线，详细以HANDOFF/REVIEW_STATUS和真实回执为准。
+
 最终相关整合集合443/443通过，0失败/跳过，日志evidence/storage-client-lan-20261024/final-all-related-tests.log。真实Electron44.7独立fixture使用最终准备树、复制后的sharp、原backend、profile SQLite、原加密loopback LAN、实际native协议及原preload：15已复核图全部加载、同主账号登录、opaque来源403、退出清空、重开仍保留15。该结果不等于完整release-app/正式44.9安装验收。
 
 实际默认API和最终CLI已分别验证：现存D虚构主账号库共用HTTP/LAN，新profile接收16批准实样，测试管理参考确认15、含混1保留，8固定查询符合，查看投影不含内部字段。最终CLI父退出后服务仍ready、重复启动拒绝且原实例不变、nonce正常停止、重新启动新PID/nonce、资料保留。defaultBrowser的openRequested只表示请求打开，不保证页面已显示；没有自动双击和操纵用户默认浏览器。

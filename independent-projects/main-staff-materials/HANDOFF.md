@@ -1,35 +1,55 @@
-# 主系统素材候选本轮交接
+# 员工会话素材候选交接
 
-更新：2026-10-24。本轮权威源码位于D:/Codex/xjy-main-staff-session-20261023/candidate，承接已推86ec0ea候选和a970073主系统基础。旧阶段交接字节在evidence/documents-before-final及各阶段before备份保留；没有重写失败证据或将原method deviation改成通过。
+本文件为原工程权威交接，已将重复过程合并；此前原文和全部失败证据保存在本阶段D盘备份及各原日志。目标仍是“自动分类/找图达到员工可用，完成后交1.7.1”，尚未完成，不把参考标签命中或组件测试当完整交付。
 
-## 已实现与来源
+## 位置与核验
 
-真实Harness作者：分类16d94b43、存储a68124b7、LAN ad69112f、native852855bc、构建9e502b7d、启动6a11e373。独立审查分别bcc1b93b/ad885eef/8485b316/ffccc9a6/9eb7e4ca。当前全部有实际final/completed，代码与限定结论分别核验；17通用工具入口仍关闭，返回补丁由Codex受检落盘/测试，不声称模型自主跑了测试。
+- 工程：D:/Codex/xjy-main-staff-session-20261023；产品源在candidate/，本工程自身不重新初始化Git。
+- 本轮父归档：479d54e6241bb914b892b521db5430db45fc3a29，分支codex/sales-materials-candidate-20261023，公开overlay位于independent-projects/main-staff-materials。该提交不是当前新增源码字节，不是安装包。
+- 本轮产品工作源（同步结果以本阶段final-source-sync-receipt.json为准）：materials/lib/classifier.mjs、search.mjs及四份visual/natural/independent测试；source-review-ready旧四文件包已过期，准确当前摘要见candidate-final-source-running-receipt.json及最新application回执。
+- 当前候选PID28656、HTTP127.0.0.1:21965、加密LAN127.0.0.1:21966；独立D合成主账号/profile，正式员工和库存未连接。
+- 1.7.1接收端实测HEAD cfbb771、codex/1.7.1-repair-candidate、100状态项（19:20快照）；原a970073只是本素材的主代码祖先。主线仍活跃，禁止直接覆盖。
 
-profile库由不可伪造capability打开固定销售素材目录，复用原owned-path guard；原openLibrary默认runtime限制不变。marker/未知现场/日志/丢失图/类型/硬链接/句柄清理和fatal队列均有真实RED→GREEN；正常close排空。RuntimeSuite合成同一library的HTTP挂载和session transport，并以关闭状态包裹原isLive，默认review-first。
+## 已验证
 
-LAN沿原pin/加密/重放与资源控制新增白名单materials op，服务器映射实际session；本机workspace wrapper绑定backend、实际auth.sessionId和generation。bridge复用mounted/access；native jewelry协议只读固定代码资产、走可信network，不暴露pin/token。两层CSRF、事务前同步权限复验、读数据collect至encrypt/Response最后同步seal保留；写ACK不依赖read seal，未知响应字段和危险header仍拒。
+- 最终产品源classifier89f107…31c63e/searchfa8d54…be1a47：Node全glob511/511，真实Electron44.9/Node24.22.0相关11文件226/226，均0失败/跳过。正常stop/launch后PID28656仅loopback，当前HTTP参考16/16。最新同字节44.9图形fixture15图全加载、16查询、同原preload登录、opaque403、退出清空/重开15，并过4加密LAN安全探针。证据candidate-all-final-material-tail.log、native44/electron44-frozen-source-complete.json、native44/native44-frozen-complete.json、candidate-final-source-reference-acceptance.json。
+- 以上均是独立虚构主账号/图库参考链，不是正式身份或新模型效果；真实图片不公开。
+- 账号/LAN审批DTO70/70、物理主机只读采集保留，未新增正式登录/跨机/网络开放。
+- 旧四文件安全扫描不能覆盖当前新增字节，最终白名单另行重扫。
 
-release-app/preload/宿主服务与首页有显式接线，程序侧materials-runtime-capability.json默认不生成即关闭，employee不import profile库。构建保留ESM原字节，固定shim复用原CJS，sharp复制到既有print-dependencies白名单，TS5.9.3只作固定pin的构建时AST工具。缺工具/源变化/未知依赖/封包条件缺失拒绝，不放宽原准入或签名。
+## 实现与作者
 
-新start-profile-candidate只用受检D合成主库和两个loopback专用端口，不setup缺失主业务库。固定Node --launch以单次私有IPC/nonce adopt管理自有child，失败正常收敛；只读9项关键源子集，Root另有全源码导出/冻结。owner claim/临时残留保全，--stop只发自有nonce；无taskkill/业务强杀。新CMD无需PowerShell策略绕过，PS保留UTF8 BOM。
+- 产品代码由真实Harness作者42b1 turn2七hunks、turn3两hunks生成，Codex核查/机械应用/执行测试；先真实RED再GREEN。新visual-v2封闭可见槽、旋转无关T/十字、完整链身absence；legacy默认、安全否决、manager复核和供货unknown不放宽。
+- 新视觉模式仍未在当前启动入口选择，真实效果未测。不能用人工参考标签或文件名补模型输出，不能改原16/8基准或盲测预期来凑通过。
+- 真实4新图盲测由Root先本地视觉冻结，仍未进模型/未交实现者。原16 manifest/queries与20图只作本地私有，原图不改、不公开。
+- 评测器由42b1返回，原items/localPath/expectedIds格式不匹配已真实RED。Root无损投影为其array/image/expected并保留原摘要，--plan GREEN、expected共9；--run前后还须外层实际模型tag、result.sha及源/基准检查，不能只信其自报。
+- 44.9复制/probe由cf8返回；Root小修工具接口/nlink、物理original-fs适配及既有原生fixture配置，不改产品信任根或fuses，不全局禁ASAR/sandbox。
+- 账号工具由f322返回并按真实独立审查31hunks返修；Root机械纠正两处overlay路径及只读OS的CIM/枚举/版本getter适配。未把检测工具回归冒称正式账号通过。
 
-## 最新真实验证
+## 独立审查与尚未放行项
 
-- final-all-related-tests.log：443/443，0失败/跳过，约51秒。存储原审查9测试已机械拷入candidate/tests，原证据保留，根推导/独立mkdir适配不改断言。
-- 最新准备树实际Electron44.7/Node24.21/SQLite3.53.4结果见native-proof-active.json指向的result.json：最终Native729048/LAN581a，16批准图、测试参考确认15/保留1/供货unknown，8查询符合，15图allLoaded，原preload同一登录，data: opaque来源实际403，退出清空、profile重开15。前一次LAND3旧快照保留但不冒充最终字节。
-- default-profile-real-acceptance.json：普通内部默认API0551健康路径复用旧D四个虚构主账号，16图以e808确切SHA回执缓存导入，manager参考确认15，8查询/安全投影通过，modelCalls0；正常close，入口前后SHA一致。它不替代最终CLI审查。
-- final-cli-lifecycle-verification.json：最终498650实际--launch ready，父退出child持续；第二次启动拒且原实例不变；--stop nonce普通关闭；再启动新PID/nonce及同profile正常。两个端口只loopback，0强杀，浏览器openRequested未外推实际打开。
-- ui-profile-acceptance.json及ui-final-profile-restarted-view.png：原主账号登录一次进入，operate只维护资料、manage才有复核/供货，view无导入编辑；资料原值保存、客户展示隐藏内部名、原退出清空、重启后找图正常。filechooser超时、CDP明确拒绝，未选文件/未绕过；原生文件目录选择未验。
+- 真实独立Harness950终审已闭R1/R3/N1/R4/N2及3单字/复合材质子项，blocking=false；此为静态源码结论，实际测试由Root执行。R2/R5按原合同撤回；P3石和玉/大理石等人工标签词表边界已Root复现并明记，未无限扩自然语言词表，也不把标签当真实材质证明。无分隔未知词连接词仍可能漏检。全部原回复、未应用坏补丁、RED及运输转义更正保留。
+- 纯无I/O证据评分辅助作者151已修空预期及无效证据仍可满分：任意violation使metricsUsable=false、exact/category分0、query.exact=false，保留诊断；合法真实漏检仍consistent且低分。原断言保留，真实RED->GREEN12/12，独立a961闭环复查仍待。它不见证真实模型，不进产品入口，不解锁员工验收。
+- visual-v2仍未在入口启用，21434无监听、新模型零次，参考16/16不是自动模型准确率；旧自动2/8仅历史。正式员工、物理跨机、完整changed发行入口/ASAR/签署安装仍未验，readyFor171=false，未发完成交接。服务恢复明确确认、员工IPv4/窗口/角色及重要网络方案仍待。正式版、业务库和网络未改。
 
-## 模型结论
+## 必须保留的边界与失败
 
-32本机串行A/B690284观测14/16→15/16品类，但自动查询仍2/8；e808仅最终守卫回放，0/16变化、请求/提示/参数/图像完全相同，未新推理。复核标签后8/8不是自动准确率/商家审核。首饰正例不能评价非首饰误收；有限关键词对可见标点变体有接受限制，模型reason不进客户视图。
+- 所有新程序/数据/缓存/日志/测试profile在D；现有E知识库仅按用户要求维护原文。正式程序/账户/业务库/配置/签署/安装/网络未改，OpenClaw业务工具仍未开放。
+- 15:15及后续重启后的旧自有owner/instance经同nonce/PID/早于开机/旧PID无/端口空闲证明后仅归档，不删未知现场。DB/图片/identity/connection保持；恢复正常CLI，无强杀。原证据candidate-owned-metadata-recovery.json。
+- 44.9最初额外Node Permission模式fsync失败、ASAR虚拟fs检查失败、CLI目录启动缺bootstrap、--test方式及汇总器失败均留原日志。最终按正常受检工具、physical original-fs、仅D自有resources/app和直接test模块得到真实成功，未删除失败或放宽产品断言。
+- 44.9来源是本机既有发行引擎，NotSigned不冒充官方验签；19纯引擎文件源前后/目标摘要一致，336,821,740B。未复制正式app.asar/activation/资料，源F只读。
+- 既有accepted限制：外部并发可留own marker；拒绝最终授权可保留无DB隔离JPEG，列表/查询不可见且image404；不自动清未知残留。恶意本机管理员竞态/真实断电未验。
+- 原生/浏览器文件选择对话框仍未现场成功；API/native批量上传不是实际目录对话框验收。
 
-## 保全与未验证
+## 下一步与交付规则
 
-外部并发可留下own marker；最终授权拒绝可留无DB隔离JPEG，已证列表/查询无项、图片404、重开仍404、原图摘要不变。不自动删除未知/旧锁/日志，异常恢复另做归属与预演。恶意本机管理员TOCTOU、真实断电不在已验范围。
+1. 收实际产品审查回复、核实有效问题并由原作者优先返修；代码无变时不重复已过测试。
+2. 获准恢复现有D模型服务后，串行原16开发集与一次4图盲测；固定84f7ed…318元数据/源图摘要、真实返回、每条漏检误检、弃权、供货探针及耗时。盲测用于调优后必须标已转开发样本。
+3. 达到原8查询与安全条件再显式选择visual-v2；新模式真实准确率不可由旧参考标签成绩替代。之后用新模型原tags而非GT回填复测界面。
+4. 需要员工指定IPv4、约20分钟空档、角色；网络开放要具体审批与精确socket.remoteAddress fence/TTL/仅本次规则回滚，HTTP继续loopback。正式登录会写正常审计/时长/失败计数，不能称纯读，不复制账号库/口令到假库。
+5. 1.7.1接收前看receiver-171-merge-boundaries.json：11hook中5处运行/维护源不同，renderer和builder也有主线改动；保留171 backend/admin修复，release-app必须三方语义接到update171真实入口，不整文件覆盖。
+6. 最终安全检查、精确来源与必要回归/复查通过后普通同步既有候选分支，交最小源码差异、源摘要、复现命令及未验项给既有“1.7.1版本”。不得发送“已完成”或置goal complete，直到完成审计证明所有本任务要求。
 
-完整changed release入口未在实际正式44.9执行，ASAR原生解析、完整生成物/封签/安装升级、外机LAN、正式员工账号/现有正式会话、生产备份恢复及微信采集未验。工具不在离线audit-tools固定E位置的可用性也未验；材料seal硬拒。原1.7.1维护线未被合并/覆盖。
+预估：本轮源码返修与复核另约30–45分钟；模型服务恢复明确获准后小样另60–90分钟，员工信息和具体方案具备后跨机另30–60分钟，完整171发行依赖接收线环境。开工报预计，每30分钟更新，阻断即报。
 
-本轮新source同步以本阶段final-source-sync-receipt.json为准，只允许已审source进入既有候选分支；真实图、DB/WAL/SHM、账号/pin/privateKey、模型、原始会话/推理、日志、截图和运行树不公开。项目入口仅必要状态/导航，事实时间见各read-only snapshot，不把旧正式PID或安装态当当前运行。
+最新核验记录时间：2026-10-24 22:17:49 +08:00
