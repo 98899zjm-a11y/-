@@ -20,11 +20,19 @@ function sessionLost(message='请重新登录员工账号。'){
   $('edit-category').value='';$('edit-availability').value='';$('review-decision').value='';
   $('workspace').hidden=true;$('login-panel').hidden=false;$('login-form').hidden=true;$('logout').hidden=true;$('current-user').hidden=true;$('current-user').textContent='';$('customer-open').disabled=true;$('selected-count').textContent='0';$('connection').textContent='请登录主系统工作台账号';$('login-message').textContent=message;$('notice').hidden=true;$('notice').textContent='';$('upload-start').disabled=true;$('upload-progress').hidden=true;$('upload-progress').value=0;$('file-summary').textContent='还未选择图片';$('upload-status').textContent='每批最多 300 张，每张不超过 20 MiB。';$('result-count').textContent='';$('grid').setAttribute('aria-busy','false');document.querySelectorAll('[data-count]').forEach(e=>e.textContent='0');document.body.classList.remove('readonly');
 }
+async function mainAuthRequest(path,options){
+  if(location.protocol!=='jewelry:')return fetch(path,options);
+  if(location.host!=='app'||path!=='/auth/logout'||options?.method!=='POST'||typeof window.jewelryDesktop?.request!=='function')throw Error('请返回主系统工作台操作账号。');
+  const result=await window.jewelryDesktop.request({path:'/auth/logout',method:'POST',body:{}});
+  const status=Number.isInteger(result?.status)&&result.status>=200&&result.status<=599?result.status:result?.ok===true?200:503;
+  const data=result?.data&&typeof result.data==='object'?result.data:{error:typeof result?.error==='string'?result.error:'主系统退出暂未确认，请返回工作台核实。'};
+  return new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json; charset=utf-8'}});
+}
 async function api(path,options={},authFlow=false){
   const epoch=state.epoch,controller=new AbortController(),headers={...(options.headers||{})};
   if(options.method&&options.method!=='GET'&&!authFlow){if(!state.boot?.csrfToken)throw stale();headers['X-CSRF-Token']=state.boot.csrfToken;headers['X-XJY-CSRF']=state.authToken;}
   state.requests.add(controller);
-  try{const target=path.startsWith('/auth/')?path:'/materials'+path;const response=await fetch(target,{...options,headers,credentials:'same-origin',cache:'no-store',signal:controller.signal});const data=await response.json().catch(()=>({}));if(epoch!==state.epoch)throw stale();if(!response.ok){const message=typeof data.error==='string'?data.error:`操作失败（${response.status}），请重试。`;if([401,403].includes(response.status)&&(!authFlow||state.boot)){sessionLost(response.status===403?'权限已变更或不足，请重新登录后查看可用操作。':'登录已失效，请重新登录。');throw stale();}throw Object.assign(Error(message),{status:response.status});}return data;}catch(e){if(epoch!==state.epoch||e.name==='AbortError')throw stale();throw e;}finally{state.requests.delete(controller);}
+  try{const target=path.startsWith('/auth/')?path:'/materials'+path,init={...options,headers,credentials:'same-origin',cache:'no-store',signal:controller.signal};const response=await(path.startsWith('/auth/')?mainAuthRequest(target,init):fetch(target,init));const data=await response.json().catch(()=>({}));if(epoch!==state.epoch)throw stale();if(!response.ok){const message=typeof data.error==='string'?data.error:`操作失败（${response.status}），请重试。`;if([401,403].includes(response.status)&&(!authFlow||state.boot)){sessionLost(response.status===403?'权限已变更或不足，请重新登录后查看可用操作。':'登录已失效，请重新登录。');throw stale();}throw Object.assign(Error(message),{status:response.status});}return data;}catch(e){if(epoch!==state.epoch||e.name==='AbortError')throw stale();throw e;}finally{state.requests.delete(controller);}
 }
 function showError(error){if(!error.stale)notice(error.message,true);}
 function updateSelection(){$('selected-count').textContent=state.selected.size;$('customer-open').disabled=!canView()||!state.selected.size;}

@@ -1,17 +1,21 @@
-# 独立审查与阶段验证状态
+# 本轮独立审查与验收范围
 
-2026-10-24：两组真实DeepSeek Harness独立审查均完成最终增量复查，无剩余阻断；仅对本次D盘候选源码与给定非敏感证据有效，不批准正式上线。
+2026-10-24。本轮五组真正DeepSeek Harness独立审查已收到最终回复，已证实源码问题均处理；这只覆盖给定工程与虚构/聚合证据，不批准正式上线。作者与审查会话分开；Codex执行测试，Harness未声称复跑。
 
-分类Schema作者session-af7750a8-9506-4ef1-9303-f62fe0fd8123实际返回源码，Codex先复现3项RED再核验。主系统会话独立审查session-c15c22af-16e0-4f08-9b03-dacf3291acfd；搜索/schema独立审查session-7b383c2f-8d7f-439a-b138-fec13bbc0e18。工具权限17入口关闭，既有凭据provider只读，会话/状态在D；没有把真实图片、业务数据库、运行口令、评估清单或密钥发送审查者。模型未执行测试或调用工具；测试是Codex实际执行的结果。
+| 板块 | 作者 | 独立审查 | 最终范围结论 |
+|---|---|---|---|
+| 分类/输出 | 16d94b43 | bcc1b93b三轮 | 阻断为空；负例bucket争议按真实decision→skipped与8类存储合同澄清关闭；空白/不可见词边界已RED/GREEN；P3标点语义有限性接受 |
+| profile存储 | a68124b7 | ad885eef三轮 | findings=[]/blocking=false；S1/S2/S3/N1关闭；S4外部marker与S5孤儿JPEG保全接受 |
+| native/LAN核心 | ad69112f/852855bc | 8485b316三轮 | remaining/newFindings空、coreBlocking=false；finalAcceptance=false保留完整正式入口与平台验收条件 |
+| 构建准备 | 9e502b7d四轮 | ffccc9a6四轮 | findings=[]/blocking=false；B1–B3/NB1/N2/N3关闭，AST/工具/回执顺序有真实RED/GREEN |
+| 启动组合 | 6a11e373五轮 | 9eb7e4ca三轮 | findings=[]/blocking=false；B1/B2/B5/B6/B7/B8/N1关闭，B3关键源子集/B4残留/N2 openRequested限制接受 |
 
-主审首轮4项：F1声称与旧21964同库及直接跟随symlink，核实为部分不适用（绝对路径不同，library已有祖先检查），有效的独占marker/硬链接缺口已补；F2提交后复验误报失败改为最小接受回执再按当前权限重读，duplicate也做最终授权；F3精确匿名素材导航303回主登录；F4错误日志失败不吞原HTTP响应，拒绝目录/已有别名，并补上悬空链接RED。保留原失败、复现和处置，没有删除失败测试或放宽业务断言。
+作者返稿中被独立核验拒绝的无关退化保留：library SQL括号/删guard、builder跳依赖或缺模块、descriptor字典遗漏__proto__、启动默认端口字段等。没有整文件盲收、删失败断言或放宽阈值制造通过。初次runner权限/路径、Node模式与证据行号偏差也保留，与真实产品RED分开。
 
-主审最终turn3 run4a620851-139f-4147-b273-7b6558cd59a0已实际completed：F4悬空日志、images必须目录、instance检查与原子写均closed，findings=[]、blocking=false。审后8源/测试SHA与发包一致。未入库孤儿JPEG为accepted-limitation；真实测试证明拒绝后无DB记录、无列表/查询、图片API404、原合成图不变。没有自动清理。
+最终本机相关集合443/443、0失败/跳过。真实最新准备树Electron44.7验证最终Native729048/LAN581a、原backend+profile SQLite+原加密loopback+remote workspace+原preload：15图加载、同登录、opaque403、退出清空、重开15；32图A/B与e808纯回放的准确率结论分开。实际最终CLI498650启动/重复拒绝/nonce停/新PID重启已控测，实际页面三角色与找图/保存/客户展示已验。详见本阶段各result和final-cli-lifecycle-verification。
 
-搜索首轮R1–R10涉及商业/供货措辞、否定未知标签、材质及预算保护、路径证据、显式无特征、组合否定、或许/要分句和项链附件角色，均先复现后修复。后续NF1空格否定、NF2全角商业理由、NF1尾部否定误清已完成正特征继续先RED后修。原36项search.test.mjs保持原始摘要。搜索最终turn4 run3576ef2a-1be6-476d-a131-6ffcf4b9047f实际completed，NF1-tail closed、remainingBlockingFindings=[]、blocking=false。分类作者代码另经此独立会话审查。
+接受限制：无DB隔离JPEG不自动清理；未知临时/陈旧owner拒绝保全；外部并发可能留下own marker；关键词守卫不证明任意中文语义；关键9源摘要不是完整闭包，Root另做白名单freeze；openRequested不是页面已显示；不声称对抗恶意本机管理员全部TOCTOU。
 
-Root最终完整相关回归262通过、0失败、0跳过；真实网关构建/加载/fixture health通过。最终运行候选经正常重启，以新实例/源码摘要验证16素材、15已确认/1待复核、供货全unknown、复核后8查询8/8。真实浏览器验证主系统登录、三种角色边界、资料维护、客户展示、退出清屏；本轮原生文件选择器自动化未成功，明确未验证，HTTP批量接收不能替代这一项。
+仍未验证：完整changed release-app入口、正式44.9与真实ASAR、完整编译/封签/安装/升级/回滚、外机LAN/防火墙、正式员工/生产数据与备份、Windows原生文件/目录对话框、自动采集/微信/OpenClaw业务工具。filechooser工具超时且CDP不支持，未绕过；HTTP/LAN批量接收不能替代该项。材料seal仍硬拒。
 
-16图模型评估仍是当时Schema源码的观察：格式合法16/16、品类14/16、自动查询2/8、65.886秒。之后纯合同修复未重复GPU评估，不冒称最终源码模型准确率提高。数据仅首饰正例，不能推定非首饰误收率；管理复核保持。
-
-本轮范围外：正式现有员工凭据/会话、正式profile存储adapter、原生Electron/LAN路由、完整业务/安装/升级/恢复、恶意本机管理员TOCTOU、真实断电与清理、微信和实时库存。源码隐私只读检查与Root最终导出/暂存blob/新提交扫描另有证据，不等于这些业务验收。原始回复、run/packet/摘要、失败/回归和截图均只留D，不上传公开仓库。
+所有原final/session/run、处置、RED/GREEN、视觉及源摘要都只在D:/Codex/xjy-main-staff-session-20261023/evidence/storage-client-lan-20261024。外部仅收源码、虚构测试和聚合；真实图片/清单/账号/DB/raw推理/私钥未发送。SOURCE_PROVENANCE与API_CONTRACT描述源码来源/接口，不代替上述验收。

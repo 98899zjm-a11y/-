@@ -1,21 +1,35 @@
-# 本轮交接与真实边界
+# 主系统素材候选本轮交接
 
-更新：2026-10-24。D盘独立候选本轮接线与审查修复已验证；正式版未安装、替换或接入。早期阶段记录、失败证据和四份收尾前文档均保留在本机evidence；本文件描述最终范围。
+更新：2026-10-24。本轮权威源码位于D:/Codex/xjy-main-staff-session-20261023/candidate，承接已推86ec0ea候选和a970073主系统基础。旧阶段交接字节在evidence/documents-before-final及各阶段before备份保留；没有重写失败证据或将原method deviation改成通过。
 
-Root复用同仓库a970073/87da677的checked 1.7.0 backend、认证、迁移及stage1网关。主系统createSession持有auth，浏览器entry持有不可由客户端替换的backend session；素材WeakMap只接内部网关context，用auth.sessionId、isLive和administration.requireAccess('sales',level)。同源两层CSRF、事务前同步复验及图片响应前复验保留。同人重登、换员工、退出、停用、改密码、撤权、维护和后端替换的旧请求拒绝均有真实backend或合同测试。
+## 已实现与来源
 
-固定21965候选使用独立cookie前缀，原默认网关声明与构建锚点保留。材料库仅位于candidate/materials/runtime/main-session-data，必须带合法synthetic marker；拒绝未知非空目录、别名、硬链接和images普通文件。CLI实例记录使用检查后的同目录临时文件、sync与原子rename。原阶段试验库保留未删，16图迁移仅复制已核对的合成试验数据库与批准的本机小样，逐文件校验，不自动迁移未知库。
+真实Harness作者：分类16d94b43、存储a68124b7、LAN ad69112f、native852855bc、构建9e502b7d、启动6a11e373。独立审查分别bcc1b93b/ad885eef/8485b316/ffccc9a6/9eb7e4ca。当前全部有实际final/completed，代码与限定结论分别核验；17通用工具入口仍关闭，返回补丁由Codex受检落盘/测试，不声称模型自主跑了测试。
 
-最终Root回归root-final-source-regression.log：262/262，0失败/跳过。gateway-build-verification.json记录与最终源码摘要一致的真实esbuild构建、加载及虚构loopback health，通过但不等于原生/安装验收。PowerShell入口保留UTF-8 BOM，Windows PowerShell 5.1/CP936的中文解析修复前后证据均在D；原非BOM字节未改。最终字节候选已正常关闭旧21965实例并重启；final-running-candidate-acceptance.json记录新实例、关键源码摘要、16/15/1及8/8。
+profile库由不可伪造capability打开固定销售素材目录，复用原owned-path guard；原openLibrary默认runtime限制不变。marker/未知现场/日志/丢失图/类型/硬链接/句柄清理和fatal队列均有真实RED→GREEN；正常close排空。RuntimeSuite合成同一library的HTTP挂载和session transport，并以关闭状态包裹原isLive，默认review-first。
 
-真实页面验证：原主系统候选登录后打开素材，无第二次登录；operate资料保存后按当前权限重读，manage有复核/供货依据入口，view无导入编辑入口；客户展示隐藏文件名和内部来源；原/auth/logout立即清除图片/选择。最终截图ui-final-view-search.png、ui-final-manager-permissions.png和ui-final-customer-main-session.png只留D。本轮两次文件选择器自动化均超时，未上传，保留未验证项，不用HTTP批量接收成绩替代该项。
+LAN沿原pin/加密/重放与资源控制新增白名单materials op，服务器映射实际session；本机workspace wrapper绑定backend、实际auth.sessionId和generation。bridge复用mounted/access；native jewelry协议只读固定代码资产、走可信network，不暴露pin/token。两层CSRF、事务前同步权限复验、读数据collect至encrypt/Response最后同步seal保留；写ACK不依赖read seal，未知响应字段和危险header仍拒。
 
-真实小样原图16张保持。模型新Schema观察仍是14/16品类、2/8自动查询、65.886秒；后续纯合同修复没有重跑模型。测试管理角色按冻结参考确认15，S16含混保留，最终8查询8/8，供货全unknown。此结果不是商家审核或自动准确率。首饰正例集不能评价非首饰误收率，S01原始语义矛盾、T形/十字和S16细节问题没有宣称修复。
+release-app/preload/宿主服务与首页有显式接线，程序侧materials-runtime-capability.json默认不生成即关闭，employee不import profile库。构建保留ESM原字节，固定shim复用原CJS，sharp复制到既有print-dependencies白名单，TS5.9.3只作固定pin的构建时AST工具。缺工具/源变化/未知依赖/封包条件缺失拒绝，不放宽原准入或签名。
 
-真实Harness作者会话af7750a8返回分类Schema改动；主审c15c22af与搜索/schema审查7b383c2f均独立实际收到final及增量复查。主审turn3：F1–F4修复/适用性已核验，新增images目录和instance原子写修复closed，findings=[]、blocking=false。搜索turn4：R1–R10及NF1/NF2/尾部否定问题closed，无剩余阻断。最终包与审后源码摘要一致，原回复与处置完整留D，不用作者自审或Codex测试冒充独立审查。
+新start-profile-candidate只用受检D合成主库和两个loopback专用端口，不setup缺失主业务库。固定Node --launch以单次私有IPC/nonce adopt管理自有child，失败正常收敛；只读9项关键源子集，Root另有全源码导出/冻结。owner claim/临时残留保全，--stop只发自有nonce；无taskkill/业务强杀。新CMD无需PowerShell策略绕过，PS保留UTF8 BOM。
 
-接受限制：授权在JPEG归档后、事务前失败，可留下没有assets行的本机隔离文件；测试证明列表/查询不可见、猜UUID图片404、原图不变。未自动删除；未来清理另做归属、预演和失败保全。日志/实例检查不覆盖恶意本机管理员的检查到打开/rename竞态。OR逻辑和任意自然语言语义尚未实现，不推断供货/材质/真假。
+## 最新真实验证
 
-源导出仅明确白名单文本；运行账号、DB/WAL/SHM、真实图、模型、运行日志、截图、原始Harness会话和评估清单均不公开。源码仅进入既有候选分支，提交/推送与逐字节暂存核验另有本机回执；不自动合main或部署。旧21963/21964、正式31831、模型及OpenClaw网关未因本轮替换。
+- final-all-related-tests.log：443/443，0失败/跳过，约51秒。存储原审查9测试已机械拷入candidate/tests，原证据保留，根推导/独立mkdir适配不改断言。
+- 最新准备树实际Electron44.7/Node24.21/SQLite3.53.4结果见native-proof-active.json指向的result.json：最终Native729048/LAN581a，16批准图、测试参考确认15/保留1/供货unknown，8查询符合，15图allLoaded，原preload同一登录，data: opaque来源实际403，退出清空、profile重开15。前一次LAND3旧快照保留但不冒充最终字节。
+- default-profile-real-acceptance.json：普通内部默认API0551健康路径复用旧D四个虚构主账号，16图以e808确切SHA回执缓存导入，manager参考确认15，8查询/安全投影通过，modelCalls0；正常close，入口前后SHA一致。它不替代最终CLI审查。
+- final-cli-lifecycle-verification.json：最终498650实际--launch ready，父退出child持续；第二次启动拒且原实例不变；--stop nonce普通关闭；再启动新PID/nonce及同profile正常。两个端口只loopback，0强杀，浏览器openRequested未外推实际打开。
+- ui-profile-acceptance.json及ui-final-profile-restarted-view.png：原主账号登录一次进入，operate只维护资料、manage才有复核/供货，view无导入编辑；资料原值保存、客户展示隐藏内部名、原退出清空、重启后找图正常。filechooser超时、CDP明确拒绝，未选文件/未绕过；原生文件目录选择未验。
 
-下一阶段：完成正式profile素材存储adapter与原生/LAN的同一服务器会话委托，在隔离完整候选验证后准备可回滚正式方案。当前正在登录的正式员工尚不能使用这个候选会话，不能复制正式凭据补齐。窗口生命周期同人世代失败仍属于另一独立项目；权限UI、SQLite队列、OpenClaw和库存助手进度见D:/Codex/xjy-project-progress-20261023/PROGRESS.md。
+## 模型结论
+
+32本机串行A/B690284观测14/16→15/16品类，但自动查询仍2/8；e808仅最终守卫回放，0/16变化、请求/提示/参数/图像完全相同，未新推理。复核标签后8/8不是自动准确率/商家审核。首饰正例不能评价非首饰误收；有限关键词对可见标点变体有接受限制，模型reason不进客户视图。
+
+## 保全与未验证
+
+外部并发可留下own marker；最终授权拒绝可留无DB隔离JPEG，已证列表/查询无项、图片404、重开仍404、原图摘要不变。不自动删除未知/旧锁/日志，异常恢复另做归属与预演。恶意本机管理员TOCTOU、真实断电不在已验范围。
+
+完整changed release入口未在实际正式44.9执行，ASAR原生解析、完整生成物/封签/安装升级、外机LAN、正式员工账号/现有正式会话、生产备份恢复及微信采集未验。工具不在离线audit-tools固定E位置的可用性也未验；材料seal硬拒。原1.7.1维护线未被合并/覆盖。
+
+本轮新source同步以本阶段final-source-sync-receipt.json为准，只允许已审source进入既有候选分支；真实图、DB/WAL/SHM、账号/pin/privateKey、模型、原始会话/推理、日志、截图和运行树不公开。项目入口仅必要状态/导航，事实时间见各read-only snapshot，不把旧正式PID或安装态当当前运行。

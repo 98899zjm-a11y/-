@@ -1,17 +1,31 @@
-# 主系统同源素材接口合同
+# 主系统同会话素材合同
 
-本合同只适用于D盘候选。正式员工账号、正在运行的正式会话、原生/LAN路由或正式profile存储没有因这份合同自动接通。
+本合同适用于本轮D盘候选。正式员工/当前正式会话不因源码合同自动接通；program-side materials-runtime-capability.json须显式{version:1,enabled:true}且受检，缺失默认false。employee只用远端，不加载profile库。
 
-入口/materials/由原主系统浏览器网关挂载。原/session、/auth/login、/auth/logout及原reloginAudit管理浏览器会话；素材不建立第二份员工身份。候选固定独立cookie前缀，默认网关不传时保持原行为。未登录的精确GET /materials及/materials/返回303 Location:/；API及其它路径仍按认证/规范路径拒绝，不把JSON错误当登录页面。
+## 存储与宿主
 
-主网关向内部handler提供不可由请求选择的session、administration、isLive、origin和gatewayCsrf。材料authority读取真正auth.sessionId、active与sales权限。角色view只看imported的公开字段；operate可导入/标签来源维护/允许状态重试；manage才可明确复核和确认供货依据。前端role/id、确认布尔值和单独csrf都不是身份。
+openProfileLibrary({dataRoot,classify})只给可信本机固定销售素材目录铸内部capability；原openLibrary({root,classify})仍限原runtime。拒未知非空、坏marker、日志残留、别名/多链接、库/图缺失或非文件；不重建未知现场。createMaterialRuntimeSuite({origin,dataRoot,classify})先验loopback origin，默认review-first，返回冻结handle、sessionRequest、close；关闭使原isLive失效，构造失败正常close。
 
-POST/PATCH同时要求当前同源主系统x-xjy-csrf和素材x-csrf-token。素材凭证绑定authority、员工和usage session，不能在另一个浏览器、同人重登或退出后复用。关键操作在实际事务前同步复查，读图在实际发送已验证bytes前同步重读当前身份及素材状态。维护、后端替换、停用、改密码和撤权必须失效。
+原desktop-host-runtime受信factory先核目录不与业务/配置/日志/备份重叠；同库HTTP与sessionRequest共用。宿主请求绑定当前backend.administration，维护/替换/关闭后旧context拒绝；默认不启factory。release服务只转发内建工厂，不接受HTTP选择目录或角色。
 
-GET /materials/staff-auth/status只是当前主系统会话的素材投影，不执行独立登录；GET /materials/api/bootstrap给当前素材权限和防伪凭证；GET assets/search只返回当前角色允许内容。素材退出按钮调用原/auth/logout。退出/401/403、切号或等级变化清空图片、选择、对话框与晚请求，返回主系统登录。
+## HTTP与LAN/本机
 
-写入成功回执固定为accepted:true与asset:{id}；上传另有duplicate布尔值。它表示该次已授权接收或保存，不代表已识别、已复核、现货或财务确认。事务成功后不再用新的权限状态把已提交操作答成失败，也不把旧权限下完整资料放入回执。界面随后重新按当前权限读取；若届时撤权，可正确收到拒绝。duplicate路径也必须在返回前执行最终同步授权。
+原网关/session、/auth/login、/auth/logout管理浏览器entry；materialsHandler只接服务器捕获的session/administration/isLive/origin/gatewayCsrf。素材不单建身份。精确匿名/materials文档导航303回主系统；API保留401/403。不同cookie前缀隔离候选。
 
-模型输出只作可见结构分类建议，默认管理复核；供货仅由明确记录与依据确认。搜索使用已登记安全标签及供货枚举；未知不证明有无现货，显式无特征需缺失证据。普通排除的未知限制在解释中提示；OR执行尚未实现，不能伪称通用语义检索。
+原加密LAN新增materials op，token映射真正createSession，pin/加密/重放/资源限制保持。客户端只传{path,method,headers?,bodyBase64?}，不能自报user/role/session/Root目录。headers只content-type、x-xjy-csrf、x-csrf-token；规范path总<=4096，query中的编码分隔符作为数据，不能逃出固定路由。上传<=20MiB、LAN PATCH<=16KiB且JSON对象，响应<=24MiB；HTTP原PATCH有自己的64KiB限额。GET规范空body可为缺省或空串，非空拒绝。只有search和upload对应受限query，health不在LAN/native白名单。
 
-资料保全：上传生成的隔离JPEG若在最终授权/事务前失败，可以留在独立store但没有DB记录、列表/查询不可见、API按ID无法读取；不自动删除未知文件。原图始终保持。候选重启只能打开独立路径、合法synthetic marker和已核schema；拒绝别名/硬链接、未知非空库和日志现场。正式存储/清理策略需另外验收。
+network.materialsRequest本机wrapper绑定backend+实际auth.sessionId+generation，remote经原client同登录；两端都用相同envelope{status,headers,bodyBase64}，安全header白名单，无cookie/授权凭据/任意跳转。原request/image/auth语义不作材料工具权限替代。
+
+写同时要求该实际主会话x-xjy-csrf和素材x-csrf-token，素材凭证绑定authority/员工/usage session。view只读imported公开字段，operate导入/标签来源维护，manage才可复核和供货依据确认；关键事务前同步check，异步后不沿用过期票据。成功写回执只accepted:true与asset:{id}（上传另duplicate），不携旧权限私密资料，不因late权限变化误答未保存。
+
+## 原生与最后发送边界
+
+jewelry://app/materials只处理固定3代码资产与上述路由，固定真实根/单链接/FD身份检查。普通来源必须精确jewelry://app；browser自发导航字段缺省按当前合同处理，显式null/空/外站拒绝。真实44.7已观察app200和opaque字符串null403；完整changed release入口/正式44.9仍另验。
+
+成功GET envelope可带仅内部Symbol.for('xjy.materials.finalizeRead')的own同步函数，实际authority快照绑定staff/user/session/level/grantRevision。server encrypt前、native Response前最后同步调用；Promise/thenable/accessor拒绝，wire绝不序列化或接受函数。POST/PATCH剥掉这个read-only seal再严格校验其他字段，成功ACK不依赖它。native epoch在body/read静态/异步响应边界复验，旧图不回填新登录。
+
+素材退出经原preload或原HTTP/auth/logout，页面清图片、选择、弹窗和晚请求。供货unknown不证明有无现货；manager review/evidence/confirmed不由模型替代。OR和任意自然语言语义不保证；显式无特征需要缺失证据。
+
+## 启动保全与范围
+
+新候选仅D合成main-data，不setup缺失业务库；HTTP21965/LAN21966都loopback。CLI无自由路径/账号/端口覆盖，内部fixture仅受检新子目录+port0。后台仅本次私有IPC/nonce adopt，无kill/自动恢复；owner/临时残留保全。9关键源摘要是子集，完整源码/暂存/commit另核。实际--launch/重复拒绝/--stop/重启已测；openRequested不表示浏览器已显示，PS策略未改。正式安装/真实网络与正式账号修改另确认。

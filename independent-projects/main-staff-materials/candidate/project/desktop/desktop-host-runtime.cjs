@@ -4,6 +4,7 @@
 const fs=require('node:fs'),path=require('node:path');
 const {requireHostAdmission,createOwnedPathGuard}=require('./managed-print-worker.cjs');
 const DATABASES=Object.freeze({sales:'jewelry.sqlite',ledger:'ledger.db',inventory:'stockcheck.db'});
+const materialError=(status,message)=>({status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store'},bodyBase64:Buffer.from(JSON.stringify({error:message})).toString('base64')});
 function publicMaintenanceWarnings(job){
  const result=[],seen=new Set();
  for(const values of [job?.warnings,job?.result?.warnings])if(Array.isArray(values))for(const value of values){
@@ -59,6 +60,14 @@ async function createDesktopHostRuntime(options){
  let missing,maintenanceReason;
  const server=(options.serverFactory||(()=>require('node:http').createServer()))();let listening=false,backend,gateway,materialsService,worker,maintenance,currentModules,printServices,closed=false,shuttingDown=false,closePromise,paused=false,stopped=false,startupRecovering=false;
  const pending=new Set();
+ async function requestMaterials(input,context){
+  if(closed||shuttingDown||paused||stopped||!materialsService||typeof materialsService.sessionRequest!=='function')return materialError(503,'素材服务尚未启用或正在维护');
+  try{return await withRequest(captured=>{
+   if(!context||context.administration!==captured.administration)return materialError(401,'主系统素材会话已更换');
+   const owned={...context,isLive:()=>!closed&&!shuttingDown&&!paused&&!stopped&&backend===captured&&typeof context.isLive==='function'&&context.isLive()===true};
+   return materialsService.sessionRequest(input,owned);
+  });}catch{return materialError(503,'素材服务暂时不可用');}
+ }
  const makeModules=()=>legacyFactory({settingsFile,runtimeDir:guard.check(path.join(layout.runtimeDir,'内部模块')),packagedDir:path.join(resourcesDir,'release-modules'),releaseContext:{hostId,profileDir:layout.profileDir},...(ocrServiceFactory?{ocrServiceFactory}:{})});
  async function attachConfigured(manager){for(const id of ['ledger','inventory'])if(moduleAvailable(id)&&!manager.status().modules.find(x=>x.id===id)?.configured)await manager.configure(id,layout[id+'Dir']);}
  async function resetModules(){if(closed)throw Error('主机正在关闭');currentModules=makeModules();await attachConfigured(currentModules);return currentModules.status();}
@@ -117,7 +126,7 @@ async function createDesktopHostRuntime(options){
   }
   gateway=gatewayFactory({backend,server,root:context.root,appVersion:options.appVersion,logDir:context.layout.logDir,applicationMode:admission.mode==='sandbox'?'isolated-local':'installed-private',browserStaticRoot:path.join(codeDir,'renderer-dist'),browserDefault:true,allowLocalControls:false,...(materialsService?{materialsHandler:(req,res,context)=>materialsService.handle(req,res,context)}:{})});
   if(!missing.length){maintenance=maintenanceFactory({context,cashierExecute:input=>moduleAdapter.executeCashierMaintenance(input),database:()=>backend.runtime.sqlite,authorize:async actor=>{try{await localAdmin(actor);return true;}catch{return false;}},withFrozen,freeze,prepare:action=>backend.exclusive(()=>moduleAdapter.withStopped(action)),stop:stopBusiness,resume:resumeBusiness,invalidateSessions});maintenance.daily.start();}
-  return Object.freeze({root,layout,origin:'http://127.0.0.1:'+port,moduleAdapter,get backend(){return backend;},get gateway(){return gateway;},get printRouting(){return printServices.routing;},getBackend:()=>backend,withRequest,withFrozen,performMaintenance,maintenanceStatus:()=>({available:Boolean(maintenance),reason:maintenanceReason,retentionDays:7,encrypted:true}),async handleMaintenance(input){const actor=await localAdmin();if(!maintenance)return{status:503,data:{error:maintenanceReason}};return maintenance.handle(actor,input);},async getMaintenance(){const actor=await localAdmin();if(!maintenance)return{ok:true,available:false,reason:maintenanceReason,retentionDays:7,encrypted:true,backups:[],jobs:[]};const result=await maintenance.handle(actor,{method:'GET',path:'/api/local/backups'});if(result.status!==200)return{ok:false,available:false,error:result.data?.error||'主机维护列表未能读取'};return{ok:true,available:true,...result.data};},close(){if(!closePromise)closePromise=shutdown();return closePromise;}});
+  return Object.freeze({root,layout,origin:'http://127.0.0.1:'+port,moduleAdapter,materialsRequest:requestMaterials,get backend(){return backend;},get gateway(){return gateway;},get printRouting(){return printServices.routing;},getBackend:()=>backend,withRequest,withFrozen,performMaintenance,maintenanceStatus:()=>({available:Boolean(maintenance),reason:maintenanceReason,retentionDays:7,encrypted:true}),async handleMaintenance(input){const actor=await localAdmin();if(!maintenance)return{status:503,data:{error:maintenanceReason}};return maintenance.handle(actor,input);},async getMaintenance(){const actor=await localAdmin();if(!maintenance)return{ok:true,available:false,reason:maintenanceReason,retentionDays:7,encrypted:true,backups:[],jobs:[]};const result=await maintenance.handle(actor,{method:'GET',path:'/api/local/backups'});if(result.status!==200)return{ok:false,available:false,error:result.data?.error||'主机维护列表未能读取'};return{ok:true,available:true,...result.data};},close(){if(!closePromise)closePromise=shutdown();return closePromise;}});
  }catch(error){try{await shutdown();}catch(cleanup){error.cleanupError=cleanup.message;}throw error;}
 }
 module.exports={publicMaintenanceWarnings,createDesktopHostRuntime,deriveDesktopHostLayout};

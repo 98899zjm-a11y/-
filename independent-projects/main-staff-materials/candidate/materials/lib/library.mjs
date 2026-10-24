@@ -33,25 +33,37 @@ function asset(row){
  for(const field of ['created_at','updated_at'])if(typeof row[field]!=='string'||!Number.isFinite(Date.parse(row[field]))||new Date(row[field]).toISOString()!==row[field])throw new Error('图库时间记录损坏');
  return {id:row.id,name:row.name,sourceLabel:row.source_label,sha256:row.sha256,status:row.status,category:row.category,tags:parsed,reason:row.reason,availability:row.availability,evidence:row.evidence,createdAt:row.created_at,updatedAt:row.updated_at,...(row.error?{error:row.error}:{})};
 }
-export async function openLibrary({root,classify}={}){
- if(typeof root!=='string'||!path.isAbsolute(root))throw new Error('需要独立图库目录');root=path.resolve(root);const relative=path.relative(base,root);if(!relative||relative==='..'||relative.startsWith('..'+path.sep)||path.isAbsolute(relative))throw new Error('图库目录必须位于候选runtime内');
- await safePath(root,{create:true,directory:true});const images=path.join(root,'images');await safePath(images,{create:true,directory:true});const filename=path.join(root,'library.sqlite');const existed=await safePath(filename,{missing:true});
- for(const suffix of ['-journal','-wal','-shm']){const exists=await safePath(filename+suffix,{missing:true});if(exists&&(!existed||suffix!=='-journal'))throw new Error('数据库日志现场不支持自动打开，已保留');}
- if(existed){const handle=await fs.open(filename,'r');try{const b=Buffer.alloc(100);const {bytesRead}=await handle.read(b,0,100,0);if(bytesRead<100||b.subarray(0,16).toString('ascii')!=='SQLite format 3\0')throw new Error('图库数据库格式损坏，已保留');if(b[18]!==1||b[19]!==1||b.readUInt32BE(60)!==1)throw new Error('未知图库版本或日志格式，已保留');}finally{await handle.close();}}
- const db=new DatabaseSync(filename,{allowExtension:false});let closed=false,closing=false,fatal=null,worker=null,enqueueTail=Promise.resolve();
- const transaction=fn=>{let begun=false;try{db.exec('BEGIN IMMEDIATE');begun=true;const result=fn();db.exec('COMMIT');return result;}catch(e){if(begun)try{db.exec('ROLLBACK');}catch{}throw e;}};
- try{db.exec('PRAGMA busy_timeout=500; PRAGMA synchronous=FULL; PRAGMA locking_mode=EXCLUSIVE');if(!existed)transaction(()=>{db.exec(assetsDDL);db.exec(auditDDL);db.exec('PRAGMA user_version=1');});
+export async function openLibrary({root,classify,profileStore}={}){
+ if(typeof root!=='string'||!path.isAbsolute(root))throw new Error('需要独立图库目录');root=path.resolve(root);
+ let profile=null;
+ if(profileStore!==undefined){
+  const {verifyProfileStore}=await import('./storage-profile.mjs');
+  profile=verifyProfileStore(profileStore,root);
+  if(profile.root!==root)throw new Error('profileStore 路径不匹配');
+ }else{
+  const relative=path.relative(base,root);if(!relative||relative==='..'||relative.startsWith('..'+path.sep)||path.isAbsolute(relative))throw new Error('图库目录必须位于候选runtime内');
+ }
+ const checkProfile=target=>{if(profile)profile.guard.check(target);};
+ const safe=async(target,options)=>{checkProfile(target);const result=await safePath(target,options);checkProfile(target);return result;};
+ await safe(root,{create:true,directory:true});const images=path.join(root,'images');await safe(images,{create:true,directory:true});const filename=path.join(root,'library.sqlite');const existed=await safe(filename,{missing:true});
+ for(const suffix of ['-journal','-wal','-shm']){const exists=await safe(filename+suffix,{missing:true});if(exists&&(profile!==null||!existed||suffix!=='-journal'))throw new Error('数据库日志现场不支持自动打开，已保留');}
+ if(existed){checkProfile(filename);const handle=await fs.open(filename,'r');try{checkProfile(filename);const b=Buffer.alloc(100);const {bytesRead}=await handle.read(b,0,100,0);if(bytesRead<100||b.subarray(0,16).toString('ascii')!=='SQLite format 3\0')throw new Error('图库数据库格式损坏，已保留');if(b[18]!==1||b[19]!==1||b.readUInt32BE(60)!==1)throw new Error('未知图库版本或日志格式，已保留');}finally{await handle.close();checkProfile(filename);}}
+ checkProfile(filename);const db=new DatabaseSync(filename,{allowExtension:false});let closed=false,closing=false,fatal=null,worker=null,enqueueTail=Promise.resolve();
+ const healthy=()=>{if(fatal)throw new Error('图库写入异常，请重启并核查');};
+ const transaction=fn=>{healthy();let begun=false;try{db.exec('BEGIN IMMEDIATE');begun=true;const result=fn();db.exec('COMMIT');return result;}catch(e){if(begun)try{db.exec('ROLLBACK');}catch{}throw e;}};
+ try{checkProfile(filename);db.exec('PRAGMA busy_timeout=500; PRAGMA synchronous=FULL; PRAGMA locking_mode=EXCLUSIVE');if(!existed)transaction(()=>{db.exec(assetsDDL);db.exec(auditDDL);db.exec('PRAGMA user_version=1');});
   if(db.prepare('PRAGMA quick_check').get().quick_check!=='ok')throw new Error('图库数据库损坏');
   const objects=db.prepare('SELECT type,name,sql FROM sqlite_schema').all();
   if(objects.length!==4||normalize(objects.find(x=>x.name==='assets')?.sql||'')!==normalize(assetsDDL)||normalize(objects.find(x=>x.name==='changes')?.sql||'')!==normalize(auditDDL)||objects.some(x=>!['table','index'].includes(x.type)))throw new Error('未知图库结构，拒绝自动修改');
-  db.prepare('SELECT * FROM assets').all().forEach(asset);
+  const rows=db.prepare('SELECT * FROM assets').all();rows.forEach(asset);
+  if(profile)for(const row of rows){const target=path.join(images,row.id+'.jpg');await safe(target);checkProfile(target);const info=await fs.lstat(target);checkProfile(target);if(!info.isFile()||info.nlink!==1)throw new Error('素材引用图片必须为常规单链接文件');}
   transaction(()=>db.prepare("UPDATE assets SET status='queued',error='',updated_at=?,revision=revision+1 WHERE status='classifying'").run(now()));
  }catch(e){db.close();throw e;}
- const live=()=>{if(closed||closing)throw new Error('图库已关闭');if(fatal)throw new Error('图库写入异常，请重启并核查');};
+ const live=()=>{if(closed||closing)throw new Error('图库已关闭');healthy();};
  const raw=id=>isId(id)?db.prepare('SELECT * FROM assets WHERE id=?').get(id):undefined;
  const get=id=>{live();return asset(raw(id));};
  const log=(id,action,evidence,details)=>db.prepare('INSERT INTO changes(asset_id,action,evidence,details,created_at) VALUES(?,?,?,?,?)').run(id,action,evidence,JSON.stringify(details),now());
- async function stored(row){const target=path.join(images,row.id+'.jpg');await safePath(images,{directory:true});await safePath(target);const info=await fs.lstat(target);if(!info.isFile())throw new Error('素材文件无效');const b=await fs.readFile(target);if(hash(b)!==row.payload_sha)throw new Error('素材内容校验失败');return {path:target,bytes:b,mime:'image/jpeg'};}
+ async function stored(row){const target=path.join(images,row.id+'.jpg');await safe(images,{directory:true});await safe(target);checkProfile(target);const info=await fs.lstat(target);checkProfile(target);if(!info.isFile())throw new Error('素材文件无效');const b=await fs.readFile(target);checkProfile(target);if(hash(b)!==row.payload_sha)throw new Error('素材内容校验失败');return {path:target,bytes:b,mime:'image/jpeg'};}
  function updateStatus(row,state,fields={}){transaction(()=>{const result=db.prepare('UPDATE assets SET status=?,category=?,tags=?,reason=?,error=?,updated_at=?,revision=revision+1 WHERE id=? AND revision=?').run(state,fields.category??row.category,JSON.stringify(fields.tags??JSON.parse(row.tags)),fields.reason??row.reason,fields.error??'',now(),row.id,row.revision);if(result.changes!==1)throw new Error('素材已变化，请刷新');});}
  async function run(){while(!closed){const row=db.prepare("SELECT * FROM assets WHERE status='queued' ORDER BY created_at,id LIMIT 1").get();if(!row)return;updateStatus(row,'classifying');let current=raw(row.id);try{
    const {bytes}=await stored(current);let classification;
@@ -65,10 +77,10 @@ export async function openLibrary({root,classify}={}){
  }}
  function schedule(){if(worker||closed)return;worker=Promise.resolve().then(run).catch(e=>{fatal=e;}).finally(()=>{worker=null;});}
  const library={
-  enqueue(input,{beforeCommit}={}){live();const task=enqueueTail.then(async()=>{beforeCommit?.();if(!input||!Buffer.isBuffer(input.bytes)||input.bytes.length===0||input.bytes.length>20*1024*1024||!isHash(input.sha256))throw new Error('素材内容或摘要无效');const name=text(input.name,200,'素材图片')||'素材图片',sourceLabel=text(input.sourceLabel,300);
+  enqueue(input,{beforeCommit}={}){live();const task=enqueueTail.then(async()=>{healthy();beforeCommit?.();if(!input||!Buffer.isBuffer(input.bytes)||input.bytes.length===0||input.bytes.length>20*1024*1024||!isHash(input.sha256))throw new Error('素材内容或摘要无效');const name=text(input.name,200,'素材图片')||'素材图片',sourceLabel=text(input.sourceLabel,300);
    const prior=db.prepare('SELECT * FROM assets WHERE sha256=?').get(input.sha256);if(prior){beforeCommit?.();return {...asset(prior),duplicate:true};}
    if(input.bytes[0]!==255||input.bytes[1]!==216||input.bytes[2]!==255)throw new Error('需要已转码JPEG');
-   const id=randomUUID(),target=path.join(images,id+'.jpg'),temporary=path.join(images,id+'.tmp'),b=Buffer.from(input.bytes);await safePath(images,{directory:true});const handle=await fs.open(temporary,'wx',0o600);try{await handle.writeFile(b);await handle.sync();}finally{await handle.close();}await safePath(images,{directory:true});await fs.rename(temporary,target);const time=now();
+   const id=randomUUID(),target=path.join(images,id+'.jpg'),temporary=path.join(images,id+'.tmp'),b=Buffer.from(input.bytes);await safe(images,{directory:true});healthy();checkProfile(temporary);checkProfile(target);const handle=await fs.open(temporary,'wx',0o600);try{checkProfile(temporary);healthy();await handle.writeFile(b);await handle.sync();}finally{await handle.close();}await safe(images,{directory:true});healthy();checkProfile(temporary);checkProfile(target);await fs.rename(temporary,target);checkProfile(target);healthy();const time=now();
    const actor=beforeCommit?.()??null;
    try{transaction(()=>{db.prepare("INSERT INTO assets(id,sha256,payload_sha,name,source_label,status,category,tags,reason,availability,evidence,created_at,updated_at,error) VALUES(?,?,?,?,?,'queued','其他首饰','[]','','unknown','',?,?,'')").run(id,input.sha256,hash(b),name,sourceLabel,time,time);log(id,'enqueue','员工主动上传',{sha256:input.sha256,actor});});}catch(e){fatal=e;throw new Error('素材持久保存失败，文件已保留');}
    const result={...asset(raw(id)),duplicate:false};schedule();return result;

@@ -9,3 +9,13 @@
 已有官方[Qwen3-VL 4B Instruct](https://ollama.com/library/qwen3-vl:4b-instruct)仍在D盘，模型不随源码发布，原模型保留。依[Ollama结构化输出文档](https://docs.ollama.com/capabilities/structured-outputs)，本轮只给原本机视觉调用增加format JSON Schema，保持think:false/keep_alive:0/固定端点/4线程和安全门禁；不把输出格式约束宣称视觉识别事实更准。
 
 分类Schema最小改动由真实DeepSeek Harness作者返回，Codex核验/测试与后续边界修复；主系统接线和搜索修正由Codex实现，另以不同Harness会话审查。该事实记录不新增对第三方项目的许可授权。所有实际账号、真实素材、模型和运行数据仍私有本地D盘。
+
+## 2026-10-24 本轮继续复用
+
+已有正确auth/backend、加密LAN、SQLite/队列及sharp接口继续使用，不另造账号、通信协议或数据库框架。新profile/transport只是可信宿主接线。源码来自同仓库a970073/86ec0ea对应受检源，当前1.7.1活动工作树不混入。
+
+原生协议按官方[Electron v44.9.0 protocol源码文档](https://raw.githubusercontent.com/electron/electron/v44.9.0/docs/api/protocol.md)核对，并参考[v44.4.0发布记录](https://github.com/electron/electron/releases/tag/v44.4.0)的initiatorOrigin来源语义；实际独立工具runtime为44.7.0，正式44.9另验。没有采用main分支新增experimental API，也不降低sandbox/CSP/上下文隔离。
+
+依赖提取用现成[Microsoft TypeScript v5.9.3](https://github.com/microsoft/TypeScript/tree/v5.9.3) AST，Apache-2.0；只读本机已装package/library/LICENSE三文件，固定版本/SHA，noEmit/noLib/noResolve，不执行被审源码、不下载、不进运行树。原手写mask的注释/正则缺陷保留RED后替换，88份原runtime specifier结果与旧受检数组逐项一致。
+
+sharp0.35.5及126原生/依赖文件与许可材料逐字节装配到D准备树，仍不在Git分发。不同传递依赖各自许可不变，不把全部统称Apache。受检prepare只证明闭包和实际图片编码可用，未运行材料ASAR封包或签署安装；原资源白名单/安全门禁保持。
